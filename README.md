@@ -1,8 +1,5 @@
-# Deso Examples React
-
-This is a simple [Create React
-App](https://create-react-app.dev/docs/getting-started) project, but these
-examples can be easily ported to your preferred framework or build tool.
+# Desocade
+Desocade is fun game!
 
 ## How to run these examples locally
 
