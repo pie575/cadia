@@ -23,7 +23,8 @@ export class Card{
         }else
             s=suit;
         this.suit=s;
-        if(value<2 || value>14) throw new Error('Invalid card value, should be 2 to 14 where 11=J, 12=Q, 13=K and 14=A');
+        if(value < 2 || value > 14) throw new Error('Invalid card value, should be within the options from 2 to A');
         this.value=value;
     }
+    // 2 to 14 where 11=J, 12=Q, 13=K and 14=A
 }
