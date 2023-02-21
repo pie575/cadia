@@ -8,10 +8,10 @@ import { useNavigate } from "react-router-dom";
 import "../styles/game.css";
 import FoldButton from "../assets/foldbutton.svg";
 import PokerTableImage from "../assets/pokertable.svg";
-import CardImg from "../assets/cards/testcard";
+import Cards from "../assets/cards/cards";
 import GoldPotImg from "../assets/goldpot.svg";
 import CoinImg from "../assets/coin.svg";
-
+import GameState from "../engine"
 const GameLay = () => {
   const Option  = (props) => {
     return (
@@ -27,14 +27,13 @@ const GameLay = () => {
   }
 
   const CommunityCards = () => {
-    const CurrCards = getState();
+    const CurrCards = GameState.useState();
+    const Card1 = Cards[0][0];
+    const Card2 = Cards[0][1];
     return (
-      <div class="card">
-        <img
-          src={CardImg}
-          alt=""
-          class="card-image"
-        />
+      <div className="community-cards">
+        <Card1 />
+        <Card2 />
       </div>
     );
   }
