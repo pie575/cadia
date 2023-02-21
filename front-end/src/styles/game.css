@@ -119,7 +119,16 @@
     background-position: 0px 0px;
     background-size: auto;
   }
+
+  .community-cards {
+    height: 15vh;
+  }
   
+  svg {
+    height: 100%;
+    width: 100%;
+    
+  }
   .table-cards {
     position: fixed;
     display: -webkit-box;
