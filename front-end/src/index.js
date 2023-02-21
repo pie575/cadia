@@ -3,18 +3,20 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 import "./assets/fonts/Joystix/joystix.ttf";
-import Home from "./routes/Home";
+import Landing from "./routes/Landing";
+import Home from "./routes/Home"
+import Game from "./routes/Game"
 import { Root } from "./routes/root";
 import { SignAndSubmitTx } from "./routes/sign-and-submit-tx";
 import { SwitchAccount } from "./routes/switch-account";
 import { User } from "./routes/user";
-import Game from "./routes/Game.tsx"
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Root />,
     children: [
+      { path: "/landing", element: <Landing /> },
       { path: "/", element: <Home /> },
       {
         path: "/u/:username",
