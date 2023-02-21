@@ -1,4 +1,3 @@
-// import { Game } from './game';
 /*
 Each player is dealt two private cards ("Hole Cards" or "Pocket Cards"), after which there is a betting round.
 Then three community cards are dealt face up (the "Flop"), followed by a second betting round. A fourth
@@ -7,92 +6,124 @@ dealt face up (the "River")and the the fourth and final betting round. At the Sh
 best five-card hand they can make using any five cards from the two pocket cards and the five community cards
 (or Board Cards).
 */
+
+/* initialize the game with 2 players, each having 100 unit money, and big blind is 10 units */
 var { Game } = require('./game');
-//initialize with 2 players, each having 100 unit money, and initial bet is 10 unit
-var game = new Game([100, 100], 10);
-//a demo gameplay is shown bellow
+let players_balance = [100, 100];
+var game = new Game(players_balance, 10);
+let roundNames = ['preflop', 'flop', 'turn', 'river'];
+console.log('Game started');
+console.log('Players hands', game.getState().players.map((p: { hand: any; },i: any) => p.hand));
 
-console.log('\nround 1 - no cards dealt (ante up)');
-console.log(
-  'Players',
-  game.getState().players.map((p: { hand: any; },i: any) => p.hand),
-//   game.getState().players.map(function(m){
-//     return m.hand;
-//   }),
-  game.getState().pot
-);
-console.log('Table', game.getState().communityCards);
-game.startRound();
-game.bet(0); //for player 1
-game.raise(1, 20); //for player 2
-game.call(0);
-game.endRound();
-console.log("game pot", game.getState().pot);
-console.log("player 1 money", game.getState().players[0].balance);
-console.log("player 2 money", game.getState().players[1].balance);
-console.log("game round", game.round)
-console.log("game round states", game.__roundStates)
+var rl = require('readline-sync');
 
-// private pot:number=0;
-// private players:Array<Player>=[];
-// private deck:Deck=new Deck();
-// private table:Array<Card>=[];
-// private round:Array<Round>=[]; /* mapping each player to their betted amount and decision */
-// private __instance:Holdem=new Holdem();
-// private initialBet:number;
-// private __roundStates:Array<Array<Round>>=[];
+let single_player_left = false;
+for (let round_number = 1; round_number < 5; round_number++) {
+    if (single_player_left) {
+        break;
+    }
+    /* if the number of players who haven't all-in are less than 1, continue the game and skip the decision stage */
+    let nonallin_active_players = game.players.filter((p: { active: any; folded: any; allIn: any; }) => p.active === true && p.folded === false && p.allIn === false);
+    if (nonallin_active_players.length <= 1) {
+        console.log('community cards', game.getState().communityCards);
+        game.endRound();
+        continue;
+    }
+    console.log('round ' + roundNames[round_number - 1]);
+    console.log('current balance', game.getState().players.map((p: { balance: any; },i: any) => p.balance), ' pot ', game.getState().pot);
+    console.log('community cards', game.getState().communityCards);
+    game.startRound(round_number);
+    let last_player_raised = 0;
+    let round_is_over = false;
+    while (!round_is_over) {
+        for (let i = 0; i < game.players.length; i++) {
+            /* if the player is not active, folded, or all-ined, skip this player for this round's decision */
+            if (game.players[i].active === false || game.players[i].folded === true || game.players[i].allIn === true) {
+                console.log('Player ' + i + ' is not active, folded, or all-ined, skip this player for this round\'s decision');
+                let next_player = i + 1;
+                if (next_player === game.players.length) {
+                    next_player = 0;
+                }
+                if (next_player === last_player_raised) {
+                    round_is_over = game.RoundisOver();
+                    if (round_is_over) {
+                        break;
+                    }
+                    else {
+                        throw new Error('this error should not happen');
+                    }
+                }
+                continue;
+            }
+            /* if there is only one player left, that player won, and the game is over */
+            let active_players = game.players.filter((p: { active: any; folded: any}) => p.active === true && p.folded === false);
+            if (active_players.length === 1) {
+                round_is_over = true;
+                single_player_left = true;
+                break;
+            }
 
-console.log('\nround 2 - 3 cards dealt (flop)');
-console.log('Table', game.getState().communityCards);
-game.startRound();
-game.check(0); //for player 1
-game.check(1); //for player 2
-game.endRound();
+            let avaliable_actions = game.avaliableActions(i);
+            let max_to_bet = game.players[i].balance;
+            console.log("\n Player " + i + ", you can take the following actions: " + avaliable_actions);
+            takeAction(game, avaliable_actions, max_to_bet, i);
 
-console.log("game pot", game.getState().pot);
-console.log("player 1 money", game.getState().players[0].balance);
-console.log("player 2 money", game.getState().players[1].balance);
-console.log("game round", game.round)
-console.log("game round states", game.__roundStates)
-
-console.log('\nround 3 - 4 cards dealt');
-console.log('Table', game.getState().communityCards);
-game.startRound();
-game.raise(0, 50); //for player 1
-game.call(1); //for player 2
-game.endRound();
-
-console.log("game pot", game.getState().pot);
-console.log("player 1 money", game.getState().players[0].balance);
-console.log("player 2 money", game.getState().players[1].balance);
-console.log("game round", game.round)
-console.log("game round states", game.__roundStates)
-
-console.log('\nround 4 - 5 cards dealt (river)');
-console.log('Table', game.getState().communityCards);
-game.startRound();
-game.call(0); //for player 1
-game.call(1); //for player 2
-game.endRound();
-
-
-console.log("game pot", game.getState().pot);
-console.log("player 1 money", game.getState().players[0].balance);
-console.log("player 2 money", game.getState().players[1].balance);
-console.log("game round", game.round)
-console.log("game round states", game.__roundStates)
-
-
-console.log('\nend game');
-var result = game.checkResult();
-if (result.type == 'win') {
-  console.log('Player' + (result.index + 1) + ' won with ' + result.name);
-} else {
-  console.log('Draw');
+            /* check if the round is over right before the last player who raised */
+            let next_player = i + 1;
+            if (next_player === game.players.length) {
+                next_player = 0;
+            }
+            if (next_player === last_player_raised) {
+                round_is_over = game.RoundisOver();
+                if (round_is_over) {
+                    break;
+                }
+            }
+        }
+    }
+    game.endRound();
 }
 
-console.log("game pot", game.getState().pot);
-console.log("player 1 money", game.getState().players[0].balance);
-console.log("player 2 money", game.getState().players[1].balance);
-console.log("game round", game.round)
-console.log("game round states", game.__roundStates)
+function takeAction(game: typeof Game, avaliable_actions: string[], max_to_bet: number, i: number): void {
+    console.log(game.getState().players.map((p: { balance: any; },i: any) => p.balance));
+    let answer = rl.question('Please input your action: ');
+    answer = answer.toLowerCase();
+    if (avaliable_actions.includes(answer)) {
+        if (answer == "raise") {
+            console.log("Player " + i + ", you can bet up to " + max_to_bet);
+            let amount_to_raise =  rl.question('Please input your amount: ');
+            if (parseInt(amount_to_raise) > max_to_bet) {
+                console.log("Invalid amount! Please input again!");
+            }
+            else {
+                if (parseInt(amount_to_raise) === max_to_bet) {
+                    game.players[i].allIn = true;
+                }
+                game.raise(i, parseInt(amount_to_raise));
+            }
+        }
+        else if (answer == 'call') {
+            game.call(i);
+        }
+        else if (answer == 'fold') {
+            game.fold(i);
+        }
+        else if (answer == 'check') {
+            game.check(i);
+        }
+    }
+    else {
+        console.log("Invalid action! Please input again!");
+        takeAction(game, avaliable_actions, max_to_bet, i);
+    }
+}
+
+var result = game.checkResult(single_player_left);
+if (result.type === 'win') {
+    console.log('Player' + (result.index + 1) + ' won with ' + result.name);
+} 
+else {
+    console.log('Draw');
+}
+console.log('balance', game.getState().players.map((p: { balance: any; },i: any) => p.balance));
+
