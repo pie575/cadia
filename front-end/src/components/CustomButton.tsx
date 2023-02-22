@@ -1,6 +1,7 @@
 import * as React from "react";
-import { Button, Grid, Typography } from "@mui/material";
+import { Button, Grid } from "@mui/material";
 import BaseButton from "../assets/BaseButton.svg";
+import MaskedText from "./MaskedText";
 
 interface CustomButtonProps {
   text: string;
@@ -14,13 +15,14 @@ const CustomButton = ({ text, onClick }: CustomButtonProps) => {
         onClick={onClick}
         sx={{
           backgroundImage: `url(${BaseButton})`,
-          backgroundSize: "cover",
+          backgroundSize: "contain",
+          backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
-          width: "12vw",
-          height: "12vh",
+          width: "15vw",
+          height: "20vh",
         }}
       >
-        <Typography sx={{ fontFamily: "Joystix", fontSize: "1.25rem" }}>{text}</Typography>
+        <MaskedText text={text} fontSize="1.25rem" />
       </Button>
     </Grid>
   );

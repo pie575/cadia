@@ -5,6 +5,7 @@ import Astronaut from "../assets/Home/Astronaut.svg";
 import Scientist from "../assets/Home/Scientist.svg";
 import Space from "../containers/Space";
 import CustomButton from "../components/CustomButton";
+import MaskedText from "../components/MaskedText";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -12,13 +13,14 @@ const Landing = () => {
   return (
     <Space>
       <Grid item xs={12} sx={{ height: "30vh", zIndex: 1 }}>
-        <Typography sx={{ fontFamily: "Joystix", fontSize: "7rem" }}>DESOCADE</Typography>
+        <MaskedText text="Desocade" fontSize="7rem" shadow />
       </Grid>
       <Grid item xs={12} sx={{ height: "20vh", zIndex: 1 }}>
         <Typography
           sx={{
             fontFamily: "Joystix",
             fontSize: "2.5rem",
+            color: "white",
             textShadow: "0px 4px 0px #5D0A9D",
           }}
         >

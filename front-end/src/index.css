@@ -1,7 +1,8 @@
 body {
   background-position: 0px 0px;
+  background-color: black;
   background-size: auto;
-  background-image: url("./assets/background.svg");
+  background-image: url("./assets/Space/Space.svg");
 }
 
 code {

@@ -1,16 +1,16 @@
-/* eslint-disable prettier/prettier */
 import * as React from "react";
 import { Grid, Typography, IconButton } from "@mui/material";
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { useNavigate } from "react-router-dom";
 import { identity } from "@deso-core/identity";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from "@mui/icons-material/Login";
+import MessageIcon from "@mui/icons-material/Message";
+import { UserContext } from "../contexts";
 import { getDisplayName } from "../helpers";
 import Space from "../containers/Space";
-import Rules from "../assets/Home/Rules.svg";
 import CustomButton from "../components/CustomButton";
-import { UserContext } from "../contexts";
+import MaskedText from "../components/MaskedText";
+import Rules from "../assets/Home/Rules.svg";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -21,6 +21,12 @@ const Home = () => {
     <Space>
       <Grid container>
         <Grid container sx={{ alignItems: "center", justifyContent: "right" }}>
+          <Grid item sx={{ margin: "0 10px" }}>
+            <IconButton size="large" onClick={() => navigate("/contact-us")}>
+              <MessageIcon sx={{ fontSize: "2.5rem", color: "white" }} />
+            </IconButton>
+          </Grid>
+          <Grid item flexGrow={1} />
           <Grid item>
             {currentUser && <Typography sx={{ fontFamily: "Joystix" }}>{getDisplayName(currentUser)}</Typography>}
           </Grid>
@@ -38,7 +44,7 @@ const Home = () => {
         </Grid>
 
         <Grid item xs={12}>
-          <Typography sx={{ fontFamily: "Joystix", fontSize: "1.5rem" }}>A virtual arcade</Typography>
+          <MaskedText text="A virtual arcade" fontSize="2rem" shadow />
         </Grid>
         <Grid
           item
@@ -50,7 +56,7 @@ const Home = () => {
             backgroundPosition: "center",
             width: "60vw",
             height: "50vh",
-            margin: "20px",
+            margin: "20px 0 0 0",
           }}
         />
         <CustomButton text="START" onClick={() => navigate("/game")} />

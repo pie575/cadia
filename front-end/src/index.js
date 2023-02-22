@@ -6,10 +6,8 @@ import "./assets/fonts/Joystix/joystix.ttf";
 import Landing from "./routes/Landing";
 import Home from "./routes/Home"
 import Game from "./routes/Game"
+import Contact from "./routes/Contact"
 import { Root } from "./routes/root";
-import { SignAndSubmitTx } from "./routes/sign-and-submit-tx";
-import { SwitchAccount } from "./routes/switch-account";
-import { User } from "./routes/user";
 
 const router = createBrowserRouter([
   {
@@ -19,20 +17,12 @@ const router = createBrowserRouter([
       { path: "/", element: <Landing /> },
       { path: "/home", element: <Home /> },
       {
-        path: "/u/:username",
-        element: <User />,
-      },
-      {
-        path: "/sign-and-submit-tx",
-        element: <SignAndSubmitTx />,
-      },
-      {
-        path: "/switch-account",
-        element: <SwitchAccount />,
-      },
-      {
         path: "/game",
         element: <Game />,
+      },
+      {
+        path: "/contact-us",
+        element: <Contact />,
       },
     ],
   },
