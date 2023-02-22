@@ -27,7 +27,7 @@ const GameLay = () => {
   }
 
   const CommunityCards = () => {
-    const CurrCards = GameState.useState();
+    const CurrCards = GameState;
     const Card1 = Cards[0][0];
     const Card2 = Cards[0][1];
     return (

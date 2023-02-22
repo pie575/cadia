@@ -1,4 +1,4 @@
-import { Deck } from "./deck";
+import { Deck } from "./Deck";
 import { Card } from "./Card";
 import { Holdem, HandValue, Result } from "./Holdem";
 
