@@ -8,6 +8,7 @@ interface Player{
     // totalBet:number; /* sticks to the game */
     allIn:boolean; /* sticks to the game */
     folded:boolean; /* sticks to this game */
+    index: number; /* sticks to this tournament */
     active:boolean; /* sticks to this tournament */
     bigBlind:boolean; /* sticks to this tournament */
     smallBlind:boolean; /* sticks to this tournament */
@@ -21,7 +22,7 @@ interface Player_Round{
 export interface GameState{
     pot:number; /* Current pot amount */
     communityCards:Array<Card>; /* Community cards at the table */
-    /* Player statuses */
+    /* Player status */
     players:Array<{
         balance:number, /* Total amount of money a player have - what was betted in this round */
         hand:Array<Card>, /* Player cards */
@@ -30,6 +31,7 @@ export interface GameState{
         bigBlind:boolean, /* Whether the player is the big blind. DEPEND ON LAST GAME */
         smallBlind:boolean, /* Whether the player is the small blind.  DEPEND ON LAST GAME */
         allIn:boolean, /* Whether the player is all in */
+        index:number, /* Player index, relative seat position */
         // totalBet:number, /* Total amount of money betted in this round */
     }>;
 }
@@ -44,13 +46,17 @@ export class Game{
     private round:Array<Player_Round>=[]; /* mapping each player to their current bet and decision */
     private __instance:Holdem=new Holdem();
     private bigBlind:number;
+    private bigBlind_index:number;
+    private smallBlind_index:number;
     private __roundStates:Array<Array<Player_Round>>=[];
     /** Inititalizes the Game
      * @param playerMoney   Array of player money to start with, number of players will be of same length
      * @param initialBet    Minimum betting amount to start with 
      */
-    constructor(playerMoney:Array<number>,bigBlind:number){
+    constructor(playerMoney:Array<number>, bigBlind:number, bigBlind_index:number, smallBlind_index:number){
         this.bigBlind=bigBlind;
+        this.bigBlind_index=bigBlind_index;
+        this.smallBlind_index=smallBlind_index;
         this.newGame(playerMoney);
     }
     /** Starts a new game round: 
@@ -69,15 +75,22 @@ export class Game{
                 hand:this.deck.getCards(2),
                 folded:false,
                 active:true,
-                bigBlind: false,
-                smallBlind: false,
-                totalBet: 0,
                 allIn: false,
+                bigBlind: false, /* will be set later */
+                smallBlind: false, /* will be set later */
+                index: 0, /* will be set later */
             }
         });
-        /* make the first player the big blind, the second the small blind */
-        this.players[0].bigBlind=true; 
-        this.players[1].smallBlind=true; 
+        /* initialize player index, player balance, player big blind and small blind */
+        for (var i = 0; i < this.players.length; i++) {
+            this.players[i].index = i;
+            if (this.bigBlind_index == i) {
+                this.players[i].bigBlind = true;
+            }
+            if (this.smallBlind_index == i) {
+                this.players[i].smallBlind = true;
+            }
+        }
     }
     /* Returns the current game state */
     getState():GameState{
@@ -96,6 +109,7 @@ export class Game{
                     currentBet:(this.round.length && this.round[index].current_bet)||0,
                     // totalBet: player.totalBet,
                     allIn: player.allIn,
+                    index: player.index,
                 }
             })
         }
@@ -132,7 +146,7 @@ export class Game{
         let total_blinds = 0;
         let foundBigBlind = false;
         let foundSmallBlind = false;
-        for (let index = 0; index < this.players.length; index++) {
+        for (var index = 0; index < this.players.length; index++) {
             if (this.players[index].active == false) {
                 continue;
             }
@@ -156,6 +170,7 @@ export class Game{
                     }
                 }
                 this.players[nextPlayer].bigBlind = true;
+                this.bigBlind_index = nextPlayer;
                 foundBigBlind = true;
                 break; /* found the big blind, break out of the loop */
             }
@@ -183,6 +198,7 @@ export class Game{
                     }
                 }
                 this.players[nextPlayer].smallBlind = true; 
+                this.smallBlind_index = nextPlayer;
                 foundSmallBlind = true;
                 break; /* found the small blind, break out of the loop */
             }
@@ -308,7 +324,7 @@ export class Game{
                 }
             }
         }
-        this.newGame(this.players.map(m=>m.balance));
+        // this.newGame(this.players.map(m=>m.balance));
         return result;
     }
     /* Returns the avaliable actions for a player */
