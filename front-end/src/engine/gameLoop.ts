@@ -10,7 +10,7 @@ best five-card hand they can make using any five cards from the two pocket cards
 /* initialize the game with 2 players, each having 100 unit money, and big blind is 10 units */
 
 var { Game } = require('./game');
-let players_balance = [100, 100];
+let players_balance = [100, 100]; /* pass in */
 let bigBlind_amount = 10
 let bigBlind_index = 0;
 let smallBlind_index = 1;
