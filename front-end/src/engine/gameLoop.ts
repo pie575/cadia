@@ -16,8 +16,10 @@ let bigBlind_index = 0;
 let smallBlind_index = 1;
 
 /* allow the game to be played as a tournament */
-while (true) {
-    var game = new Game(players_balance, bigBlind_amount, bigBlind_index, smallBlind_index);
+// while (true) {
+var game = new Game(players_balance, bigBlind_amount, bigBlind_index, smallBlind_index);
+
+function startGame(game: typeof Game): void {
     let roundNames = ['preflop', 'flop', 'turn', 'river'];
     console.log('A new game started');
     console.log('Players hands', game.getState().players.map((p: { hand: any; },i: any) => p.hand));
@@ -89,41 +91,6 @@ while (true) {
         }
         game.endRound();
     }
-
-    function takeAction(game: typeof Game, avaliable_actions: string[], max_to_bet: number, i: number): void {
-        console.log(game.getState().players.map((p: { balance: any; },i: any) => p.balance));
-        let answer = rl.question('Please input your action: ');
-        answer = answer.toLowerCase();
-        if (avaliable_actions.includes(answer)) {
-            if (answer == "raise") {
-                console.log("Player " + i + ", you can bet up to " + max_to_bet);
-                let amount_to_raise =  rl.question('Please input your amount: ');
-                if (parseInt(amount_to_raise) > max_to_bet) {
-                    console.log("Invalid amount! Please input again!");
-                }
-                else {
-                    if (parseInt(amount_to_raise) === max_to_bet) {
-                        game.players[i].allIn = true;
-                    }
-                    game.raise(i, parseInt(amount_to_raise));
-                }
-            }
-            else if (answer == 'call') {
-                game.call(i);
-            }
-            else if (answer == 'fold') {
-                game.fold(i);
-            }
-            else if (answer == 'check') {
-                game.check(i);
-            }
-        }
-        else {
-            console.log("Invalid action! Please input again!");
-            takeAction(game, avaliable_actions, max_to_bet, i);
-        }
-    }
-
     var result = game.checkResult(single_player_left);
     if (result.type === 'win') {
         console.log('Player' + (result.index + 1) + ' won with ' + result.name);
@@ -135,8 +102,45 @@ while (true) {
     players_balance = game.players.map((p: { balance: any; },i: any) => p.balance);
     bigBlind_index = game.bigBlind_index;
     smallBlind_index = game.smallBlind_index;
-    /* if any player runs out of money, the tournament is over */
-    if (players_balance.some((p: any) => p === 0)) {
-        break;
+}
+
+function takeAction(game: typeof Game, avaliable_actions: string[], max_to_bet: number, i: number): void {
+    console.log(game.getState().players.map((p: { balance: any; },i: any) => p.balance));
+    var rl = require('readline-sync');
+    let answer = rl.question('Please input your action: ');
+    answer = answer.toLowerCase();
+    if (avaliable_actions.includes(answer)) {
+        if (answer == "raise") {
+            console.log("Player " + i + ", you can bet up to " + max_to_bet);
+            let amount_to_raise =  rl.question('Please input your amount: ');
+            if (parseInt(amount_to_raise) > max_to_bet) {
+                console.log("Invalid amount! Please input again!");
+            }
+            else {
+                if (parseInt(amount_to_raise) === max_to_bet) {
+                    game.players[i].allIn = true;
+                }
+                game.raise(i, parseInt(amount_to_raise));
+            }
+        }
+        else if (answer == 'call') {
+            game.call(i);
+        }
+        else if (answer == 'fold') {
+            game.fold(i);
+        }
+        else if (answer == 'check') {
+            game.check(i);
+        }
+    }
+    else {
+        console.log("Invalid action! Please input again!");
+        takeAction(game, avaliable_actions, max_to_bet, i);
     }
 }
+
+//     /* if any player runs out of money, the tournament is over */
+//     if (players_balance.some((p: any) => p === 0)) {
+//         break;
+//     }
+// }
