@@ -14,23 +14,25 @@ const Game = () => {
   const [settingsOpen, setSettingsOpen] = React.useState(false);
 
   return (
-    <Grid sx={{ backgroundImage: `url(${Space})` }}>
-      <Grid container sx={{ alignContent: "center", alignItems: "center" }}>
-        <Grid item xs={6} sx={{ display: "flex", justifyContent: "start" }}>
-          <Button onClick={() => navigate("/home")}>
-            <KeyboardArrowLeftIcon fontSize="large" sx={{ color: "white" }} />
-            <MaskedText text="Back" fontSize="1rem" />
-          </Button>
+    <div>
+      <Grid sx={{ backgroundImage: `url(${Space})` }}>
+        <Grid container sx={{ alignContent: "center", alignItems: "center" }}>
+          <Grid item xs={6} sx={{ display: "flex", justifyContent: "start" }}>
+            <Button onClick={() => navigate("/home")}>
+              <KeyboardArrowLeftIcon fontSize="large" sx={{ color: "white" }} />
+              <MaskedText text="Back" fontSize="1rem" />
+            </Button>
+          </Grid>
+          <Grid item xs={6} sx={{ display: "flex", justifyContent: "end" }}>
+            <IconButton aria-label="Settings" onClick={() => setSettingsOpen(true)}>
+              <img src={SettingsWheel} alt="Settings Button" style={{ width: "3vw" }} />
+            </IconButton>
+          </Grid>
         </Grid>
-        <Grid item xs={6} sx={{ display: "flex", justifyContent: "end" }}>
-          <IconButton aria-label="Settings" onClick={() => setSettingsOpen(true)}>
-            <img src={SettingsWheel} alt="Settings Button" style={{ width: "3vw" }} />
-          </IconButton>
-        </Grid>
+        <SettingsDialog open={settingsOpen} handleClose={() => setSettingsOpen(false)} />
       </Grid>
       <GameLay />
-      <SettingsDialog open={settingsOpen} handleClose={() => setSettingsOpen(false)} />
-    </Grid>
+    </div>
   );
 };
 

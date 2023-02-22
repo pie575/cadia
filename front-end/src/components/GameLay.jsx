@@ -34,6 +34,9 @@ const GameLay = () => {
       <div className="community-cards">
         <Card1 />
         <Card2 />
+        <Card1 />
+        <Card1 />
+        <Card1 />
       </div>
     );
   }
@@ -84,6 +87,7 @@ const GameLay = () => {
             <div class="center-cards">
               <CommunityCards />
             </div>
+            
             <div class="player-side">
               <div class="side">
                 <div class="bet">

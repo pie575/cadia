@@ -92,7 +92,6 @@
     -webkit-align-items: center;
     -ms-flex-align: center;
     align-items: center;
-    background-image: url("https://uploads-ssl.webflow.com/63f3f687ba0c76b741bfe83a/63f3f6fa2ec48a45026d0e0c_background.svg");
     background-position: 0px 0px;
     background-size: auto;
   }
@@ -122,6 +121,10 @@
 
   .community-cards {
     height: 15vh;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   
   svg {
@@ -151,24 +154,18 @@
   
   .center-cards {
     position: relative;
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
     display: flex;
-    -webkit-box-pack: center;
-    -webkit-justify-content: center;
-    -ms-flex-pack: center;
     justify-content: center;
-    -webkit-box-align: center;
-    -webkit-align-items: center;
-    -ms-flex-align: center;
     align-items: center;
+    
   }
   
   .card {
     position: relative;
     z-index: 2;
     height: 15vh;
+    margin-left: 8px;
+    margin-right: 8px;
   }
   
   .image {
@@ -177,7 +174,8 @@
   }
   
   .card-image {
-    width: 100%;
+    position: relative;
+    width: auto;
     height: 100%;
   }
   
@@ -315,42 +313,4 @@
     margin-left: 1vw;
   }
   
-  @media screen and (max-width: 991px) {
-    .container {
-      max-width: 728px;
-    }
   
-    .hero-wrapper {
-      margin-bottom: -40px;
-      -webkit-box-orient: vertical;
-      -webkit-box-direction: normal;
-      -webkit-flex-direction: column;
-      -ms-flex-direction: column;
-      flex-direction: column;
-      -webkit-box-pack: start;
-      -webkit-justify-content: flex-start;
-      -ms-flex-pack: start;
-      justify-content: flex-start;
-      -webkit-box-align: start;
-      -webkit-align-items: flex-start;
-      -ms-flex-align: start;
-      align-items: flex-start;
-    }
-  
-    .hero-split {
-      max-width: 100%;
-      margin-bottom: 40px;
-    }
-  }
-  
-  @media screen and (max-width: 767px) {
-    .hero-heading-left {
-      padding: 60px 15px;
-    }
-  }
-  
-  @media screen and (max-width: 479px) {
-    .container {
-      max-width: none;
-    }
-  }
