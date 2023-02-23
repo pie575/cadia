@@ -10,6 +10,24 @@ import GameButton from "../components/Game/GameButton";
 import "../styles/game.css";
 
 const GameLay = () => {
+  // const [gameState, setGameState] = React.useState<GameState>({
+  //   pot: 0,
+  // });
+
+  // setGameState({ ...gameState, pot: 100 });
+
+  // React.useEffect(() => {
+  //   // initialize game
+  //   // add user chatgpt
+  //   // add player
+  // }, []);
+
+  // React.useEffect(() => {
+  //   // preround check
+  //   // chat gpt user goes
+  //   // we "go"
+  // }, [roundNumber, roundContinues]);
+
   return (
     <Grid container>
       <Grid item sx={{ width: "80vw", height: "90vh", position: "fixed", left: "10vw", top: "5vh" }}>
