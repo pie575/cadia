@@ -9,10 +9,13 @@ import GameButton from "../components/Game/GameButton";
 import CashOutBack from "../assets/cashoutback.svg";
 import "../styles/game.css";
 import RaiseOverlay from "../components/Game/RaiseOverlay";
-import MaskedText from "../components/MaskedText";
+import CashOutDialog from "../components/Game/CashOutDialog";
+// import MaskedText from "../components/MaskedText";
 
 const GameLay = () => {
-  const [raiseOverlayOpen, setRaiseOverlayOpen] = React.useState<boolean>(true);
+  const [raiseOverlayOpen, setRaiseOverlayOpen] = React.useState<boolean>(false);
+  const [cashOutDialogOpen, setCashOutDialogOpen] = React.useState<boolean>(false);
+
   // const [gameState, setGameState] = React.useState<GameState>({
   //   pot: 0,
   // });
@@ -60,7 +63,7 @@ const GameLay = () => {
           <Grid item xs={2}>
             <Grid item sx={{ margin: "auto" }}>
               <Button
-                onClick={() => {}}
+                onClick={() => setCashOutDialogOpen(true)}
                 sx={{
                   backgroundImage: `url(${CashOutBack})`,
                   backgroundSize: "contain",
@@ -176,6 +179,7 @@ const GameLay = () => {
         addToPot={() => {}}
         handleClose={() => setRaiseOverlayOpen(false)}
       />
+      <CashOutDialog open={cashOutDialogOpen} handleClose={() => setCashOutDialogOpen(false)} />
     </Grid>
   );
 };
