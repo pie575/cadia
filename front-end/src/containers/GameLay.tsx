@@ -7,26 +7,10 @@ import CommunityCards from "../components/Game/CommunityCards";
 import UserCards from "../components/Game/UserCards";
 import GameButton from "../components/Game/GameButton";
 import "../styles/game.css";
+import RaiseOverlay from "../components/Game/RaiseOverlay";
 
-const Options = () => {
-  return (
-    <Grid container sx={{ width: "65vw", marginTop: "5vh" }}>
-      <Grid item xs={3}>
-        <GameButton available text="fold" onClick={() => {}} />
-      </Grid>
-      <Grid item xs={3}>
-        <GameButton available text="check" onClick={() => {}} />
-      </Grid>
-      <Grid item xs={3}>
-        <GameButton available text="call" onClick={() => {}} />
-      </Grid>
-      <Grid item xs={3}>
-        <GameButton available={false} text="raise" onClick={() => {}} />
-      </Grid>
-    </Grid>
-  );
-};
 const GameLay = () => {
+  const [raiseOverlayOpen, setRaiseOverlayOpen] = React.useState<boolean>(true);
   // const [gameState, setGameState] = React.useState<GameState>({
   //   pot: 0,
   // });
@@ -127,8 +111,28 @@ const GameLay = () => {
             <img src={GoldPotImg} style={{ width: "10vw", height: "10vh" }} alt="Pot of Gold" />
           </Grid>
         </Grid>
-        <Options />
+        <Grid container sx={{ width: "65vw", marginTop: "5vh" }}>
+          <Grid item xs={3}>
+            <GameButton text="fold" onClick={() => {}} />
+          </Grid>
+          <Grid item xs={3}>
+            <GameButton text="check" onClick={() => {}} />
+          </Grid>
+          <Grid item xs={3}>
+            <GameButton text="call" onClick={() => {}} />
+          </Grid>
+          <Grid item xs={3}>
+            <GameButton text="raise" onClick={() => setRaiseOverlayOpen(true)} />
+          </Grid>
+        </Grid>
       </Grid>
+      <RaiseOverlay
+        open={raiseOverlayOpen}
+        userBalance={100}
+        setUserBalance={() => {}}
+        addToPot={() => {}}
+        handleClose={() => setRaiseOverlayOpen(false)}
+      />
     </Grid>
   );
 };
