@@ -8,27 +8,14 @@ import UserCards from "../components/Game/UserCards";
 import GameButton from "../components/Game/GameButton";
 import CashOutBack from "../assets/cashoutback.svg";
 import "../styles/game.css";
-import MaskedText from "../components/MaskedText";
+import RaiseOverlay from "../components/Game/RaiseOverlay";
+import CashOutDialog from "../components/Game/CashOutDialog";
+// import MaskedText from "../components/MaskedText";
 
-const Options = () => {
-  return (
-    <Grid container sx={{ width: "65vw", marginTop: "5vh" }}>
-      <Grid item xs={3}>
-        <GameButton available text="fold" onClick={() => {}} />
-      </Grid>
-      <Grid item xs={3}>
-        <GameButton available text="check" onClick={() => {}} />
-      </Grid>
-      <Grid item xs={3}>
-        <GameButton available text="call" onClick={() => {}} />
-      </Grid>
-      <Grid item xs={3}>
-        <GameButton available={false} text="raise" onClick={() => {}} />
-      </Grid>
-    </Grid>
-  );
-};
 const GameLay = () => {
+  const [raiseOverlayOpen, setRaiseOverlayOpen] = React.useState<boolean>(false);
+  const [cashOutDialogOpen, setCashOutDialogOpen] = React.useState<boolean>(false);
+
   // const [gameState, setGameState] = React.useState<GameState>({
   //   pot: 0,
   // });
@@ -76,7 +63,7 @@ const GameLay = () => {
           <Grid item xs={2}>
             <Grid item sx={{ margin: "auto" }}>
               <Button
-                onClick={() => {}}
+                onClick={() => setCashOutDialogOpen(true)}
                 sx={{
                   backgroundImage: `url(${CashOutBack})`,
                   backgroundSize: "contain",
@@ -170,8 +157,29 @@ const GameLay = () => {
             </Typography>
           </Grid>
         </Grid>
-        <Options />
+        <Grid container sx={{ width: "65vw", marginTop: "5vh" }}>
+          <Grid item xs={3}>
+            <GameButton text="fold" onClick={() => {}} />
+          </Grid>
+          <Grid item xs={3}>
+            <GameButton text="check" onClick={() => {}} />
+          </Grid>
+          <Grid item xs={3}>
+            <GameButton text="call" onClick={() => {}} />
+          </Grid>
+          <Grid item xs={3}>
+            <GameButton text="raise" onClick={() => setRaiseOverlayOpen(true)} />
+          </Grid>
+        </Grid>
       </Grid>
+      <RaiseOverlay
+        open={raiseOverlayOpen}
+        userBalance={100}
+        setUserBalance={() => {}}
+        addToPot={() => {}}
+        handleClose={() => setRaiseOverlayOpen(false)}
+      />
+      <CashOutDialog open={cashOutDialogOpen} handleClose={() => setCashOutDialogOpen(false)} />
     </Grid>
   );
 };
