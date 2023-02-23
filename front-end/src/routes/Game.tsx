@@ -8,7 +8,7 @@ import Space from "../assets/Space/Space.svg";
 // import SettingsWheel from "../assets/SettingsWheel.svg";
 import MaskedText from "../components/MaskedText";
 import LeaderboardDialog from "../components/Game/LeaderboardDialog";
-import GameEnd from "../components/Game/GameEnd";
+// import GameEnd from "../components/Game/GameEnd";
 
 const Game = () => {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ const Game = () => {
             </IconButton>
           </Grid>
         </Grid>
-        <GameEnd open={leaderboardOpen} handleClose={() => setLeaderboardOpen(false)} />
+        <LeaderboardDialog open={leaderboardOpen} handleClose={() => setLeaderboardOpen(false)} />
       </Grid>
       <GameLay />
     </div>
