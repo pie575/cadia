@@ -9,40 +9,20 @@ import GameButton from "../components/Game/GameButton";
 import CashOutBack from "../assets/cashoutback.svg";
 import { GameState, startRound, dealBlinds, check, raise, call, fold, 
   RoundisOver, checkResult, avaliableActions, computeHand} from "../engine/game";
+import { Holdem } from "../engine/Holdem";
 import { Deck } from "../engine/Deck";
 import "../styles/game.css";
 import RaiseOverlay from "../components/Game/RaiseOverlay";
 import CashOutDialog from "../components/Game/CashOutDialog";
 // import MaskedText from "../components/MaskedText";
 
-const GameLay = () => {
+const GameLay = (bigBlind_amount: number) => {
   const [raiseOverlayOpen, setRaiseOverlayOpen] = React.useState<boolean>(false);
   const [cashOutDialogOpen, setCashOutDialogOpen] = React.useState<boolean>(false);
 
-  // const [gameState, setGameState] = React.useState<GameState>({
-  //   pot: 0,
-  // });
-
-  // setGameState({ ...gameState, pot: 100 });
-
-  // React.useEffect(() => {
-  //   // initialize game
-  //   // add user chatgpt
-  //   // add player
-  // }, []);
-
-  // React.useEffect(() => {
-  //   // preround check
-  //   // chat gpt user goes
-  //   // we "go"
-  // }, [roundNumber, roundContinues]);
-import { Holdem } from "../engine/Holdem";
-import { ReadableStreamDefaultController } from "node:stream/web";
-
-const GameLay = (bigBlind_amount: number) => {
-
   const userIndex = 1;
   const playerMoney = [100, 100];
+  let player_turn = false 
   
   const [gameState, setGameState] = React.useState<GameState>({
     pot: 0,
@@ -55,6 +35,7 @@ const GameLay = (bigBlind_amount: number) => {
     bigBlind_index: 0,
     smallBlind_index: 1,
     roundNumber: 0,
+    last_player_raised: 0,
     communityCards: [],
     players: [],
   });
@@ -62,19 +43,6 @@ const GameLay = (bigBlind_amount: number) => {
   const setStatehelper = (updatedState: Partial<GameState>) => {
     setGameState({ ...gameState, ...updatedState });
   };
-
-  const userFold = (gameState: GameState, index: number, setStatehelper: Function) => {
-    fold(gameState, index, setStatehelper);
-  };
-  const userRaise = (gameState: GameState, index: number, amount_to_raise: number, setStatehelper: Function) => {
-    raise(gameState, index, amount_to_raise, setStatehelper);
-  };
-  const userCall = (gameState: GameState, index: number, setStatehelper: Function) => {
-    call(gameState, index, setStatehelper);
-  };
-  const userCheck = (gameState: GameState, index: number, setStatehelper: Function) => {
-    check(gameState, index, roundNumber, setStatehelper);
-  };  
 
   /* Initialize game */
   React.useEffect(() => {
@@ -104,7 +72,6 @@ const GameLay = (bigBlind_amount: number) => {
   React.useEffect(() => {
   }, []);
 
-
   function handleFold(index: number) {
     fold(gameState, index, setStatehelper);
   }
@@ -117,9 +84,9 @@ const GameLay = (bigBlind_amount: number) => {
   function handleCheck(index: number, roundNumber: number) {
     check(gameState, index, roundNumber, setStatehelper);
   }
-
   let roundNumber = 1;
   let single_player_left = false;
+
   React.useEffect(() => {
     if (roundNumber === 5) {
       return;
@@ -137,6 +104,76 @@ const GameLay = (bigBlind_amount: number) => {
         roundNumber++;
     }
     else {
+        decisionStage(gameState, roundNumber);
+    }
+    roundNumber++;
+    if (roundNumber === 5 || single_player_left) {
+      var result = checkResult(gameState, single_player_left, setStatehelper);
+      if (result.type === 'win') {
+        if (result.index != undefined)
+          console.log('Player' + (result.index + 1) + ' won with ' + result.name);
+      } 
+      else {
+          console.log('Draw');
+      }
+    }
+  }, [roundNumber]);
+  
+  let id = 0;
+  let round_is_over = false;
+  /* pre-check for this round before player id takes action */
+  for (let i = 0; i < 5; i++) {
+  React.useEffect(() => {
+    if (gameState.players[id].active === false || gameState.players[id].folded === true || gameState.players[id].allIn === true) {
+      let next_player = id + 1;
+      if (next_player === gameState.players.length) {
+          next_player = 0;
+      }
+      if (next_player === gameState.last_player_raised) {
+          round_is_over = RoundisOver(gameState);
+          if (round_is_over) {
+              break;
+          }
+          else {
+              throw new Error('this error should not happen');
+          }
+      }
+      return;
+    }
+    let active_players = gameState.players.filter((p: { active: any; folded: any}) => p.active === true && p.folded === false);
+    if (active_players.length === 1) {
+        round_is_over = true;
+        single_player_left = true;
+        return;
+    }
+    let avaliable_actions = avaliableActions(gameState, id);
+    console.log("\n Player " + id + ", you can take the following actions: " + avaliable_actions);
+  }, [id, round_is_over]);}
+  player_turn = true; // player can take action
+  timer = setTimeout(() => {
+    player_turn = false; // player cannot take action
+    let next_player = id + 1;
+    if (next_player === gameState.players.length) { 
+
+      next_player = 0;
+    }
+
+  React.useEffect(() => {
+    let next_player = id + 1;
+    if (next_player === gameState.players.length) {
+        next_player = 0;
+    }
+    if (next_player === gameState.last_player_raised) {
+        round_is_over = RoundisOver(gameState);
+        if (round_is_over) {
+            break;
+        }
+    }
+  }, []);
+
+
+  // const decisionStage = (gameState: GameState, roundNumber: number) => { 
+  function decisionStage (gameState: GameState, roundNumber: number) {
       let last_player_raised = 0;
       let round_is_over = false;
       while (!round_is_over) {
@@ -167,8 +204,9 @@ const GameLay = (bigBlind_amount: number) => {
             }
 
             let avaliable_actions = avaliableActions(gameState, i); // visualize
-            let max_to_bet = gameState.players[i].balance;
+            // let max_to_bet = gameState.players[i].balance;
             console.log("\n Player " + i + ", you can take the following actions: " + avaliable_actions);
+      
             const waituserInput = async () => {
               const action = await takeAction();
             };
@@ -191,18 +229,7 @@ const GameLay = (bigBlind_amount: number) => {
         }
     }
   }
-    roundNumber++;
-  }, [roundNumber]);
-
-  var result = checkResult(gameState, single_player_left, setStatehelper);
-  if (result.type === 'win') {
-    if (result.index != undefined)
-      console.log('Player' + (result.index + 1) + ' won with ' + result.name);
-  } 
-  else {
-      console.log('Draw');
   }
-
   return (
     <Grid container>
       <Grid item sx={{ width: "80vw", height: "90vh", position: "fixed", left: "10vw", top: "5vh" }}>
@@ -325,7 +352,7 @@ const GameLay = (bigBlind_amount: number) => {
               100
             </Typography>
           </Grid>
-          <Grid container sx={{ width: "60vw", marginTop: "5vh" }}>
+          <Grid container sx={{ width: "65vw", marginTop: "5vh" }}>
             <Grid item xs={3}>
               <GameButton text="fold" onClick={() => handleFold(userIndex)} />
             </Grid>
@@ -336,7 +363,7 @@ const GameLay = (bigBlind_amount: number) => {
               <GameButton text="call" onClick={() => handleCall(userIndex)} />
             </Grid>
             <Grid item xs={3}>
-              <GameButton text="raise" onClick={() => handleRaise(userIndex, amount_to_raise)} />
+              <GameButton text="raise" onClick={() => setRaiseOverlayOpen(true)} />
             </Grid>
           </Grid>
         </Grid>
@@ -347,10 +374,10 @@ const GameLay = (bigBlind_amount: number) => {
         setUserBalance={() => {}}
         addToPot={() => {}}
         handleClose={() => setRaiseOverlayOpen(false)}
+        onClick = {handleRaise(userIndex, amount_to_raise)}
       />
       <CashOutDialog open={cashOutDialogOpen} handleClose={() => setCashOutDialogOpen(false)} />
     </Grid>
   );
 };
-
 export default GameLay;
