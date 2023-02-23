@@ -331,4 +331,6 @@
     align-items: center;
   }
   
-  
+  .endgame-card {
+    height: 20vh;
+  }
