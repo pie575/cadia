@@ -27,7 +27,7 @@ export interface GameState{
     table:Array<Card>; /* Current table cards */
     deck:Deck; /* Current deck */
     __instance:Holdem; /* Current game instance */
-    bigBlind_amount:number; /* Current big blind amount */
+    bigBlindAmount:number; /* Current big blind amount */
     bigBlind_index:number; /* Current big blind index */
     smallBlind_index:number; /* Current small blind index */
     last_player_raised: number;
@@ -108,9 +108,9 @@ export function dealBlinds(gameState: GameState, setGameStateHelper: Function):v
             continue;
         }
         if (copy_players[id].bigBlind == true) {
-            total_blinds += gameState.bigBlind_amount;
-            copy_players[id].balance-=gameState.bigBlind_amount;
-            copy_round[id].current_bet += gameState.bigBlind_amount;
+            total_blinds += gameState.bigBlindAmount;
+            copy_players[id].balance-=gameState.bigBlindAmount;
+            copy_round[id].current_bet += gameState.bigBlindAmount;
             copy_players[id].bigBlind = false;
             copy_round[id].decision = "raise"; /* big blind is equvialent to a raise in the first round */
             /* find the next player who is still active to be the big blind */
@@ -135,9 +135,9 @@ export function dealBlinds(gameState: GameState, setGameStateHelper: Function):v
             continue;
         }
         if (copy_players[id].smallBlind == true) {
-            total_blinds += gameState.bigBlind_amount/2;
-            copy_players[id].balance-=gameState.bigBlind_amount/2;
-            copy_round[id].current_bet += gameState.bigBlind_amount/2;
+            total_blinds += gameState.bigBlindAmount/2;
+            copy_players[id].balance-=gameState.bigBlindAmount/2;
+            copy_round[id].current_bet += gameState.bigBlindAmount/2;
             copy_players[id].smallBlind = false;
             /* find the next player who is still active to be the big blind */
             let nextPlayer = id + 1;
