@@ -1,10 +1,9 @@
 import * as React from "react";
-import { Grid, Typography, IconButton } from "@mui/material";
+import { Grid, Typography, IconButton, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { identity } from "@deso-core/identity";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from "@mui/icons-material/Login";
-import MessageIcon from "@mui/icons-material/Message";
 import { UserContext } from "../contexts";
 import { getDisplayName } from "../helpers";
 import Space from "../containers/Space";
@@ -21,10 +20,23 @@ const Home = () => {
     <Space>
       <Grid container>
         <Grid container sx={{ alignItems: "center", justifyContent: "right" }}>
-          <Grid item sx={{ margin: "0 10px" }}>
-            <IconButton size="large" onClick={() => navigate("/contact-us")}>
-              <MessageIcon sx={{ fontSize: "2.5rem", color: "white" }} />
-            </IconButton>
+          <Grid item sx={{ margin: "0 10px", alignItems: "center" }}>
+            <Button
+              variant="contained"
+              sx={{ backgroundColor: "#EB9BD5" }}
+              onClick={() => window.open("https://openfund.com/d/Cadia?invite=XTMhK24k")}
+            >
+              <Typography
+                sx={{
+                  fontFamily: "Joystix",
+                  fontSize: "1rem",
+                  color: "white",
+                  // textShadow: "-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black",
+                }}
+              >
+                Our Openfund
+              </Typography>
+            </Button>
           </Grid>
           <Grid item flexGrow={1} />
           <Grid item>

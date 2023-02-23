@@ -1,16 +1,21 @@
 import * as React from "react";
 import { Grid } from "@mui/material";
-import Cards from "../../assets/cards/cards";
+import CardEntity from "../../assets/cards/CardEntity";
 
 const CommunityCards = () => {
   // const CurrCards = GameState.useState();
-  const Card1 = Cards[0][0];
-  const Card2 = Cards[0][1];
   return (
-    <Grid container className="community-cards" sx={{ height: "40vh" }}>
-      <Card1 />
-      <Card2 />
-    </Grid>
+    <div>
+      <Grid container className="community-cards" sx={{ height: "20vh" }}>
+        <CardEntity card="3h" />
+        <CardEntity card="3c" />
+        <CardEntity card="3c" />
+      </Grid>
+      <Grid container className="community-cards" sx={{ height: "20vh" }}>
+        <CardEntity card="3h" />
+        <CardEntity card="3c" />
+      </Grid>
+    </div>
   );
 };
 

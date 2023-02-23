@@ -1,14 +1,41 @@
 import * as React from "react";
-import { Grid, Typography } from "@mui/material";
+import { Button, Grid, Typography } from "@mui/material";
 import PokerTableImage from "../assets/pokertable.svg";
 import GoldPotImg from "../assets/goldpot.svg";
 import CoinImg from "../assets/coin.svg";
 import CommunityCards from "../components/Game/CommunityCards";
+import UserCards from "../components/Game/UserCards";
 import GameButton from "../components/Game/GameButton";
+import CashOutBack from "../assets/cashoutback.svg";
 import { GameState, startRound, dealBlinds, check, raise, call, fold, 
   RoundisOver, checkResult, avaliableActions, computeHand} from "../engine/game";
 import { Deck } from "../engine/Deck";
 import "../styles/game.css";
+import RaiseOverlay from "../components/Game/RaiseOverlay";
+import CashOutDialog from "../components/Game/CashOutDialog";
+// import MaskedText from "../components/MaskedText";
+
+const GameLay = () => {
+  const [raiseOverlayOpen, setRaiseOverlayOpen] = React.useState<boolean>(false);
+  const [cashOutDialogOpen, setCashOutDialogOpen] = React.useState<boolean>(false);
+
+  // const [gameState, setGameState] = React.useState<GameState>({
+  //   pot: 0,
+  // });
+
+  // setGameState({ ...gameState, pot: 100 });
+
+  // React.useEffect(() => {
+  //   // initialize game
+  //   // add user chatgpt
+  //   // add player
+  // }, []);
+
+  // React.useEffect(() => {
+  //   // preround check
+  //   // chat gpt user goes
+  //   // we "go"
+  // }, [roundNumber, roundContinues]);
 import { Holdem } from "../engine/Holdem";
 import { ReadableStreamDefaultController } from "node:stream/web";
 
@@ -183,52 +210,96 @@ const GameLay = (bigBlind_amount: number) => {
       </Grid>
       <Grid container className="actual-table" sx={{ marginTop: "3vh" }}>
         <Grid container sx={{ margin: "0 20vw", justifyItems: "flex-start", alignItems: "center" }}>
-          <Grid item xs={4} sx={{ display: "flex" }}>
-            <img src={CoinImg} style={{ width: "3vw", height: "5vh", marginRight: "5px" }} alt="Gold Coin" />
-            <Typography
-              sx={{
-                fontFamily: "Joystix",
-                fontSize: "1.5rem",
-                textShadow: "0px 4px 0px #5D0A9D",
-                color: "white",
-              }}
-            >
-              100
-            </Typography>
-          </Grid>
-          <Grid item xs={5}>
+          <Grid item xs={4} sx={{ display: "flex" }} />
+          <Grid
+            item
+            xs={4}
+            sx={{ display: "flex", alignContent: "center", justifyContent: "center", alignItems: "center" }}
+          >
             <Typography
               sx={{
                 fontFamily: "Joystix",
                 fontSize: "2.5rem",
                 textShadow: "0px 4px 0px #5D0A9D",
                 color: "white",
+                height: "10vh",
               }}
             >
               ChatGPT
             </Typography>
           </Grid>
-          <Grid item flexGrow={1} />
+          <Grid item xs={2} />
+          <Grid item xs={2}>
+            <Grid item sx={{ margin: "auto" }}>
+              <Button
+                onClick={() => setCashOutDialogOpen(true)}
+                sx={{
+                  backgroundImage: `url(${CashOutBack})`,
+                  backgroundSize: "contain",
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "center",
+                  width: "10vw",
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontFamily: "Joystix",
+                    fontSize: "1rem",
+                    textShadow: "0px 4px 0px #5D0A9D",
+                    color: "white",
+                  }}
+                >
+                  Cash Out
+                </Typography>{" "}
+              </Button>
+            </Grid>
+          </Grid>
         </Grid>
-        <CommunityCards />
+        <Grid
+          container
+          sx={{
+            position: "relative",
+          }}
+        >
+          <Grid item xs={2.5} />
+          <Grid
+            item
+            xs={1.5}
+            sx={{
+              display: "flex",
+              alignContent: "center",
+              justifyContent: "center",
+              flex: "center",
+              alignItems: "center",
+            }}
+          >
+            <div>
+              <img src={GoldPotImg} style={{ width: "10vw", height: "10vh" }} alt="Gold Pot" />
+              <Typography
+                sx={{
+                  fontFamily: "Joystix",
+                  fontSize: "1.5rem",
+                  textShadow: "0px 4px 0px #5D0A9D",
+                  color: "white",
+                }}
+              >
+                100
+              </Typography>
+            </div>
+          </Grid>
+          <Grid item xs={4}>
+            <CommunityCards />
+          </Grid>
+          <Grid item xs={4}>
+            <UserCards />
+          </Grid>
+        </Grid>
         <Grid
           container
           sx={{ margin: "0 20vw", justifyItems: "flex-start", alignItems: "center", alignContent: "center" }}
         >
-          <Grid item xs={4} sx={{ display: "flex", alignItems: "center" }}>
-            <img src={CoinImg} style={{ width: "3vw", height: "5vh", marginRight: "5px" }} alt="Gold Coin" />
-            <Typography
-              sx={{
-                fontFamily: "Joystix",
-                fontSize: "1.5rem",
-                textShadow: "0px 4px 0px #5D0A9D",
-                color: "white",
-              }}
-            >
-              100
-            </Typography>
-          </Grid>
-          <Grid item xs={5} className="gpt-bame">
+          <Grid item xs={4} sx={{ display: "flex", alignItems: "center" }} />
+          <Grid item xs={4} className="gpt-bame">
             <Typography
               sx={{
                 fontFamily: "Joystix",
@@ -240,8 +311,19 @@ const GameLay = (bigBlind_amount: number) => {
               You
             </Typography>
           </Grid>
-          <Grid item sx={{ display: "flex", justifyContent: "flex-end", flexGrow: 1 }}>
-            <img src={GoldPotImg} style={{ width: "10vw", height: "10vh" }} alt="Pot of Gold" />
+          <Grid item xs={2} />
+          <Grid item xs={2} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <img src={CoinImg} style={{ width: "5vw", height: "5vh" }} alt="Coin" />
+            <Typography
+              sx={{
+                fontFamily: "Joystix",
+                fontSize: "1.5rem",
+                textShadow: "0px 4px 0px #5D0A9D",
+                color: "white",
+              }}
+            >
+              100
+            </Typography>
           </Grid>
           <Grid container sx={{ width: "60vw", marginTop: "5vh" }}>
             <Grid item xs={3}>
@@ -259,6 +341,14 @@ const GameLay = (bigBlind_amount: number) => {
           </Grid>
         </Grid>
       </Grid>
+      <RaiseOverlay
+        open={raiseOverlayOpen}
+        userBalance={100}
+        setUserBalance={() => {}}
+        addToPot={() => {}}
+        handleClose={() => setRaiseOverlayOpen(false)}
+      />
+      <CashOutDialog open={cashOutDialogOpen} handleClose={() => setCashOutDialogOpen(false)} />
     </Grid>
   );
 };

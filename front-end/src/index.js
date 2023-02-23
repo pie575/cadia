@@ -6,7 +6,7 @@ import "./assets/fonts/Joystix/joystix.ttf";
 import Landing from "./routes/Landing";
 import Home from "./routes/Home"
 import Game from "./routes/Game"
-import Contact from "./routes/Contact"
+// import Contact from "./routes/Contact"
 import { Root } from "./routes/root";
 
 const router = createBrowserRouter([
@@ -20,10 +20,10 @@ const router = createBrowserRouter([
         path: "/game",
         element: <Game />,
       },
-      {
-        path: "/contact-us",
-        element: <Contact />,
-      },
+      // {
+      //   path: "/contact-us",
+      //   element: <Contact />,
+      // },
     ],
   },
 ]);

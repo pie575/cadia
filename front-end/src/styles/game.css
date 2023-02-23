@@ -164,8 +164,8 @@
     position: relative;
     z-index: 2;
     height: 15vh;
-    margin-left: 8px;
-    margin-right: 8px;
+    margin-left: 4px;
+    margin-right: 4px;
   }
   
   .image {
@@ -312,5 +312,25 @@
     margin-right: 1vw;
     margin-left: 1vw;
   }
+
+  .player-card-1 {
+    position: absolute;
+    z-index: 2;
+    height: 28vh;
+  }
+  .player-card-2 {
+    position: absolute;
+    z-index: 2;
+    height: 28vh;
+    right:9vw;
+    top:2vh;
+  }
   
+  .center_thing {
+    display: flex;
+    align-items: center;
+  }
   
+  .endgame-card {
+    height: 20vh;
+  }
