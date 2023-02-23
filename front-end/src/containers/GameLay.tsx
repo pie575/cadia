@@ -42,7 +42,7 @@ const GameLay = (bigBlind_amount: number) => {
     // gameIsStarted: false,
     gameRunning: true,
     last_player_raised: 0,
-    currentplayer_id: -1, // start with -1, will be set to 0 when game starts
+    currentplayer_id: 0, 
     communityCards: [],
     players: [],
     /* intiaize a dummy result */
@@ -56,9 +56,7 @@ const GameLay = (bigBlind_amount: number) => {
   const setGameStateHelper = (updatedState: Partial<GameState>) => {
     setGameState({ ...gameState, ...updatedState });
   };
-
   const increaseRoundNumber = () => setGameStateHelper({ roundNumber: gameState.roundNumber + 1 });
-
   const increasePlayerId = () => {
     let next_player = gameState.currentplayer_id + 1;
     if (next_player >= gameState.players.length) {
@@ -66,7 +64,6 @@ const GameLay = (bigBlind_amount: number) => {
     }
     setGameStateHelper({ currentplayer_id: next_player})
   }
-
   const singlePlayerLeft = () => {
     const activePlayers = gameState.players.filter((p: { active: any; folded: any; }) => p.active === true && p.folded === false);
     if (activePlayers.length === 1) {
@@ -74,8 +71,7 @@ const GameLay = (bigBlind_amount: number) => {
     }
     return false;
   }
-
-  const ALLPlayersAllIned = () => {
+  const allPlayersAllIned = () => {
     let nonallin_active_players = gameState.players.filter((p: { active: any; folded: any; allIn: any; }) => p.active === true && p.folded === false && p.allIn === false);
     if (nonallin_active_players.length >= 1) {
       return false;
@@ -124,13 +120,11 @@ const GameLay = (bigBlind_amount: number) => {
     newPlayers[smallBlind_index].smallBlind = true;
     setGameStateHelper({ deck: gameState.deck.shuffle() });
     setGameStateHelper({ players: newPlayers });
-    // setGameStateHelper({players: players_copy, gameIsStarted: true}); // trigger next step
   }, []);
 
   /* Major Game Loop iterating through 'preflop', 'flop', 'turn', 'river' */
   React.useEffect(() => {
     setGameStateHelper({gameRunning: true}); // prevent user from clicking buttons
-    // setGameStateHelper({roundNumber: gameState.roundNumber + 1, gameRunning: true, roundIsOver: false}); // handle infinite loop??
     /* Check if game is over */
     if (singlePlayerLeft()) {
       var result = checkResult(gameState, true, setGameStateHelper);
@@ -147,14 +141,17 @@ const GameLay = (bigBlind_amount: number) => {
     if (gameState.roundNumber == 1) {
       dealBlinds(gameState, setGameStateHelper); // visualize
     }
-    setGameStateHelper({currentplayer_id: 0}); // toggles forward to tigger this round
+    setGameStateHelper({currentplayer_id: -1}); // toggles forward to tigger this round, set to -1 to guarantee state changes
   }, [gameState.roundNumber]);
 
   /* major Round Loop, iterate player by player */
   React.useEffect(() => {
+    if (gameState.currentplayer_id === -1) {
+      increasePlayerId(); // start the round with player 0
+    }
     setGameStateHelper({gameRunning: true}); // prevent user from clicking buttons
     /* check if all players have all-ined */
-    if (ALLPlayersAllIned()){
+    if (allPlayersAllIned()){
       increaseRoundNumber(); // toggles back to trigger next round
     }
     // check if the round is over// 

@@ -27,10 +27,17 @@ export interface GameState{
     table:Array<Card>; /* Current table cards */
     deck:Deck; /* Current deck */
     __instance:Holdem; /* Current game instance */
-    bigBlindAmount:number; /* Current big blind amount */
+    bigBlind_amount:number; /* Current big blind amount */
     bigBlind_index:number; /* Current big blind index */
     smallBlind_index:number; /* Current small blind index */
-    lastPlayerRaised: number;
+    last_player_raised: number;
+    // single_player_left: boolean;
+    // roundIsOver: boolean;
+    // roundIsStarted: boolean;
+    // gameIsStarted: boolean;
+    gameRunning: boolean;
+    currentplayer_id: number;
+    result: Result;
     __roundStates:Array<Array<Player_Round>>;
     /* Player status */
     players:Array<{
@@ -45,7 +52,7 @@ export interface GameState{
     }>;
 }
 /* Starts the round if not started yet */
-export function startRound(gameState: GameState, roundNumber: number, setStateHelper: Function):void{
+export function startRound(gameState: GameState, roundNumber: number, setGameStateHelper: Function):void{
     gameState.round = []; /* Reset the round */
     let copy_players = gameState.players;
     let copy_round = gameState.round;
@@ -76,9 +83,9 @@ export function startRound(gameState: GameState, roundNumber: number, setStateHe
             if(gameState.table.length==0) communityCardCountForThisRound=3;
             table_copy.push.apply(table_copy, deck_copy.getCards(communityCardCountForThisRound));
         }
-        setStateHelper({deck: deck_copy, __roundStates:roundStates_copy, table:table_copy});
+        setGameStateHelper({deck: deck_copy, __roundStates:roundStates_copy, table:table_copy});
     }
-    setStateHelper({players:copy_players, round:copy_round});
+    setGameStateHelper({players:copy_players, round:copy_round});
     /* has to be at least 2 players */
     if(activePlayers<=1){
         throw new Error("Game cannot continue with less than 2 players");
@@ -87,7 +94,7 @@ export function startRound(gameState: GameState, roundNumber: number, setStateHe
 /** Conduct the big/small blinds for the game, and blinds rotate to the next player
  * @param index Player index
  */
-export function dealBlinds(gameState: GameState, setStateHelper: Function):void{
+export function dealBlinds(gameState: GameState, setGameStateHelper: Function):void{
     if(!gameState.round.length) throw new Error("Game round not started");
     let copy_players = gameState.players;
     let copy_round = gameState.round;
@@ -101,9 +108,9 @@ export function dealBlinds(gameState: GameState, setStateHelper: Function):void{
             continue;
         }
         if (copy_players[id].bigBlind == true) {
-            total_blinds += gameState.bigBlindAmount;
-            copy_players[id].balance-=gameState.bigBlindAmount;
-            copy_round[id].current_bet += gameState.bigBlindAmount;
+            total_blinds += gameState.bigBlind_amount;
+            copy_players[id].balance-=gameState.bigBlind_amount;
+            copy_round[id].current_bet += gameState.bigBlind_amount;
             copy_players[id].bigBlind = false;
             copy_round[id].decision = "raise"; /* big blind is equvialent to a raise in the first round */
             /* find the next player who is still active to be the big blind */
@@ -128,9 +135,9 @@ export function dealBlinds(gameState: GameState, setStateHelper: Function):void{
             continue;
         }
         if (copy_players[id].smallBlind == true) {
-            total_blinds += gameState.bigBlindAmount/2;
-            copy_players[id].balance-=gameState.bigBlindAmount/2;
-            copy_round[id].current_bet += gameState.bigBlindAmount/2;
+            total_blinds += gameState.bigBlind_amount/2;
+            copy_players[id].balance-=gameState.bigBlind_amount/2;
+            copy_round[id].current_bet += gameState.bigBlind_amount/2;
             copy_players[id].smallBlind = false;
             /* find the next player who is still active to be the big blind */
             let nextPlayer = id + 1;
@@ -153,13 +160,13 @@ export function dealBlinds(gameState: GameState, setStateHelper: Function):void{
         throw new Error("Could not find big or small blind");
     }
     let copy_pot = gameState.pot + total_blinds;
-    setStateHelper({players:copy_players, round:copy_round, bigBlind_index:copy_bigBlind_index, smallBlind_index:copy_smallBlind_index, pot:copy_pot});
+    setGameStateHelper({players:copy_players, round:copy_round, bigBlind_index:copy_bigBlind_index, smallBlind_index:copy_smallBlind_index, pot:copy_pot});
 }
 
 /** Bet 0 unit of money
  * @param index Player index
  */
-export function check(gameState: GameState, index:number, roundNumber: number, setStateHelper: Function):void{
+export function check(gameState: GameState, index:number, roundNumber: number, setGameStateHelper: Function):void{
     if(!gameState.round.length) throw new Error("Game round not started");
     let max_current_bet = gameState.round.slice(0).sort((a,b)=>b.current_bet-a.current_bet)[0].current_bet;
     if (gameState.round[index].current_bet < max_current_bet) throw new Error("Cannot check with a current bet less than the maximum current bet");
@@ -167,14 +174,14 @@ export function check(gameState: GameState, index:number, roundNumber: number, s
     let copy_round = gameState.round;
     if (gameState.bigBlind_index != index && roundNumber != 1) {
         copy_round[index].decision = "check";
-        setStateHelper({round:copy_round});
+        setGameStateHelper({round:copy_round});
     }
 }
 /** Raise by a player
  * @param index Player index
  * @param amount_to_raise Raise amount
  */
-export function raise(gameState: GameState, index:number,amount_to_raise:number, setStateHelper: Function):void{
+export function raise(gameState: GameState, index:number,amount_to_raise:number, setGameStateHelper: Function):void{
     if(!gameState.round.length) throw new Error("Game round not started");
     if(gameState.players[index].balance < amount_to_raise) throw new Error('Insufficient balance to raise');
     let max_current_bet =gameState.round.slice(0).sort((a,b)=>b.current_bet-a.current_bet)[0].current_bet;
@@ -188,16 +195,19 @@ export function raise(gameState: GameState, index:number,amount_to_raise:number,
             copy_round[i].decision = undefined;
         }
     }
+    if (amount_to_raise == copy_players[index].balance) {
+        copy_players[index].allIn = true;
+    }
     copy_round[index].current_bet += amount_to_raise;
     copy_round[index].decision="raise";
     copy_players[index].balance-=amount_to_raise;
     copy_pot = amount_to_raise + gameState.pot;
-    setStateHelper({round:copy_round, players:copy_players, pot:copy_pot});
+    setGameStateHelper({round:copy_round, players:copy_players, pot:copy_pot});
 }
 /** Call by a player
  * @param index Player index
  */
-export function call(gameState: GameState, index:number, setStateHelper: Function):void{
+export function call(gameState: GameState, index:number, setGameStateHelper: Function):void{
     if(!gameState.round.length) throw new Error("Game round not started");
     let max_current_bet =gameState.round.slice(0).sort((a,b)=>b.current_bet-a.current_bet)[0].current_bet;
     if (gameState.round[index].current_bet >= max_current_bet) throw new Error("Cannot call with a current bet greater than or equal to the maximum current bet");
@@ -210,18 +220,18 @@ export function call(gameState: GameState, index:number, setStateHelper: Functio
     copy_round[index].decision="call";
     copy_players[index].balance-=amount_to_call;
     copy_pot += amount_to_call;
-    setStateHelper({round:copy_round, players:copy_players, pot:copy_pot});
+    setGameStateHelper({round:copy_round, players:copy_players, pot:copy_pot});
 }
 /** Fold by a player
  * @param index Player index
  */
-export function fold(gameState: GameState, index:number, setStateHelper: Function):void{
+export function fold(gameState: GameState, index:number, setGameStateHelper: Function):void{
     if(!gameState.round.length) throw new Error("Game round not started");
     let copy_round = gameState.round;
     let copy_players = gameState.players;
     copy_round[index].decision="fold";
     copy_players[index].folded=true;
-    setStateHelper({round:copy_round, players:copy_players});
+    setGameStateHelper({round:copy_round, players:copy_players});
 }
 /* Whether the current round can be ended, by checking if the current bet for this round is equal */
 export function RoundisOver(gameState: GameState):boolean{
@@ -240,7 +250,7 @@ export function RoundisOver(gameState: GameState):boolean{
     return true;
 }
 /* Ends the current round. */
-// export function endRound(gameState: GameState, setStateHelper: Function):void{
+// export function endRound(gameState: GameState, setGameStateHelper: Function):void{
 //     // if(!gameState.round.length) throw new Error("Game round not started");
 //     if(gameState.__roundStates.length==4) throw new Error("Round is over, please invoke checkResult");
 //     let roundStates_copy = gameState.__roundStates;
@@ -254,10 +264,10 @@ export function RoundisOver(gameState: GameState):boolean{
 //         if(gameState.table.length==0) communityCardCountForThisRound=3;
 //         table_copy.push.apply(table_copy, deck_copy.getCards(communityCardCountForThisRound));
 //     }
-//     setStateHelper({deck: deck_copy, __roundStates:roundStates_copy, table:table_copy});
+//     setGameStateHelper({deck: deck_copy, __roundStates:roundStates_copy, table:table_copy});
 // }
 /* Returns the result of the current round and Conducts payout */
-export function checkResult(gameState: GameState, single_player_left: boolean, setStateHelper: Function):Result{
+export function checkResult(gameState: GameState, single_player_left: boolean, setGameStateHelper: Function):Result{
     let copy_players = gameState.players;
     if (single_player_left) {
         let player_index = gameState.players.findIndex(f => f.active && !f.folded);
@@ -267,7 +277,7 @@ export function checkResult(gameState: GameState, single_player_left: boolean, s
             name: 'last standing player',
         };
         copy_players[player_index].balance += gameState.pot;
-        setStateHelper({players: copy_players});
+        setGameStateHelper({players: copy_players});
         return result;
     }
     let result=gameState.__instance.compareHands(gameState.players.map(m=>m.hand),gameState.table);
@@ -289,7 +299,7 @@ export function checkResult(gameState: GameState, single_player_left: boolean, s
             }
         }
     }
-    setStateHelper({players: copy_players});
+    setGameStateHelper({players: copy_players});
     return result;
 }
 /* Returns the avaliable actions for a player */
