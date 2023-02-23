@@ -24,7 +24,6 @@ const GameLay = (bigBlind_amount: number) => {
 
   const userIndex = 1;
   const playerMoney = [100, 100];
-  let player_turn = false 
   
   const [gameState, setGameState] = React.useState<GameState>({
     pot: 0,
@@ -37,14 +36,42 @@ const GameLay = (bigBlind_amount: number) => {
     bigBlind_index: 0,
     smallBlind_index: 1,
     roundNumber: 0,
+    single_player_left: false,
+    roundIsOver: false,
+    roundIsStarted: false,
+    gameIsStarted: false,
+    gameRunning: true,
     last_player_raised: 0,
+    currentplayer_id: 0,
     communityCards: [],
     players: [],
+    /* intiaize result to be draw */
+    result: { 
+      type: 'draw',
+      index: -1,
+      name: '',
+    },
   });
   
   const setStatehelper = (updatedState: Partial<GameState>) => {
     setGameState({ ...gameState, ...updatedState });
   };
+  function handleFold(index: number) {
+    if (gameState.gameRunning == true) return;
+    fold(gameState, index, setStatehelper);
+  }
+  function handleRaise(index: number, amount_to_raise: number) {
+    if (gameState.gameRunning == true) return;
+    raise(gameState, index, amount_to_raise, setStatehelper);
+  }
+  function handleCall(index: number) {
+    if (gameState.gameRunning == true) return;
+    call(gameState, index, setStatehelper);
+  }
+  function handleCheck(index: number, roundNumber: number) {
+    if (gameState.gameRunning == true) return;
+    check(gameState, index, roundNumber, setStatehelper);
+  }
 
   /* Initialize game */
   React.useEffect(() => {
@@ -68,170 +95,126 @@ const GameLay = (bigBlind_amount: number) => {
     let players_copy = gameState.players;
     players_copy[bigBlind_index].bigBlind = true;
     players_copy[smallBlind_index].smallBlind = true;
-    setStatehelper({players: players_copy});
+    setStatehelper({players: players_copy, gameIsStarted: true}); // trigger next step
   }, []);
 
+  /* Major Game Loop iterating through 'preflop', 'flop', 'turn', 'river' */
+  // triggered when roundIsOver is true, or single_player_left is true
   React.useEffect(() => {
-  }, []);
-
-  function handleFold(index: number) {
-    fold(gameState, index, setStatehelper);
-  }
-  function handleRaise(index: number, amount_to_raise: number) {
-    raise(gameState, index, amount_to_raise, setStatehelper);
-  }
-  function handleCall(index: number) {
-    call(gameState, index, setStatehelper);
-  }
-  function handleCheck(index: number, roundNumber: number) {
-    check(gameState, index, roundNumber, setStatehelper);
-  }
-  let roundNumber = 1;
-  let single_player_left = false;
-
-  React.useEffect(() => {
-    if (roundNumber === 5) {
-      return;
+    setStatehelper({roundNumber: gameState.roundNumber + 1, gameRunning: true, roundIsOver: false}); // handle infinite loop??
+    if (gameState.roundNumber === 5 || gameState.single_player_left) {
+      var result = checkResult(gameState, gameState.single_player_left, setStatehelper);
+      setStatehelper({result: result});
     }
-    startRound(gameState, roundNumber, setStatehelper); // visaulize delt cards
+    startRound(gameState, gameState.roundNumber, setStatehelper); // visaulize delt cards
     console.log('community cards', gameState.communityCards);
-    if (roundNumber == 1) {
+    if (gameState.roundNumber == 1) {
       dealBlinds(gameState, setStatehelper); // visualize
     }
     
     /* if the number of players who haven't all-in are less than 1, continue the game and skip the decision stage */
     let nonallin_active_players = gameState.players.filter((p: { active: any; folded: any; allIn: any; }) => p.active === true && p.folded === false && p.allIn === false);
-    if (nonallin_active_players.length <= 1) {
-        console.log('community cards', gameState.communityCards);
-        roundNumber++;
+    if (nonallin_active_players.length > 1) {
+        // decisionStage(gameState, gameState.roundNumber);
+        setStatehelper({roundIsStarted: true}); /* now start the round */
     }
     else {
-        decisionStage(gameState, roundNumber);
+      setStatehelper({roundIsOver: true});
     }
-    roundNumber++;
-    if (roundNumber === 5 || single_player_left) {
-      var result = checkResult(gameState, single_player_left, setStatehelper);
-      if (result.type === 'win') {
-        if (result.index != undefined)
-          console.log('Player' + (result.index + 1) + ' won with ' + result.name);
-      } 
-      else {
-          console.log('Draw');
-      }
-    }
-  }, [roundNumber]);
-  
-  let id = 0;
-  let round_is_over = false;
-  /* pre-check for this round before player id takes action */
-  for (let i = 0; i < 5; i++) {
+  }, [gameState.gameIsStarted, gameState.single_player_left, gameState.roundIsOver]);
+
+  /* major Round Loop */
   React.useEffect(() => {
+    // check if the round is over before any// 
+    let id = gameState.currentplayer_id;
+    if (id === gameState.last_player_raised) {
+        let round_status = RoundisOver(gameState);
+        setStatehelper({roundIsOver: round_status}); // should end????
+    }
     if (gameState.players[id].active === false || gameState.players[id].folded === true || gameState.players[id].allIn === true) {
       let next_player = id + 1;
       if (next_player === gameState.players.length) {
           next_player = 0;
       }
-      if (next_player === gameState.last_player_raised) {
-          round_is_over = RoundisOver(gameState);
-          if (round_is_over) {
-              break;
-          }
-          else {
-              throw new Error('this error should not happen');
-          }
+      setStatehelper({currentplayer_id: next_player}); // trigger next player
+    }
+    else {
+      let active_players = gameState.players.filter((p: { active: any; folded: any}) => p.active === true && p.folded === false);
+      if (active_players.length === 1) {
+        setStatehelper({single_player_left: true, roundIsOver: true}); // infinite loop??
       }
-      return;
+      else {
+        let avaliable_actions = avaliableActions(gameState, id);
+        console.log("\n Player " + id + ", you can take the following actions: " + avaliable_actions);
+        setStatehelper({gameRunning: false});
+      }
     }
-    let active_players = gameState.players.filter((p: { active: any; folded: any}) => p.active === true && p.folded === false);
-    if (active_players.length === 1) {
-        round_is_over = true;
-        single_player_left = true;
-        return;
-    }
-    let avaliable_actions = avaliableActions(gameState, id);
-    console.log("\n Player " + id + ", you can take the following actions: " + avaliable_actions);
-  }, [id, round_is_over]);}
-  player_turn = true; // player can take action
-  timer = setTimeout(() => {
-    player_turn = false; // player cannot take action
-    let next_player = id + 1;
-    if (next_player === gameState.players.length) { 
+  }, [gameState.roundIsStarted, gameState.currentplayer_id]);
+ 
+  // React.useEffect(() => {
+  //   let next_player = id + 1;
+  //   if (next_player === gameState.players.length) {
+  //       next_player = 0;
+  //   }
+  //   if (next_player === gameState.last_player_raised) {
+  //       round_is_over = RoundisOver(gameState);
+  //       if (round_is_over) {
+  //           return;
+  //       }
+  //   }
+  // }, []);
 
-      next_player = 0;
-    }
+  // function decisionStage (gameState: GameState, roundNumber: number) {
+  //     let last_player_raised = 0;
+  //     let round_is_over = false;
+  //     while (!round_is_over) {
+  //       for (let i = 0; i < gameState.players.length; i++) {
+  //           /* if the player is not active, folded, or all-ined, skip this player for this round's decision */
+  //           if (gameState.players[i].active === false || gameState.players[i].folded === true || gameState.players[i].allIn === true) {
+  //               let next_player = i + 1;
+  //               if (next_player === gameState.players.length) {
+  //                   next_player = 0;
+  //               }
+  //               if (next_player === last_player_raised) {
+  //                   round_is_over = RoundisOver(gameState);
+  //                   if (round_is_over) {
+  //                       break;
+  //                   }
+  //                   else {
+  //                       throw new Error('this error should not happen');
+  //                   }
+  //               }
+  //               continue;
+  //           }
+  //           /* if there is only one player left, that player won, and the game is over */
+  //           let active_players = gameState.players.filter((p: { active: any; folded: any}) => p.active === true && p.folded === false);
+  //           if (active_players.length === 1) {
+  //               round_is_over = true;
+  //               single_player_left = true;
+  //               return;
+  //           }
 
-  React.useEffect(() => {
-    let next_player = id + 1;
-    if (next_player === gameState.players.length) {
-        next_player = 0;
-    }
-    if (next_player === gameState.last_player_raised) {
-        round_is_over = RoundisOver(gameState);
-        if (round_is_over) {
-            break;
-        }
-    }
-  }, []);
+  //           let avaliable_actions = avaliableActions(gameState, i); // visualize
+  //           // let max_to_bet = gameState.players[i].balance;
+  //           console.log("\n Player " + i + ", you can take the following actions: " + avaliable_actions);
 
+  //           // after action, change the state of the game
 
-  // const decisionStage = (gameState: GameState, roundNumber: number) => { 
-  function decisionStage (gameState: GameState, roundNumber: number) {
-      let last_player_raised = 0;
-      let round_is_over = false;
-      while (!round_is_over) {
-        for (let i = 0; i < gameState.players.length; i++) {
-            /* if the player is not active, folded, or all-ined, skip this player for this round's decision */
-            if (gameState.players[i].active === false || gameState.players[i].folded === true || gameState.players[i].allIn === true) {
-                let next_player = i + 1;
-                if (next_player === gameState.players.length) {
-                    next_player = 0;
-                }
-                if (next_player === last_player_raised) {
-                    round_is_over = RoundisOver(gameState);
-                    if (round_is_over) {
-                        break;
-                    }
-                    else {
-                        throw new Error('this error should not happen');
-                    }
-                }
-                continue;
-            }
-            /* if there is only one player left, that player won, and the game is over */
-            let active_players = gameState.players.filter((p: { active: any; folded: any}) => p.active === true && p.folded === false);
-            if (active_players.length === 1) {
-                round_is_over = true;
-                single_player_left = true;
-                return;
-            }
-
-            let avaliable_actions = avaliableActions(gameState, i); // visualize
-            // let max_to_bet = gameState.players[i].balance;
-            console.log("\n Player " + i + ", you can take the following actions: " + avaliable_actions);
-      
-            const waituserInput = async () => {
-              const action = await takeAction();
-            };
-          
-            waituserInput();
-            // takeAction(game, avaliable_actions, max_to_bet, i);
-            // after action, change the state of the game
-
-            /* check if the round is over right before the last player who raised */
-            let next_player = i + 1;
-            if (next_player === gameState.players.length) {
-                next_player = 0;
-            }
-            if (next_player === last_player_raised) {
-                round_is_over = RoundisOver(gameState);
-                if (round_is_over) {
-                    break;
-                }
-            }
-        }
-    }
-  }
-  }
+  //           /* check if the round is over right before the last player who raised */
+  //           let next_player = i + 1;
+  //           if (next_player === gameState.players.length) {
+  //               next_player = 0;
+  //           }
+  //           if (next_player === last_player_raised) {
+  //               round_is_over = RoundisOver(gameState);
+  //               if (round_is_over) {
+  //                   break;
+  //               }
+  //           }
+  //       }
+  //   }
+  // }
+  
   return (
     <Grid container>
       <Grid item sx={{ width: "80vw", height: "90vh", position: "fixed", left: "10vw", top: "5vh" }}>
