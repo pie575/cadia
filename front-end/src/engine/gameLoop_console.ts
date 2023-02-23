@@ -1,30 +1,32 @@
-/* all the initializations here are done in the GameLay.jsx  */
+/*
+Each player is dealt two private cards ("Hole Cards" or "Pocket Cards"), after which there is a betting round.
+Then three community cards are dealt face up (the "Flop"), followed by a second betting round. A fourth
+community card is dealt face up (the "Turn"), followed by a third betting round. A fifth community card is
+dealt face up (the "River")and the the fourth and final betting round. At the Showdown, each player plays the
+best five-card hand they can make using any five cards from the two pocket cards and the five community cards
+(or Board Cards).
+*/
+
+/* initialize the game with 2 players, each having 100 unit money, and big blind is 10 units */
 var { Game } = require('./game');
 let players_balance = [100, 100]; /* pass in */
 let bigBlind_amount = 10
 let bigBlind_index = 0;
 let smallBlind_index = 1;
+
+/* allow the game to be played as a tournament */
+// while (true) {
 var game = new Game(players_balance, bigBlind_amount, bigBlind_index, smallBlind_index);
+startGame_Console(game);
 
-
-// sends a signal to gamelay when a game starts
-// sends a signal to gamelay when the player hands are dealt
-// sends a signal to gamelay when a new round started
-// sends a signal to gamelay when the game requires user input
-// sends a signal to gamelay for special game-ending or round-ending conditions - single player left, players all-in, etc.
-// sends a signal to gamelay when a round is over
-// sends a signal to gamelay when a game is over
-
-// game.startGame(); game starts 
-
-function startGame(game: typeof Game): void {
+function startGame_Console(game: typeof Game): void {
     let roundNames = ['preflop', 'flop', 'turn', 'river'];
     console.log('A new game started');
     console.log('Players hands', game.getState().players.map((p: { hand: any; },i: any) => p.hand));
 
+    var rl = require('readline-sync');
     let single_player_left = false;
     for (let round_number = 1; round_number < 5; round_number++) {
-        // 
         if (single_player_left) {
             break;
         }
@@ -102,20 +104,37 @@ function startGame(game: typeof Game): void {
     smallBlind_index = game.smallBlind_index;
 }
 
-export function takeUserInput(game: typeof Game, setCurrGame: Function, player_index: number, action: string, amount_to_raise?: number): void {
-    if (action == "raise") {
-            game.raise(player_index, amount_to_raise);
-    }
-    else if (action == 'call') {
-        game.call(player_index);
-    }
-    else if (action == 'fold') {
-        game.fold(player_index);
-    }
-    else if (action == 'check') {
-        game.check(player_index);
-    }
-    setCurrGame(game);
-}
 
-export function updateGameState
+function takeAction(game: typeof Game, avaliable_actions: string[], max_to_bet: number, i: number): void {
+    var rl = require('readline-sync');
+    let answer = rl.question('Please input your action: ');
+    answer = answer.toLowerCase();
+    if (avaliable_actions.includes(answer)) {
+        if (answer == "raise") {
+            console.log("Player " + i + ", you can bet up to " + max_to_bet);
+            let amount_to_raise =  rl.question('Please input your amount: ');
+            if (parseInt(amount_to_raise) > max_to_bet) {
+                console.log("Invalid amount! Please input again!");
+            }
+            else {
+                if (parseInt(amount_to_raise) === max_to_bet) {
+                    game.players[i].allIn = true;
+                }
+                game.raise(i, parseInt(amount_to_raise));
+            }
+        }
+        else if (answer == 'call') {
+            game.call(i);
+        }
+        else if (answer == 'fold') {
+            game.fold(i);
+        }
+        else if (answer == 'check') {
+            game.check(i);
+        }
+    }
+    else {
+        console.log("Invalid action! Please input again!");
+        takeAction(game, avaliable_actions, max_to_bet, i);
+    }
+}
