@@ -6,9 +6,29 @@ import MaskedText from "../MaskedText";
 interface GameButtonProps {
   text: string;
   onClick: () => void;
+  available: boolean;
 }
 
-const GameButton = ({ text, onClick }: GameButtonProps) => {
+const GameButton = ({ text, onClick, available }: GameButtonProps) => {
+  if (available) {
+    return (
+      <Grid item sx={{ margin: "auto" }}>
+        <Button
+          onClick={onClick}
+          sx={{
+            backgroundImage: `url(${GameBaseButton})`,
+            backgroundSize: "contain",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+            width: "15vw",
+            height: "12vh",
+          }}
+        >
+          <MaskedText text={text} fontSize="1.75rem" />
+        </Button>
+      </Grid>
+    );
+  }
   return (
     <Grid item sx={{ margin: "auto" }}>
       <Button
@@ -20,6 +40,8 @@ const GameButton = ({ text, onClick }: GameButtonProps) => {
           backgroundPosition: "center",
           width: "15vw",
           height: "12vh",
+          opacity: "50%",
+          cursor: "default",
         }}
       >
         <MaskedText text={text} fontSize="1.75rem" />
