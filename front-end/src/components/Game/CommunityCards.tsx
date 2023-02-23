@@ -5,13 +5,17 @@ import CardEntity from "../../assets/cards/CardEntity";
 const CommunityCards = () => {
   // const CurrCards = GameState.useState();
   return (
-    <Grid container className="community-cards" sx={{ height: "40vh" }}>
-      <CardEntity card="3h" />
-      <CardEntity card="3c" />
-      <CardEntity card="3c" />
-      <CardEntity card="3c" />
-      <CardEntity back="false" card="3c" />
-    </Grid>
+    <div>
+      <Grid container className="community-cards" sx={{ height: "20vh" }}>
+        <CardEntity card="3h" />
+        <CardEntity card="3c" />
+        <CardEntity card="3c" />
+      </Grid>
+      <Grid container className="community-cards" sx={{ height: "20vh" }}>
+        <CardEntity card="3h" />
+        <CardEntity card="3c" />
+      </Grid>
+    </div>
   );
 };
 
