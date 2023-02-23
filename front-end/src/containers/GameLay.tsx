@@ -1,11 +1,13 @@
 import * as React from "react";
 import { Button, Grid, Typography } from "@mui/material";
+
 import PokerTableImage from "../assets/pokertable.svg";
 import GoldPotImg from "../assets/goldpot.svg";
 import CoinImg from "../assets/coin.svg";
 import CommunityCards from "../components/Game/CommunityCards";
 import UserCards from "../components/Game/UserCards";
 import GameButton from "../components/Game/GameButton";
+<<<<<<< HEAD
 import CashOutBack from "../assets/cashoutback.svg";
 import {
   GameState,
@@ -29,10 +31,94 @@ import ChatGPTUpdate from "../components/Game/ChatGPTUpdate";
 // import MaskedText from "../components/MaskedText";
 
 const GameLay = () => {
+=======
+import RaiseOverlay from "../components/Game/RaiseOverlay";
+import CashOutDialog from "../components/Game/CashOutDialog";
+import CashOutBack from "../assets/cashoutback.svg";
+
+import {
+  GameState,
+  startRound,
+  dealBlinds,
+  check,
+  raise,
+  call,
+  fold,
+  RoundisOver,
+  checkResult,
+  // avaliableActions,
+  // computeHand,
+} from "../engine/game";
+import { Holdem } from "../engine/Holdem";
+import { Deck } from "../engine/Deck";
+
+import "../styles/game.css";
+
+// import MaskedText from "../components/MaskedText";
+
+const decisionStage = (gameState: GameState) => {
+  const lastPlayerRaised = 0;
+  let roundIsOver = false;
+  while (!roundIsOver) {
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < gameState.players.length; i++) {
+      /* if the player is not active, folded, or all-ined, skip this player for this round's decision */
+      if (
+        gameState.players[i].active === false ||
+        gameState.players[i].folded === true ||
+        gameState.players[i].allIn === true
+      ) {
+        let nextPlayer = i + 1;
+        if (nextPlayer === gameState.players.length) nextPlayer = 0;
+        if (nextPlayer === lastPlayerRaised) {
+          roundIsOver = RoundisOver(gameState);
+          if (roundIsOver) break;
+          else throw new Error("this error should not happen");
+        }
+        // continue;
+      }
+      /* if there is only one player left, that player won, and the game is over */
+      const activePlayers = gameState.players.filter(
+        (p: { active: any; folded: any }) => p.active === true && p.folded === false,
+      );
+      if (activePlayers.length === 1) {
+        roundIsOver = true;
+        // singlePlayerLeft = true;
+        return;
+      }
+
+      // const userAvaliableActions = avaliableActions(gameState, i); // visualize
+      // let max_to_bet = gameState.players[i].balance;
+      // console.log(`\n Player ${i}, you can take the following actions: ${userAvaliableActions}`);
+
+      // const waituserInput = async () => {
+      //   const action = await takeAction();
+      // };
+
+      // waituserInput();
+      // takeAction(game, avaliable_actions, max_to_bet, i);
+      // after action, change the state of the game
+
+      /* check if the round is over right before the last player who raised */
+      let nextPlayer = i + 1;
+      if (nextPlayer === gameState.players.length) nextPlayer = 0;
+      if (nextPlayer === lastPlayerRaised) {
+        roundIsOver = RoundisOver(gameState);
+        if (roundIsOver) break;
+      }
+    }
+  }
+};
+
+const GameLay = () => {
+  const bigBlindAmount = 100;
+>>>>>>> 7315250231742217e9d0d92846b306d2397dd2ad
   const [raiseOverlayOpen, setRaiseOverlayOpen] = React.useState<boolean>(false);
   const [chatGPTMessageOpen, setchatGPTMessageOpen] = React.useState<boolean>(false);
   const [cashOutDialogOpen, setCashOutDialogOpen] = React.useState<boolean>(false);
+  // const [roundNumber, setRoundNumber] = React.useState<number>(1);
 
+<<<<<<< HEAD
   // const userIndex = 1;
   // const playerMoney = [100, 100];
   // let player_turn = false
@@ -241,6 +327,160 @@ const GameLay = () => {
   //       }
   //   }
   // }
+=======
+  const userIndex = 1;
+  const playerMoney = [100, 100];
+  // let playerTurn = false;
+
+  const [gameState, setGameState] = React.useState<GameState>({
+    pot: 0,
+    deck: new Deck(),
+    __instance: new Holdem(),
+    table: [],
+    round: [],
+    __roundStates: [],
+    bigBlindAmount,
+    bigBlind_index: 0,
+    smallBlind_index: 1,
+    roundNumber: 0,
+    lastPlayerRaised: 0,
+    communityCards: [],
+    players: [],
+  });
+
+  const setGameStateHelper = (updatedState: Partial<GameState>) => {
+    setGameState({ ...gameState, ...updatedState });
+  };
+
+  const increaseRoundNumber = () => setGameStateHelper({ roundNumber: gameState.roundNumber + 1 });
+
+  const handleFold = (index: number) => {
+    fold(gameState, index, setGameStateHelper);
+  };
+
+  const handleRaise = (index: number, amount_to_raise: number) => {
+    raise(gameState, index, amount_to_raise, setGameStateHelper);
+  };
+
+  const handleCall = (index: number) => {
+    call(gameState, index, setGameStateHelper);
+  };
+
+  const handleCheck = (index: number) => {
+    check(gameState, index, gameState.roundNumber, setGameStateHelper);
+  };
+
+  /* Initialize game */
+  React.useEffect(() => {
+    const bigBlindIndex = gameState.bigBlind_index;
+    const smallBlindIndex = gameState.smallBlind_index;
+    /* Initialize players (only balance carry over) */
+    const newPlayers = playerMoney.map((balance: number, index: number) => {
+      return {
+        balance,
+        hand: gameState.deck.getCards(2),
+        folded: false,
+        active: true,
+        allIn: false,
+        bigBlind: false /* will be set later */,
+        smallBlind: false /* will be set later */,
+        id: index,
+      };
+    });
+    /* initialize player big blind and small blind */
+    newPlayers[bigBlindIndex].bigBlind = true;
+    newPlayers[smallBlindIndex].smallBlind = true;
+
+    setGameStateHelper({ deck: gameState.deck.shuffle() });
+    setGameStateHelper({ players: newPlayers });
+  }, []);
+
+  let singlePlayerLeft = false;
+
+  React.useEffect(() => {
+    if (gameState.roundNumber === 5) return;
+    startRound(gameState, gameState.roundNumber, setGameStateHelper); // visualize dealt cards
+    // console.log("community cards", gameState.communityCards);
+    if (gameState.roundNumber === 1) {
+      dealBlinds(gameState, setGameStateHelper); // visualize
+    }
+
+    /* if the number of players who haven't all-in are less than 1, continue the game and skip the decision stage */
+    const nonAllInActivePlayers = gameState.players.filter(
+      (p: { active: any; folded: any; allIn: any }) => p.active === true && p.folded === false && p.allIn === false,
+    );
+    if (nonAllInActivePlayers.length <= 1) {
+      // console.log("community cards", gameState.communityCards);
+      increaseRoundNumber();
+    } else {
+      decisionStage(gameState);
+    }
+    increaseRoundNumber();
+    if (gameState.roundNumber === 5 || singlePlayerLeft) {
+      const result = checkResult(gameState, singlePlayerLeft, setGameStateHelper);
+      if (result.type === "win") {
+        if (result.index !== undefined) {
+          // console.log(`Player${result.index + 1} won with ${result.name}`);
+        }
+      } else {
+        // console.log("Draw");
+      }
+    }
+  }, [gameState.roundNumber]);
+
+  const id = 0;
+  let roundIsOver = false;
+  /* pre-check for this round before player id takes action */
+
+  // for (let i = 0; i < 5; i++) {
+  React.useEffect(() => {
+    if (
+      gameState.players[id].active === false ||
+      gameState.players[id].folded === true ||
+      gameState.players[id].allIn === true
+    ) {
+      let nextPlayer = id + 1;
+      if (nextPlayer === gameState.players.length) nextPlayer = 0;
+      if (nextPlayer === gameState.lastPlayerRaised) {
+        roundIsOver = RoundisOver(gameState);
+        if (roundIsOver) return;
+        throw new Error("this error should not happen");
+      }
+      return;
+    }
+    const activePlayers = gameState.players.filter(
+      (p: { active: any; folded: any }) => p.active === true && p.folded === false,
+    );
+    if (activePlayers.length === 1) {
+      roundIsOver = true;
+      singlePlayerLeft = true;
+      // return;
+    }
+    // const userAvaliableActions = avaliableActions(gameState, id);
+    // console.log(`\n Player ${id}, you can take the following actions: ${userAvaliableActions}`);
+  }, [id, roundIsOver]);
+
+  // playerTurn = true; // player can take action
+  // const timer = setTimeout(() => {
+  //   playerTurn = false; // player cannot take action
+  //   let nextPlayer = id + 1;
+  //   if (nextPlayer === gameState.players.length) nextPlayer = 0;
+  // });
+
+  React.useEffect(() => {
+    let nextPlayer = id + 1;
+    if (nextPlayer === gameState.players.length) {
+      nextPlayer = 0;
+    }
+    if (nextPlayer === gameState.lastPlayerRaised) {
+      roundIsOver = RoundisOver(gameState);
+      // if (round_is_over) {
+      //   return;
+      // }
+    }
+  }, []);
+
+>>>>>>> 7315250231742217e9d0d92846b306d2397dd2ad
   return (
     <Grid container>
       <Grid item sx={{ width: "80vw", height: "90vh", position: "fixed", left: "10vw", top: "5vh" }}>
@@ -369,8 +609,12 @@ const GameLay = () => {
               <GameButton text="fold" onClick={() => {}} />
             </Grid>
             <Grid item xs={3}>
+<<<<<<< HEAD
               {/* <GameButton text="check" onClick={() => handleCheck(userIndex, gameState.roundNumber)} /> */}
               <GameButton text="check" onClick={() => {}} />
+=======
+              <GameButton text="check" onClick={() => handleCheck(userIndex)} />
+>>>>>>> 7315250231742217e9d0d92846b306d2397dd2ad
             </Grid>
             <Grid item xs={3}>
               <GameButton text="call" onClick={() => {}} />
@@ -388,7 +632,10 @@ const GameLay = () => {
         setUserBalance={() => {}}
         addToPot={() => {}}
         handleClose={() => setRaiseOverlayOpen(false)}
+<<<<<<< HEAD
         // onClick = {() => {}}
+=======
+>>>>>>> 7315250231742217e9d0d92846b306d2397dd2ad
         // onClick = {handleRaise(userIndex, amount_to_raise)}
       />
       <ChatGPTUpdate open={chatGPTMessageOpen} handleClose={() => setchatGPTMessageOpen(false)} />
@@ -396,4 +643,8 @@ const GameLay = () => {
     </Grid>
   );
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7315250231742217e9d0d92846b306d2397dd2ad
 export default GameLay;

@@ -1,16 +1,21 @@
 import * as React from "react";
-import { Dialog, Button, DialogContent, Grid, IconButton, Typography, Modal } from "@mui/material";
+import { Button, Grid, Typography, Modal } from "@mui/material";
 import PokerTableImage from "../../assets/pokertable.svg";
 import GoldPotImg from "../../assets/goldpot.svg";
-import CoinImg from "../../assets/coin.svg";
-import CommunityCards from "../Game/CommunityCards";
-import UserCards from "../Game/UserCards";
-import GameButton from "../Game/GameButton";
+// import CoinImg from "../../assets/coin.svg";
+// import CommunityCards from "./CommunityCards";
+// import UserCards from "./UserCards";
+// import GameButton from "./GameButton";
 import GameBaseButton from "../../assets/Game/GameBaseButton.svg";
 import CashOutBack from "../../assets/cashoutback.svg";
 import "../../styles/game.css";
 import MaskedText from "../MaskedText";
 import CardEntity from "../../assets/cards/CardEntity";
+
+interface GameEndProps {
+  open: boolean;
+  handleClose: () => void;
+}
 
 const NextGameButton = () => {
   return (
@@ -40,8 +45,8 @@ const CashOutButton = () => {
         backgroundRepeat: "no-repeat",
         backgroundPosition: "center",
         width: "10vw",
-        marginTop:"3vh",
-        marginBottom:"3vh",
+        marginTop: "3vh",
+        marginBottom: "3vh",
       }}
     >
       <Typography
@@ -58,7 +63,7 @@ const CashOutButton = () => {
   );
 };
 
-const GameEnd = ({ open, handleClose }) => {
+const GameEnd = ({ open, handleClose }: GameEndProps) => {
   return (
     <Modal open={open} onClose={handleClose}>
       <Grid
