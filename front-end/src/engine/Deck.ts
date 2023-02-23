@@ -18,6 +18,7 @@ export class Deck{
 			this.cards[currentIndex] = this.cards[randomIndex];
 			this.cards[randomIndex] = temporaryValue;
 		}
+        return this;
     }
     getCards(count:number=1){
         return this.cards.splice(0,count);

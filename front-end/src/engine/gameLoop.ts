@@ -6,7 +6,6 @@ let bigBlind_index = 0;
 let smallBlind_index = 1;
 var game = new Game(players_balance, bigBlind_amount, bigBlind_index, smallBlind_index);
 
-
 // sends a signal to gamelay when a game starts
 // sends a signal to gamelay when the player hands are dealt
 // sends a signal to gamelay when a new round started
@@ -24,7 +23,6 @@ function startGame(game: typeof Game): void {
 
     let single_player_left = false;
     for (let round_number = 1; round_number < 5; round_number++) {
-        // 
         if (single_player_left) {
             break;
         }
@@ -117,5 +115,3 @@ export function takeUserInput(game: typeof Game, setCurrGame: Function, player_i
     }
     setCurrGame(game);
 }
-
-export function updateGameState

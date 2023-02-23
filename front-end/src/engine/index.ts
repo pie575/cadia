@@ -1,4 +1,4 @@
-import {Game, GameState} from './Game';
+import {Game, GameState} from './game_console';
 import {Deck} from './Deck';
 import {Card,Suits} from './Card';
 import { HandValue, Result } from './Holdem';
