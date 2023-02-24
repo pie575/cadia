@@ -1,5 +1,6 @@
 /* all the initializations here are done in the GameLay.jsx  */
-var { Game } = require('./game');
+// import { Game } from './game_console';
+var { Game } = require('./game_console');
 let players_balance = [100, 100]; /* pass in */
 let bigBlind_amount = 10
 let bigBlind_index = 0;
@@ -70,7 +71,7 @@ function startGame(game: typeof Game): void {
                 let avaliable_actions = game.avaliableActions(i);
                 let max_to_bet = game.players[i].balance;
                 console.log("\n Player " + i + ", you can take the following actions: " + avaliable_actions);
-                takeAction(game, avaliable_actions, max_to_bet, i);
+                takeUserInput(game, avaliable_actions, max_to_bet, i);
 
                 /* check if the round is over right before the last player who raised */
                 let next_player = i + 1;

@@ -31,10 +31,6 @@ export interface GameState{
     bigBlind_index:number; /* Current big blind index */
     smallBlind_index:number; /* Current small blind index */
     last_player_raised: number;
-    // single_player_left: boolean;
-    // roundIsOver: boolean;
-    // roundIsStarted: boolean;
-    // gameIsStarted: boolean;
     gameRunning: boolean;
     currentplayer_id: number;
     result: Result;
@@ -53,12 +49,19 @@ export interface GameState{
 }
 /* Starts the round if not started yet */
 export function startRound(gameState: GameState, roundNumber: number, setGameStateHelper: Function):void{
+    console.log('stage 1')
+    console.log('players big blind' + gameState.players[0].bigBlind)
+    console.log('players small blind' + gameState.players[0].smallBlind)
+    console.log('players balance' + gameState.players[0].balance)
     gameState.round = []; /* Reset the round */
     let copy_players = gameState.players;
     let copy_round = gameState.round;
     let activePlayers=0;
+    console.log('balance: ' + copy_players[0].balance)
+    console.log('big blind: ' + copy_players[0].bigBlind)
     for(let i=0;i<gameState.players.length;i++){
         if(copy_players[i].balance<0) {
+            console.log("Player "+i+" has negative balance")
             copy_players[i].active=false; /* Player has negative balance */
         }
             /* or the player is offline */
@@ -87,6 +90,8 @@ export function startRound(gameState: GameState, roundNumber: number, setGameSta
     }
     setGameStateHelper({players:copy_players, round:copy_round});
     /* has to be at least 2 players */
+    console.log("Active players: "+activePlayers)
+    console.log("active player balance" + copy_players[0].balance)
     if(activePlayers<=1){
         throw new Error("Game cannot continue with less than 2 players");
     }

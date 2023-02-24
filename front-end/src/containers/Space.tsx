@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import * as React from "react";
 import { Grid } from "@mui/material";
 import Ground from "../assets/Home/Ground.png";
