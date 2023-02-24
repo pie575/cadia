@@ -61,7 +61,7 @@ def chatgpt_response():
         if not (curr_val >= 0 and curr_val < player_money):
             print('\nused random val \n')
             curr_val = random.randrange(0, player_money)
-        return str(curr_val)
+        return {"bet":str(curr_val)}
     
     else:
         prompt = 'Player 1 and Player 2 are playing texas holdem. Player 1 has $' + str(
@@ -90,6 +90,6 @@ def chatgpt_response():
                 continue
         if curr_val < bet:
             return '-1'
-        return str(str(curr_val))
+        return {"bet":str(curr_val)}
 
     
