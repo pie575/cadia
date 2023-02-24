@@ -20,7 +20,7 @@ def get_string_card(card):
     return card_val + ' of ' + str(card['suite'])
 
 
-@chatgpt.route("/chatgpt_response", methods=["GET"])
+@chatgpt.route("/chatgpt_response", methods=["POST"])
 def chatgpt_response():
     # Generate a response
     inp = request.json

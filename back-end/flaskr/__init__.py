@@ -18,7 +18,9 @@ def init_app():
   })
 
   from .http.leaderboard import leaderboard
+  from .http.chatgpt import chatgpt
 
   application.register_blueprint(leaderboard, url_prefix='/')
+  application.register_blueprint(chatgpt, url_prefix='/')
 
   return application
