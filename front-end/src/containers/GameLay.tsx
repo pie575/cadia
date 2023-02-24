@@ -40,43 +40,53 @@ const GameLay = () => {
     table: [],
     round: [],
     __roundStates: [],
-    bigBlind_amount,
+    bigBlindAmount,
     bigBlind_index: 0,
     smallBlind_index: 1,
     roundNumber: 0,
     gameRunning: true,
     last_player_raised: 0,
     currentplayer_id: 0,
+    currentplayer_id: 0,
     communityCards: [],
     players: [],
     /* intiaize a dummy result */
     result: {
       type: "draw",
+    result: {
+      type: "draw",
       index: -1,
+      name: "",
       name: "",
     },
   });
+
 
   const setGameStateHelper = (updatedState: Partial<GameState>) => {
     console.log("updatedState", updatedState.players)
     console.log("gamestate in setGameStateHelper", gameState)
     setGameState({ ...gameState, ...updatedState });
   };
+
   const increaseRoundNumber = () => setGameStateHelper({ roundNumber: gameState.roundNumber + 1 });
+
   const increasePlayerId = () => {
-    let next_player = gameState.currentplayer_id + 1;
-    if (next_player >= gameState.players.length) {
-      next_player = 0;
+    let nextPlayer = gameState.currentplayer_id + 1;
+    if (nextPlayer >= gameState.players.length) {
+      nextPlayer = 0;
     }
     setGameStateHelper({ currentplayer_id: next_player })
   }
   const singlePlayerLeft = () => {
-    const activePlayers = gameState.players.filter((p: { active: any; folded: any; }) => p.active === true && p.folded === false);
+    const activePlayers = gameState.players.filter(
+      (p: { active: any; folded: any }) => p.active === true && p.folded === false,
+    );
     if (activePlayers.length === 1) {
       return true;
     }
     return false;
-  }
+  };
+
   const allPlayersAllIned = () => {
     const nonallin_active_players = gameState.players.filter((p: { active: any; folded: any; allIn: any; }) => p.active === true && p.folded === false && p.allIn === false);
     if (nonallin_active_players.length >= 1) {
@@ -86,25 +96,28 @@ const GameLay = () => {
   }
 
   const handleFold = (index: number) => {
-    if (gameState.gameRunning === true) return;
+    if (gameState.gameRunning) return;
     fold(gameState, index, setGameStateHelper);
     increasePlayerId(); // next player to take actions
-  }
+  };
+
   const handleRaise = (index: number, amount_to_raise: number) => {
-    if (gameState.gameRunning === true) return;
+    if (gameState.gameRunning) return;
     raise(gameState, index, amount_to_raise, setGameStateHelper);
     increasePlayerId();
-  }
+  };
+
   const handleCall = (index: number) => {
-    if (gameState.gameRunning === true) return;
+    if (gameState.gameRunning) return;
     call(gameState, index, setGameStateHelper);
     increasePlayerId();
-  }
+  };
+
   const handleCheck = (index: number, roundNumber: number) => {
-    if (gameState.gameRunning === true) return;
+    if (gameState.gameRunning) return;
     check(gameState, index, roundNumber, setGameStateHelper);
     increasePlayerId();
-  }
+  };
 
   /* Initialize game */
   React.useEffect(() => {
@@ -123,8 +136,8 @@ const GameLay = () => {
         id: index,
       }
     });
-    newPlayers[bigBlind_index].bigBlind = true;
-    newPlayers[smallBlind_index].smallBlind = true;
+    newPlayers[bigBlindIndex].bigBlind = true;
+    newPlayers[smallBlindIndex].smallBlind = true;
     setGameStateHelper({ deck: gameState.deck.shuffle() });
     setGameStateHelper({ players: newPlayers });
     // setGameState({ ...gameState, players: newPlayers });
@@ -162,8 +175,10 @@ const GameLay = () => {
     /* Start this round */
     startRound(gameState, gameState.roundNumber, setGameStateHelper); // visaulize delt cards
     if (gameState.roundNumber === 1) {
+    if (gameState.roundNumber === 1) {
       dealBlinds(gameState, setGameStateHelper); // visualize
     }
+    setGameStateHelper({ currentplayer_id: -1 }); // toggles forward to tigger this round, set to -1 to guarantee state changes
     setGameStateHelper({ currentplayer_id: -1 }); // toggles forward to tigger this round, set to -1 to guarantee state changes
   }, [gameState.roundNumber]);
 
@@ -173,11 +188,13 @@ const GameLay = () => {
       increasePlayerId(); // start the round with player 0
     }
     setGameStateHelper({ gameRunning: true }); // prevent user from clicking buttons
+    setGameStateHelper({ gameRunning: true }); // prevent user from clicking buttons
     /* check if all players have all-ined */
+    if (allPlayersAllIned()) {
     if (allPlayersAllIned()) {
       increaseRoundNumber(); // toggles back to trigger next round
     }
-    // check if the round is over// 
+    // check if the round is over//
     const id = gameState.currentplayer_id;
     if (id === gameState.last_player_raised) {
       const round_status = RoundisOver(gameState);
@@ -187,7 +204,11 @@ const GameLay = () => {
       }
     }
     // check if the player is active, folded, or all-ined
-    if (gameState.players[id].active === false || gameState.players[id].folded === true || gameState.players[id].allIn === true) {
+    if (
+      gameState.players[id].active === false ||
+      gameState.players[id].folded === true ||
+      gameState.players[id].allIn === true
+    ) {
       increasePlayerId(); // loop to trigger next player
     }
     // if more than one player left, enter the decision stage
@@ -218,6 +239,7 @@ const GameLay = () => {
       increaseRoundNumber(); // if one player left, proceed to end the game
     }
   }, [gameState.currentplayer_id]);
+
 
   return (
     <Grid container>

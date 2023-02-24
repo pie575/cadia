@@ -5,7 +5,7 @@
 
 import argparse
 from sys import exit, stderr
-from backend import app
+from flaskr import init_app
 
 #----------------------------------------------------------------------
 
@@ -18,6 +18,7 @@ def main():
 
     # parse_args() is needed to retrieve arguments
     args = vars(parser.parse_args())
+    app = init_app()
 
     try:
         port = args['port']
