@@ -4,7 +4,7 @@ import random
 
 chatgpt = Blueprint("chatgpt", __name__)
 
-openai.api_key = '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'
+openai.api_key = ''
 model_engine = "text-davinci-003"
 
 def get_string_card(card):
