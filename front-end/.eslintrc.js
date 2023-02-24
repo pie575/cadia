@@ -26,6 +26,12 @@ module.exports = {
         tsx: "never",
       },
     ],
+    "react/react-in-jsx-scope": "off",
+    "prettier/prettier": 
+    [ "error",
+      {
+        "endOfLine": "auto"}
+    ],
     "react/function-component-definition": 0,
     "react/no-arrow-function-lifecycle": 0,
     "react/no-invalid-html-attribute": 0,
