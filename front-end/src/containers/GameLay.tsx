@@ -28,13 +28,14 @@ import ChatGPTUpdate from "../components/Game/ChatGPTUpdate";
 // import MaskedText from "../components/MaskedText";
 
 const GameLay = () => {
+  const bigBlindAmount = 10;
+  const userIndex = 1;
+  const playerMoney = [100, 100];
+
   const [raiseOverlayOpen, setRaiseOverlayOpen] = React.useState<boolean>(false);
   const [cashOutDialogOpen, setCashOutDialogOpen] = React.useState<boolean>(false);
   const [chatGPTMessageOpen, setchatGPTMessageOpen] = React.useState<boolean>(false);
-
-  const userIndex = 1;
-  const playerMoney = [100, 100];
-  const bigBlindAmount = 10;
+  const [userActions, setUserActions] = React.useState<string[]>([]);
 
   const [gameState, setGameState] = React.useState<GameState>({
     pot: 0,
@@ -230,6 +231,14 @@ const GameLay = () => {
     }
   }, [gameState.currentplayer_id]);
 
+  React.useEffect(() => {
+    if (gameState.gameRunning) return;
+    const actions = avaliableActions(gameState, 1);
+    setUserActions(actions);
+  }, [gameState.gameRunning]);
+
+  console.log(userActions);
+
   return (
     <Grid container>
       <Grid item sx={{ width: "80vw", height: "90vh", position: "fixed", left: "10vw", top: "5vh" }}>
@@ -354,16 +363,20 @@ const GameLay = () => {
           </Grid>
           <Grid container sx={{ width: "65vw", marginTop: "5vh" }}>
             <Grid item xs={3}>
-              <GameButton text="fold" onClick={() => handleFold(userIndex)} />
+              <GameButton disabled={gameState.gameRunning} text="fold" onClick={() => handleFold(userIndex)} />
             </Grid>
             <Grid item xs={3}>
-              <GameButton text="check" onClick={() => handleCheck(userIndex, gameState.roundNumber)} />
+              <GameButton
+                disabled={gameState.gameRunning}
+                text="check"
+                onClick={() => handleCheck(userIndex, gameState.roundNumber)}
+              />
             </Grid>
             <Grid item xs={3}>
-              <GameButton text="call" onClick={() => handleCall(userIndex)} />
+              <GameButton disabled={gameState.gameRunning} text="call" onClick={() => handleCall(userIndex)} />
             </Grid>
             <Grid item xs={3}>
-              <GameButton text="raise" onClick={() => setRaiseOverlayOpen(true)} />
+              <GameButton disabled={gameState.gameRunning} text="raise" onClick={() => setRaiseOverlayOpen(true)} />
             </Grid>
           </Grid>
         </Grid>

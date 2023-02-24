@@ -19,7 +19,7 @@ const getLeaderboardData = (scoreCount: number) => {
     })
     .then((res) => {
       console.log(res);
-      const inputFiles = res["scores"];
+      const inputFiles = res.data;
       for (let i = 0; i < inputFiles.length; i += 1)
         leaderboardDataReturn.push({ displayName: inputFiles[i][0], score: parseInt(inputFiles[i][1], 10) });
     });
@@ -39,23 +39,23 @@ const pushLeaderboardData = (name: string, score: number, walletId: string) => {
     });
 };
 
-const getChatGPTResponse = (communityCards, gptCards, playerMoney, currentBet = 0) => {
-  const leaderboardDataReturn = [];
-  axios
-    .get("url____", {
-      params: {
-        count: { count },
-      },
-    })
-    .then((response) => {
-      const inputFiles = response["scores"];
-      for (let i = 0; i < inputFiles.length; i += 1)
-        leaderboardDataReturn.push({ displayName: inputFiles[i][0], score: parseInt(inputFiles[i][1], 10) });
-    });
-  return leaderboardDataReturn;
-  // -1: fold
-  // 0: bets 0
-  // x: bets
-};
+// const getChatGPTResponse = (communityCards, gptCards, playerMoney, currentBet = 0) => {
+//   const leaderboardDataReturn = [];
+//   axios
+//     .get("url____", {
+//       params: {
+//         count: { count },
+//       },
+//     })
+//     .then((response) => {
+//       const inputFiles = response["scores"];
+//       for (let i = 0; i < inputFiles.length; i += 1)
+//         leaderboardDataReturn.push({ displayName: inputFiles[i][0], score: parseInt(inputFiles[i][1], 10) });
+//     });
+//   return leaderboardDataReturn;
+//   // -1: fold
+//   // 0: bets 0
+//   // x: bets
+// };
 
 export { pushLeaderboardData, getLeaderboardData };
