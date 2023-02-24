@@ -8,12 +8,11 @@ import CloseButton from "../../assets/Game/CloseButton.svg";
 interface RaiseOverlayProps {
   open: boolean;
   userBalance: number;
-  setUserBalance: (newBalance: number) => void;
-  addToPot: (amount: number) => void;
+  handleRaise: (index: number, amountRaise: number) => void;
   handleClose: () => void;
 }
 
-const RaiseOverlay = ({ open, userBalance, setUserBalance, addToPot, handleClose }: RaiseOverlayProps) => {
+const RaiseOverlay = ({ open, userBalance, handleRaise, handleClose }: RaiseOverlayProps) => {
   const [betAmount, setBetAmount] = React.useState<number>(0);
 
   const changeBetAmount = (newBetAmount: number) => {
@@ -24,11 +23,8 @@ const RaiseOverlay = ({ open, userBalance, setUserBalance, addToPot, handleClose
   };
 
   const placeBet = () => {
-    if (betAmount <= userBalance) {
-      setUserBalance(userBalance - betAmount);
-      addToPot(betAmount);
-      // TODO: update PlayerRound data
-    }
+    if (betAmount <= userBalance) handleRaise(1, betAmount);
+    handleClose();
   };
 
   return (
