@@ -2,30 +2,23 @@ from flask import request
 import openai
 import random
 
-def get_string_card(card):
-    card_val = str(card['value'])
-    if card_val == '1':
-        card_val = 'ace'
-    if card_val == '11':
-        card_val = 'jack'
-    if card_val == '12':
-        card_val = 'queen'
-    if card_val == '13':
-        card_val = 'king'
-    return card_val + ' of ' + str(card['suite'])
-
-
-openai.api_key = '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'
-model_engine = "text-davinci-003"
-
-# sample input
-
-player_money = 500
 
 
 @app.get("/chatgpt_response")
 def chatgpt_response():
-    # Generate a response
+    def get_string_card(card):
+        card_val = str(card['value'])
+        if card_val == '1':
+            card_val = 'ace'
+        if card_val == '11':
+            card_val = 'jack'
+        if card_val == '12':
+            card_val = 'queen'
+        if card_val == '13':
+            card_val = 'king'
+        return card_val + ' of ' + str(card['suite'])
+    openai.api_key = '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'
+    model_engine = "text-davinci-003"
     inp = request.json
     player_money = inp['money']
     chatGPT_cards = inp['cards']
