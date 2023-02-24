@@ -1,5 +1,5 @@
 {
-  "include": ["../.eslintrc.js", "**/*.tsx", "custom.d.ts", "src/components/Game/APIConnection.jsx", "src/components/Game/APIConnection.jsx", "src/components/Game/APIConnection.jsx", "src/components/Game/APIConnection.jsx"],
+  "include": ["../.eslintrc.js", "**/*.tsx", "custom.d.ts"],
   "exclude": ["node_modules", "dist", "**/*.jsx", "**/*.js"],
   "compilerOptions": {
     "jsx": "react-jsx",

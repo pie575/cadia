@@ -1,37 +1,42 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 import axios from "axios";
 
+const BASE_URL = "http://localhost:3001";
+
+interface LeaderboardData {
+  displayName: string;
+  score: number;
+}
+
 // gets the leaderboard data from backend. need to update url to local machine
-const getLeaderboardData = (count) => {
-  const leaderboardDataReturn = [];
+const getLeaderboardData = (scoreCount: number) => {
+  const leaderboardDataReturn: LeaderboardData[] = [];
   axios
-    .get("url____", {
+    .get(`${BASE_URL}/leaderboard`, {
       params: {
-        count: { count },
+        count: { scoreCount },
       },
     })
-    .then((response) => {
-      const inputFiles = response["scores"];
+    .then((res) => {
+      console.log(res);
+      const inputFiles = res["scores"];
       for (let i = 0; i < inputFiles.length; i += 1)
         leaderboardDataReturn.push({ displayName: inputFiles[i][0], score: parseInt(inputFiles[i][1], 10) });
     });
   return leaderboardDataReturn;
 };
 
-// pushing a new leaderboard score 
-const pushLeaderboardData = (name, score, walletID) => {
-  const leaderboardDataReturn = [];
-  let ret = -1;
+// pushing a new leaderboard score
+const pushLeaderboardData = (name: string, score: number, walletId: string) => {
   axios
-    .post("url____", {
-      params: {
-        name: { name },
-        score: {score},
-        walletid: {walletID},
-      },
-    }).then((response) => {
-      ret = response['status code'];
+    .post(`${BASE_URL}/leaderboard`, {
+      name: { name },
+      score: { score },
+      walletid: { walletId },
     })
-  return ret;
+    .then((res) => {
+      return res;
+    });
 };
 
 const getChatGPTResponse = (communityCards, gptCards, playerMoney, currentBet = 0) => {
@@ -48,7 +53,9 @@ const getChatGPTResponse = (communityCards, gptCards, playerMoney, currentBet = 
         leaderboardDataReturn.push({ displayName: inputFiles[i][0], score: parseInt(inputFiles[i][1], 10) });
     });
   return leaderboardDataReturn;
-  //-1: fold
-  //0: bets 0
-  //x: bets
+  // -1: fold
+  // 0: bets 0
+  // x: bets
 };
+
+export { pushLeaderboardData, getLeaderboardData };
