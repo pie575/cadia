@@ -40,7 +40,7 @@ const GameLay = () => {
     table: [],
     round: [],
     __roundStates: [],
-    bigBlindAmount,
+    bigBlind_amount,
     bigBlind_index: 0,
     smallBlind_index: 1,
     roundNumber: 0,
@@ -53,13 +53,9 @@ const GameLay = () => {
     /* intiaize a dummy result */
     result: {
       type: "draw",
-    result: {
-      type: "draw",
       index: -1,
-      name: "",
-      name: "",
-    },
-  });
+      },
+    });
 
 
   const setGameStateHelper = (updatedState: Partial<GameState>) => {
@@ -75,7 +71,7 @@ const GameLay = () => {
     if (nextPlayer >= gameState.players.length) {
       nextPlayer = 0;
     }
-    setGameStateHelper({ currentplayer_id: next_player })
+    setGameStateHelper({ currentplayer_id: nextPlayer })
   }
   const singlePlayerLeft = () => {
     const activePlayers = gameState.players.filter(
@@ -136,8 +132,8 @@ const GameLay = () => {
         id: index,
       }
     });
-    newPlayers[bigBlindIndex].bigBlind = true;
-    newPlayers[smallBlindIndex].smallBlind = true;
+    newPlayers[bigBlind_index].bigBlind = true;
+    newPlayers[smallBlind_index].smallBlind = true;
     setGameStateHelper({ deck: gameState.deck.shuffle() });
     setGameStateHelper({ players: newPlayers });
     // setGameState({ ...gameState, players: newPlayers });
@@ -175,12 +171,12 @@ const GameLay = () => {
     /* Start this round */
     startRound(gameState, gameState.roundNumber, setGameStateHelper); // visaulize delt cards
     if (gameState.roundNumber === 1) {
-    if (gameState.roundNumber === 1) {
-      dealBlinds(gameState, setGameStateHelper); // visualize
-    }
-    setGameStateHelper({ currentplayer_id: -1 }); // toggles forward to tigger this round, set to -1 to guarantee state changes
-    setGameStateHelper({ currentplayer_id: -1 }); // toggles forward to tigger this round, set to -1 to guarantee state changes
-  }, [gameState.roundNumber]);
+      if (gameState.roundNumber === 1) {
+        dealBlinds(gameState, setGameStateHelper); // visualize
+      }
+      setGameStateHelper({ currentplayer_id: -1 }); // toggles forward to tigger this round, set to -1 to guarantee state changes
+      setGameStateHelper({ currentplayer_id: -1 }); // toggles forward to tigger this round, set to -1 to guarantee state changes
+    }}, [gameState.roundNumber]);
 
   /* major Round Loop, iterate player by player */
   React.useEffect(() => {
@@ -191,55 +187,54 @@ const GameLay = () => {
     setGameStateHelper({ gameRunning: true }); // prevent user from clicking buttons
     /* check if all players have all-ined */
     if (allPlayersAllIned()) {
-    if (allPlayersAllIned()) {
-      increaseRoundNumber(); // toggles back to trigger next round
-    }
-    // check if the round is over//
-    const id = gameState.currentplayer_id;
-    if (id === gameState.last_player_raised) {
-      const round_status = RoundisOver(gameState);
-      // setGameStateHelper({roundIsOver: round_status}); // should end????
-      if (round_status === true) {
+      if (allPlayersAllIned()) {
         increaseRoundNumber(); // toggles back to trigger next round
       }
-    }
-    // check if the player is active, folded, or all-ined
-    if (
-      gameState.players[id].active === false ||
-      gameState.players[id].folded === true ||
-      gameState.players[id].allIn === true
-    ) {
-      increasePlayerId(); // loop to trigger next player
-    }
-    // if more than one player left, enter the decision stage
-    if (!singlePlayerLeft()) {
-      setGameStateHelper({ gameRunning: false }); // allow user to take action
-      // /* hardcorded AI action */
-      // if (gameState.currentplayer_id === 0) {
-      //   const ChatGPTAction = getChatGPTResponse(gameState.communityCards, gameState.players[0].hand, gameState.players[1].balance, gameState.round[0].current_bet);
-      //   if (ChatGPTAction === -1) {
-      //     handleFold(0);
-      //   }
-      //   else if (ChatGPTAction === 0) {
-      //     handleCheck(0, gameState.roundNumber);
-      //   }
-      //   else if (ChatGPTAction === gameState.round[1].current_bet - gameState.round[0].current_bet) {
-      //     handleCall(0);
-      //   }
-      //   else {
-      //     handleRaise(0, ChatGPTAction);
-      //   }
-      //   increasePlayerId();
-      // }
-      // else {
-      //   setGameStateHelper({ gameRunning: false }); // allow user to take action
-      // }
-    }
-    else {
-      increaseRoundNumber(); // if one player left, proceed to end the game
-    }
-  }, [gameState.currentplayer_id]);
-
+      // check if the round is over//
+      const id = gameState.currentplayer_id;
+      if (id === gameState.last_player_raised) {
+        const round_status = RoundisOver(gameState);
+        // setGameStateHelper({roundIsOver: round_status}); // should end????
+        if (round_status === true) {
+          increaseRoundNumber(); // toggles back to trigger next round
+        }
+      }
+      // check if the player is active, folded, or all-ined
+      if (
+        gameState.players[id].active === false ||
+        gameState.players[id].folded === true ||
+        gameState.players[id].allIn === true
+      ) {
+        increasePlayerId(); // loop to trigger next player
+      }
+      // if more than one player left, enter the decision stage
+      if (!singlePlayerLeft()) {
+        setGameStateHelper({ gameRunning: false }); // allow user to take action
+        // /* hardcorded AI action */
+        // if (gameState.currentplayer_id === 0) {
+        //   const ChatGPTAction = getChatGPTResponse(gameState.communityCards, gameState.players[0].hand, gameState.players[1].balance, gameState.round[0].current_bet);
+        //   if (ChatGPTAction === -1) {
+        //     handleFold(0);
+        //   }
+        //   else if (ChatGPTAction === 0) {
+        //     handleCheck(0, gameState.roundNumber);
+        //   }
+        //   else if (ChatGPTAction === gameState.round[1].current_bet - gameState.round[0].current_bet) {
+        //     handleCall(0);
+        //   }
+        //   else {
+        //     handleRaise(0, ChatGPTAction);
+        //   }
+        //   increasePlayerId();
+        // }
+        // else {
+        //   setGameStateHelper({ gameRunning: false }); // allow user to take action
+        // }
+      }
+      else {
+        increaseRoundNumber(); // if one player left, proceed to end the game
+      }
+    }}, [gameState.currentplayer_id]);
 
   return (
     <Grid container>
