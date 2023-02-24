@@ -362,10 +362,8 @@ const GameLay = () => {
       <RaiseOverlay
         open={raiseOverlayOpen}
         userBalance={100}
-        setUserBalance={() => { }}
-        addToPot={() => { }}
         handleClose={() => setRaiseOverlayOpen(false)}
-      // onClick = {handleRaise(userIndex, amount_to_raise)}
+        handleRaise={handleRaise}
       />
       <ChatGPTUpdate open={chatGPTMessageOpen} handleClose={() => setchatGPTMessageOpen(false)} />
       <CashOutDialog open={cashOutDialogOpen} handleClose={() => setCashOutDialogOpen(false)} />

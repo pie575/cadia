@@ -19,7 +19,7 @@ const getLeaderboardData = (scoreCount: number) => {
     })
     .then((res) => {
       console.log(res);
-      const inputFiles = res["scores"];
+      const inputFiles = res.data.scores;
       for (let i = 0; i < inputFiles.length; i += 1)
         leaderboardDataReturn.push({ displayName: inputFiles[i][0], score: parseInt(inputFiles[i][1], 10) });
     });
@@ -40,22 +40,20 @@ const pushLeaderboardData = (name: string, score: number, walletId: string) => {
 };
 
 const getChatGPTResponse = (communityCards, gptCards, playerMoney, currentBet = 0) => {
-  const leaderboardDataReturn = [];
+  let value = -1;
   axios
-    .get("url____", {
+    .get(`${BASE_URL}`, {
       params: {
-        count: { count },
+        money: playerMoney,
+        cards: gptCards,
+        community: communityCards,
+        bet: currentBet,
       },
     })
     .then((response) => {
-      const inputFiles = response["scores"];
-      for (let i = 0; i < inputFiles.length; i += 1)
-        leaderboardDataReturn.push({ displayName: inputFiles[i][0], score: parseInt(inputFiles[i][1], 10) });
+      value = response.data.bet;
     });
-  return leaderboardDataReturn;
-  // -1: fold
-  // 0: bets 0
-  // x: bets
+  return value;
 };
 
-export { pushLeaderboardData, getLeaderboardData };
+export { pushLeaderboardData, getLeaderboardData, getChatGPTResponse };
