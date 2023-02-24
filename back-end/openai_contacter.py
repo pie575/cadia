@@ -8,13 +8,13 @@ import random
 def chatgpt_response():
     def get_string_card(card):
         card_val = str(card['value'])
-        if card_val == '1':
+        if str(card_val) == '14':
             card_val = 'ace'
-        if card_val == '11':
+        if str(card_val) == '11':
             card_val = 'jack'
-        if card_val == '12':
+        if str(card_val) == '12':
             card_val = 'queen'
-        if card_val == '13':
+        if str(card_val) == '13':
             card_val = 'king'
         return card_val + ' of ' + str(card['suite'])
     openai.api_key = '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'
@@ -27,7 +27,7 @@ def chatgpt_response():
     if bet == 0:
         prompt = 'Player 1 and Player 2 are playing texas holdem. Player 1 has $' + str(
             player_money) + '. Player 1 has ' + get_string_card(
-            chatGPT_cards['cards'][0]) + ' and ' + get_string_card(chatGPT_cards['cards'][1]) + \
+            chatGPT_cards[0]) + ' and ' + get_string_card(chatGPT_cards[1]) + \
                 '. Player 2 has two unknown cards. There is a '
         for card in current_community:
             prompt += get_string_card(card)+","
