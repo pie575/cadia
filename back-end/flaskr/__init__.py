@@ -8,7 +8,10 @@ cred = credentials.Certificate("desocade-firebase-adminsdk-n6sgm-2f4b56e278.json
 
 def init_app():
   application = Flask(__name__, template_folder='.')
-  CORS(application)
+  CORS(application, resources={r"/*": {"origins": "*"}})
+
+  application.config['CORS_HEADERS'] = 'Content-Type'
+
 
   firebase_admin.initialize_app(cred, {
     'databaseURL': "https://desocade-default-rtdb.firebaseio.com/"
