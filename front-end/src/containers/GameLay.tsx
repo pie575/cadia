@@ -14,8 +14,7 @@ import GameButton from "../components/Game/GameButton";
 import CashOutBack from "../assets/cashoutback.svg";
 import {
   GameState, startRound, dealBlinds, check, raise, call, fold,
-  RoundisOver, checkResult, avaliableActions,
-} from "../engine/game";
+  RoundisOver, checkResult, avaliableActions,} from "../engine/game";
 import { Holdem } from "../engine/Holdem";
 import { Deck } from "../engine/Deck";
 import "../styles/game.css";
@@ -46,7 +45,6 @@ const GameLay = () => {
     roundNumber: 0,
     gameRunning: true,
     last_player_raised: 0,
-    currentplayer_id: 0,
     currentplayer_id: 0,
     communityCards: [],
     players: [],
