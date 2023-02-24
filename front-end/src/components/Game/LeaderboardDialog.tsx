@@ -2,7 +2,7 @@ import * as React from "react";
 import { Dialog, DialogContent, Grid, IconButton, Typography } from "@mui/material";
 import LeaderboardTable from "../../assets/LeaderboardTable.svg";
 import CloseButton from "../../assets/CloseButton.svg";
-import { getChatGPTResponse } from "../../utils/APIConnection";
+import { getChatGPTResponse, getLeaderboardData } from "../../utils/APIConnection";
 
 interface LeaderboardDialogProps {
   open: boolean;
@@ -14,50 +14,9 @@ interface LeaderboardData {
   score: number;
 }
 
-const getLeaderboardData = (): LeaderboardData[] => {
-  const commCards = [
-    {
-      suite: "clubs",
-      value: 12,
-    },
-    {
-      suite: "clubs",
-      value: 5,
-    }, 
-    {
-      suite: "clubs",
-      value: 6,
-    },
-  ];
-
-  const gpCards = [
-    {
-      suite: "spades",
-      value: 12,
-    },
-    {
-      suite: "spades",
-      value: 5,
-    },
-  ];
-  
-  const val = getChatGPTResponse(commCards, gpCards, playMoney, currBet);
-  return [
-    { displayName: "testbet", score: { val } },
-    { displayName: "xyz", score: 150 },
-    { displayName: "xyz", score: 150 },
-    { displayName: "xyz", score: 150 },
-    { displayName: "xyz", score: 150 },
-    { displayName: "xyz", score: 150 },
-    { displayName: "xyz", score: 150 },
-    { displayName: "xyz", score: 150 },
-    { displayName: "xyz", score: 150 },
-  ];
-};
-
 const createLeaderboardRank = (idx: number, data: LeaderboardData) => {
   return (
-    <Grid item xs={12}>
+    <Grid item xs={12} key={idx + 1}>
       <Typography sx={{ fontFamily: "Joystix", color: "white" }}>
         {idx + 1}. {data.displayName} {data.score}
       </Typography>
@@ -69,7 +28,7 @@ const LeaderboardDialog = ({ open, handleClose }: LeaderboardDialogProps) => {
   const [leaderboardData, setLeaderboardData] = React.useState<LeaderboardData[]>();
 
   React.useEffect(() => {
-    const data = getLeaderboardData();
+    const data = getLeaderboardData(10);
     setLeaderboardData(data);
   }, []);
 

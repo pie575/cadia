@@ -4,16 +4,26 @@ import { Grid, IconButton, Modal, Typography } from "@mui/material";
 import Slide from "@mui/material/Slide";
 import ConfirmCashOut from "../../assets/Game/ConfirmCashOut.svg";
 import ExitCashOut from "../../assets/Game/ExitCashOut.svg";
+import { pushLeaderboardData } from "../../utils/APIConnection";
+import { UserContext } from "../../contexts";
 
 interface CashOutDialogProps {
   open: boolean;
+  userScore: number;
   handleClose: () => void;
 }
 
-const CashOutDialog = ({ open, handleClose }: CashOutDialogProps) => {
+const CashOutDialog = ({ open, userScore, handleClose }: CashOutDialogProps) => {
   const navigate = useNavigate();
+  const { currentUser } = React.useContext(UserContext);
 
   const confirmCashOut = () => {
+    if (currentUser) return;
+    // pushLeaderboardData({
+    //   name: currentUser.ProfileEntryResponse.Username,
+    //   score: userScore,
+    //   walletId: currentUser.PublicKeyBase58Check,
+    // });
     navigate("/home");
   };
 

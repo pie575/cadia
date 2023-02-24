@@ -377,7 +377,7 @@ const GameLay = () => {
         handleRaise={handleRaise}
       />
       <ChatGPTUpdate open={chatGPTMessageOpen} handleClose={() => setchatGPTMessageOpen(false)} />
-      <CashOutDialog open={cashOutDialogOpen} handleClose={() => setCashOutDialogOpen(false)} />
+      <CashOutDialog open={cashOutDialogOpen} handleClose={() => setCashOutDialogOpen(false)} userScore={gameState.players?.[1]?.balance} />
     </Grid>
   );
 };
