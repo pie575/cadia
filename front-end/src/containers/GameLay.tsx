@@ -93,25 +93,25 @@ const GameLay = () => {
   };
 
   const handleFold = (index: number) => {
-    if (gameState.gameRunning) return;
+    // if (gameState.gameRunning) return;
     fold(gameState, index, setGameStateHelper);
     increasePlayerId(); // next player to take actions
   };
 
   const handleRaise = (index: number, amount_to_raise: number) => {
-    if (gameState.gameRunning) return;
+    // if (gameState.gameRunning) return;
     raise(gameState, index, amount_to_raise, setGameStateHelper);
     increasePlayerId();
   };
 
   const handleCall = (index: number) => {
-    if (gameState.gameRunning) return;
+    // if (gameState.gameRunning) return;
     call(gameState, index, setGameStateHelper);
     increasePlayerId();
   };
 
   const handleCheck = (index: number, roundNumber: number) => {
-    if (gameState.gameRunning) return;
+    // if (gameState.gameRunning) return;
     check(gameState, index, roundNumber, setGameStateHelper);
     increasePlayerId();
   };
@@ -193,11 +193,9 @@ const GameLay = () => {
       }
       // if more than one player left, enter the decision stage
       if (!singlePlayerLeft()) {
-        setGameStateHelper({ gameRunning: false }); // allow user to take action
         /* hardcorded AI action */
         if (gameState.currentplayer_id === 0) {
-          const ChatGPTAction1 = getChatGPTResponse(gameState.communityCards, gameState.players[0].hand, gameState.players[1].balance, gameState.round[0].current_bet);
-          ChatGPTAction = ChatGPTAction1[0];
+          const ChatGPTAction = getChatGPTResponse(gameState.communityCards, gameState.players[0].hand, gameState.players[1].balance, gameState.round[1].current_bet);
           if (ChatGPTAction === -1) {
             handleFold(0);
           }
