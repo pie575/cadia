@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import * as React from "react";
 import { Button, Grid, Typography } from "@mui/material";
 import PokerTableImage from "../assets/pokertable.svg";
@@ -7,6 +8,7 @@ import CommunityCards from "../components/Game/CommunityCards";
 import UserCards from "../components/Game/UserCards";
 import GameButton from "../components/Game/GameButton";
 import CashOutBack from "../assets/cashoutback.svg";
+import {getChatGPTResponse} from "../utils/APIConnection";
 import {
   GameState,
   startRound,
@@ -61,7 +63,6 @@ const GameLay = () => {
   });
 
   const setGameStateHelper = (updatedState: Partial<GameState>) => {
-    console.log("updatedState", updatedState);
     setGameState((state) => ({ ...state, ...updatedState }));
   };
 
@@ -137,14 +138,11 @@ const GameLay = () => {
     newPlayers[smallBlindIndex].smallBlind = true;
     setGameStateHelper({ deck: gameState.deck.shuffle() });
     setGameStateHelper({ players: newPlayers });
-    // setGameState((state) => ({ ...state, players: newPlayers }));
     increaseRoundNumber();
   }, []);
 
   React.useEffect(() => {
     if (gameState.players.length === 0) return;
-    console.log("in the round loop, the round number is", gameState.roundNumber);
-    console.log("states are", gameState);
     setGameStateHelper({ gameRunning: true }); // prevent user from clicking buttons
     /* Check if game is over */
     if (singlePlayerLeft()) {
@@ -157,19 +155,13 @@ const GameLay = () => {
       setGameStateHelper({ result });
       return;
     }
-    console.log("gamestae", gameState);
-    console.log("players big blind 000", gameState.players);
-    console.log("players big blind 1", gameState.players[0].bigBlind);
-    console.log("players small blind 1", gameState.players[0].smallBlind);
-    console.log("players balance 1", gameState.players[0].balance);
 
     /* Start this round */
     startRound(gameState, gameState.roundNumber, setGameStateHelper); // visaulize delt cards
     if (gameState.roundNumber === 1) {
       dealBlinds(gameState, setGameStateHelper); // visualize
-      setGameStateHelper({ currentplayer_id: -1 }); // toggles forward to tigger this round, set to -1 to guarantee state changes
-      setGameStateHelper({ currentplayer_id: -1 }); // toggles forward to tigger this round, set to -1 to guarantee state changes
     }
+    setGameStateHelper({ currentplayer_id: -1 }); // toggles forward to tigger this round, set to -1 to guarantee state changes
   }, [gameState.roundNumber, gameState.players]);
 
   /* major Round Loop, iterate player by player */
@@ -178,7 +170,6 @@ const GameLay = () => {
     if (gameState.currentplayer_id === -1) {
       increasePlayerId(); // start the round with player 0
     }
-    setGameStateHelper({ gameRunning: true }); // prevent user from clicking buttons
     setGameStateHelper({ gameRunning: true }); // prevent user from clicking buttons
     /* check if all players have all-ined */
     if (allPlayersAllIned()) {
@@ -189,7 +180,6 @@ const GameLay = () => {
       const id = gameState.currentplayer_id;
       if (id === gameState.last_player_raised) {
         const roundStatus = RoundisOver(gameState);
-        // setGameStateHelper({roundIsOver: round_status}); // should end????
         if (roundStatus === true) {
           increaseRoundNumber(); // toggles back to trigger next round
         }
@@ -205,26 +195,27 @@ const GameLay = () => {
       // if more than one player left, enter the decision stage
       if (!singlePlayerLeft()) {
         setGameStateHelper({ gameRunning: false }); // allow user to take action
-        // /* hardcorded AI action */
-        // if (gameState.currentplayer_id === 0) {
-        //   const ChatGPTAction = getChatGPTResponse(gameState.communityCards, gameState.players[0].hand, gameState.players[1].balance, gameState.round[0].current_bet);
-        //   if (ChatGPTAction === -1) {
-        //     handleFold(0);
-        //   }
-        //   else if (ChatGPTAction === 0) {
-        //     handleCheck(0, gameState.roundNumber);
-        //   }
-        //   else if (ChatGPTAction === gameState.round[1].current_bet - gameState.round[0].current_bet) {
-        //     handleCall(0);
-        //   }
-        //   else {
-        //     handleRaise(0, ChatGPTAction);
-        //   }
-        //   increasePlayerId();
-        // }
-        // else {
-        //   setGameStateHelper({ gameRunning: false }); // allow user to take action
-        // }
+        /* hardcorded AI action */
+        if (gameState.currentplayer_id === 0) {
+          const ChatGPTAction1 = getChatGPTResponse(gameState.communityCards, gameState.players[0].hand, gameState.players[1].balance, gameState.round[0].current_bet);
+          ChatGPTAction = ChatGPTAction1[0];
+          if (ChatGPTAction === -1) {
+            handleFold(0);
+          }
+          else if (ChatGPTAction === 0) {
+            handleCheck(0, gameState.roundNumber);
+          }
+          else if (ChatGPTAction === gameState.round[1].current_bet - gameState.round[0].current_bet) {
+            handleCall(0);
+          }
+          else {
+            handleRaise(0, ChatGPTAction);
+          }
+          increasePlayerId();
+        }
+        else {
+          setGameStateHelper({ gameRunning: false }); // allow user to take action
+        }
       } else {
         increaseRoundNumber(); // if one player left, proceed to end the game
       }
