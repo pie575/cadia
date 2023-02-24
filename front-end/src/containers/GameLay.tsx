@@ -1,8 +1,3 @@
-/* eslint-disable no-console */
-/* eslint-disable prefer-destructuring */
-/* eslint-disable-next-line prettier/prettier */
-/* eslint-disable @typescript-eslint/naming-convention */
-/* eslint-disable prettier/prettier */
 import * as React from "react";
 import { Button, Grid, Typography } from "@mui/material";
 import PokerTableImage from "../assets/pokertable.svg";
@@ -13,8 +8,17 @@ import UserCards from "../components/Game/UserCards";
 import GameButton from "../components/Game/GameButton";
 import CashOutBack from "../assets/cashoutback.svg";
 import {
-  GameState, startRound, dealBlinds, check, raise, call, fold,
-  RoundisOver, checkResult, avaliableActions,} from "../engine/game";
+  GameState,
+  startRound,
+  dealBlinds,
+  check,
+  raise,
+  call,
+  fold,
+  RoundisOver,
+  checkResult,
+  avaliableActions,
+} from "../engine/game";
 import { Holdem } from "../engine/Holdem";
 import { Deck } from "../engine/Deck";
 import "../styles/game.css";
@@ -30,7 +34,7 @@ const GameLay = () => {
 
   const userIndex = 1;
   const playerMoney = [100, 100];
-  const bigBlind_amount = 10;
+  const bigBlindAmount = 10;
 
   const [gameState, setGameState] = React.useState<GameState>({
     pot: 0,
@@ -39,7 +43,7 @@ const GameLay = () => {
     table: [],
     round: [],
     __roundStates: [],
-    bigBlind_amount,
+    bigBlindAmount,
     bigBlind_index: 0,
     smallBlind_index: 1,
     roundNumber: 0,
@@ -52,14 +56,12 @@ const GameLay = () => {
     result: {
       type: "draw",
       index: -1,
-      },
-    });
-
+    },
+  });
 
   const setGameStateHelper = (updatedState: Partial<GameState>) => {
-    console.log("updatedState", updatedState.players)
-    console.log("gamestate in setGameStateHelper", gameState)
-    setGameState({ ...gameState, ...updatedState });
+    console.log("updatedState", updatedState);
+    setGameState((state) => ({ ...state, ...updatedState }));
   };
 
   const increaseRoundNumber = () => setGameStateHelper({ roundNumber: gameState.roundNumber + 1 });
@@ -69,8 +71,9 @@ const GameLay = () => {
     if (nextPlayer >= gameState.players.length) {
       nextPlayer = 0;
     }
-    setGameStateHelper({ currentplayer_id: nextPlayer })
-  }
+    setGameStateHelper({ currentplayer_id: nextPlayer });
+  };
+
   const singlePlayerLeft = () => {
     const activePlayers = gameState.players.filter(
       (p: { active: any; folded: any }) => p.active === true && p.folded === false,
@@ -82,12 +85,11 @@ const GameLay = () => {
   };
 
   const allPlayersAllIned = () => {
-    const nonallin_active_players = gameState.players.filter((p: { active: any; folded: any; allIn: any; }) => p.active === true && p.folded === false && p.allIn === false);
-    if (nonallin_active_players.length >= 1) {
-      return false;
-    }
-    return true;
-  }
+    const nonAllInActivePlayers = gameState.players.filter(
+      (p: { active: any; folded: any; allIn: any }) => p.active === true && p.folded === false && p.allIn === false,
+    );
+    return !(nonAllInActivePlayers.length >= 1);
+  };
 
   const handleFold = (index: number) => {
     if (gameState.gameRunning) return;
@@ -115,38 +117,31 @@ const GameLay = () => {
 
   /* Initialize game */
   React.useEffect(() => {
-    const bigBlind_index = gameState.bigBlind_index;
-    const smallBlind_index = gameState.smallBlind_index;
-    console.log("playerMoney", playerMoney);
-    const newPlayers = playerMoney.map((balance: number, index: number) => { /* Initialize players (only balance carry over) */
+    const bigBlindIndex = gameState.bigBlind_index;
+    const smallBlindIndex = gameState.smallBlind_index;
+    /* Initialize players (only balance carry over) */
+    const newPlayers = playerMoney.map((balance: number, index: number) => {
       return {
         balance: 100,
         hand: gameState.deck.getCards(2),
         folded: false,
         active: true,
         allIn: false,
-        bigBlind: false, /* will be set later */
-        smallBlind: false, /* will be set later */
+        bigBlind: false /* will be set later */,
+        smallBlind: false /* will be set later */,
         id: index,
-      }
+      };
     });
-    newPlayers[bigBlind_index].bigBlind = true;
-    newPlayers[smallBlind_index].smallBlind = true;
+    newPlayers[bigBlindIndex].bigBlind = true;
+    newPlayers[smallBlindIndex].smallBlind = true;
     setGameStateHelper({ deck: gameState.deck.shuffle() });
     setGameStateHelper({ players: newPlayers });
-    // setGameState({ ...gameState, players: newPlayers });
+    // setGameState((state) => ({ ...state, players: newPlayers }));
     increaseRoundNumber();
   }, []);
 
-  console.log("players set outside the loop", gameState.players);
-  /* Major Game Loop iterating through 'preflop', 'flop', 'turn', 'river' */
-  // React.useEffect(() => {
-  //   console.log("does problem solved?")
-  //   console.log("gamestae", gameState);
-  //   setGameStateHelper({ gameRunning: true }); // prevent user from clicking buttons
-  // }, [gameState]);
-
   React.useEffect(() => {
+    if (gameState.players.length === 0) return;
     console.log("in the round loop, the round number is", gameState.roundNumber);
     console.log("states are", gameState);
     setGameStateHelper({ gameRunning: true }); // prevent user from clicking buttons
@@ -162,22 +157,23 @@ const GameLay = () => {
       return;
     }
     console.log("gamestae", gameState);
-    console.log("players big blind 000", gameState.players)
-    console.log("players big blind 1", gameState.players[0].bigBlind)
-    console.log("players small blind 1", gameState.players[0].smallBlind)
-    console.log("players balance 1", gameState.players[0].balance)
+    console.log("players big blind 000", gameState.players);
+    console.log("players big blind 1", gameState.players[0].bigBlind);
+    console.log("players small blind 1", gameState.players[0].smallBlind);
+    console.log("players balance 1", gameState.players[0].balance);
+
     /* Start this round */
     startRound(gameState, gameState.roundNumber, setGameStateHelper); // visaulize delt cards
     if (gameState.roundNumber === 1) {
-      if (gameState.roundNumber === 1) {
-        dealBlinds(gameState, setGameStateHelper); // visualize
-      }
+      dealBlinds(gameState, setGameStateHelper); // visualize
       setGameStateHelper({ currentplayer_id: -1 }); // toggles forward to tigger this round, set to -1 to guarantee state changes
       setGameStateHelper({ currentplayer_id: -1 }); // toggles forward to tigger this round, set to -1 to guarantee state changes
-    }}, [gameState.roundNumber]);
+    }
+  }, [gameState.roundNumber, gameState.players]);
 
   /* major Round Loop, iterate player by player */
   React.useEffect(() => {
+    if (gameState.players.length === 0) return;
     if (gameState.currentplayer_id === -1) {
       increasePlayerId(); // start the round with player 0
     }
@@ -191,9 +187,9 @@ const GameLay = () => {
       // check if the round is over//
       const id = gameState.currentplayer_id;
       if (id === gameState.last_player_raised) {
-        const round_status = RoundisOver(gameState);
+        const roundStatus = RoundisOver(gameState);
         // setGameStateHelper({roundIsOver: round_status}); // should end????
-        if (round_status === true) {
+        if (roundStatus === true) {
           increaseRoundNumber(); // toggles back to trigger next round
         }
       }
@@ -228,11 +224,11 @@ const GameLay = () => {
         // else {
         //   setGameStateHelper({ gameRunning: false }); // allow user to take action
         // }
-      }
-      else {
+      } else {
         increaseRoundNumber(); // if one player left, proceed to end the game
       }
-    }}, [gameState.currentplayer_id]);
+    }
+  }, [gameState.currentplayer_id]);
 
   return (
     <Grid container>
@@ -375,10 +371,10 @@ const GameLay = () => {
       <RaiseOverlay
         open={raiseOverlayOpen}
         userBalance={100}
-        setUserBalance={() => { }}
-        addToPot={() => { }}
+        setUserBalance={() => {}}
+        addToPot={() => {}}
         handleClose={() => setRaiseOverlayOpen(false)}
-      // onClick = {handleRaise(userIndex, amount_to_raise)}
+        // onClick = {handleRaise(userIndex, amount_to_raise)}
       />
       <ChatGPTUpdate open={chatGPTMessageOpen} handleClose={() => setchatGPTMessageOpen(false)} />
       <CashOutDialog open={cashOutDialogOpen} handleClose={() => setCashOutDialogOpen(false)} />
