@@ -2,6 +2,7 @@ import * as React from "react";
 import { Dialog, DialogContent, Grid, IconButton, Typography } from "@mui/material";
 import LeaderboardTable from "../../assets/LeaderboardTable.svg";
 import CloseButton from "../../assets/CloseButton.svg";
+import { getChatGPTResponse } from "../../utils/APIConnection";
 
 interface LeaderboardDialogProps {
   open: boolean;
@@ -14,8 +15,35 @@ interface LeaderboardData {
 }
 
 const getLeaderboardData = (): LeaderboardData[] => {
+  const commCards = [
+    {
+      suite: "clubs",
+      value: 12,
+    },
+    {
+      suite: "clubs",
+      value: 5,
+    }, 
+    {
+      suite: "clubs",
+      value: 6,
+    },
+  ];
+
+  const gpCards = [
+    {
+      suite: "spades",
+      value: 12,
+    },
+    {
+      suite: "spades",
+      value: 5,
+    },
+  ];
+  
+  const val = getChatGPTResponse(commCards, gpCards, playMoney, currBet);
   return [
-    { displayName: "xyz", score: 150 },
+    { displayName: "testbet", score: { val } },
     { displayName: "xyz", score: 150 },
     { displayName: "xyz", score: 150 },
     { displayName: "xyz", score: 150 },
