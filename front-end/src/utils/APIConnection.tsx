@@ -1,5 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import axios from "axios";
+import {Card} from "../engine/Card";
 
 const BASE_URL = "http://localhost:3001";
 
@@ -39,7 +40,7 @@ const pushLeaderboardData = (name: string, score: number, walletId: string) => {
     });
 };
 
-const getChatGPTResponse = (communityCards, gptCards, playerMoney, currentBet = 0) => {
+const getChatGPTResponse = (communityCards: Array<Card>, gptCards: Array<Card>, playerMoney: number, opponentBet = 0) => {
   let value = -1;
   axios
     .get(`${BASE_URL}`, {
@@ -47,7 +48,7 @@ const getChatGPTResponse = (communityCards, gptCards, playerMoney, currentBet = 
         money: playerMoney,
         cards: gptCards,
         community: communityCards,
-        bet: currentBet,
+        bet: opponentBet,
       },
     })
     .then((response) => {
