@@ -23,7 +23,7 @@ const RaiseOverlay = ({ open, userBalance, handleRaise, handleClose }: RaiseOver
   };
 
   const placeBet = () => {
-    if (betAmount <= userBalance) handleRaise(1, betAmount);
+    if (betAmount <= userBalance) handleRaise(0, betAmount);
     handleClose();
   };
 

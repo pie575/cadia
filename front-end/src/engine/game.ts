@@ -52,16 +52,14 @@ export interface GameState{
 }
 /* Starts the round if not started yet */
 export function startRound(gameState: GameState, roundNumber: number, setGameStateHelper: Function):void{
-    console.log('stage 1')
-    console.log('players big blind' + gameState.players[0].bigBlind)
-    console.log('players small blind' + gameState.players[0].smallBlind)
-    console.log('players balance' + gameState.players[0].balance)
+    console.log('in StartRound')
+    console.log('is player 0 the big blind? ' + gameState.players[0].bigBlind)
+    console.log('is player 0 the small blind? ' + gameState.players[0].smallBlind)
+    console.log('player 0 balance? ' + gameState.players[0].balance)
     gameState.round = []; /* Reset the round */
     let copy_players = gameState.players;
     let copy_round = gameState.round;
     let activePlayers=0;
-    console.log('balance: ' + copy_players[0].balance)
-    console.log('big blind: ' + copy_players[0].bigBlind)
     for(let i=0;i<gameState.players.length;i++){
         if(copy_players[i].balance<0) {
             console.log("Player "+i+" has negative balance")
@@ -78,6 +76,7 @@ export function startRound(gameState: GameState, roundNumber: number, setGameSta
     
     /* deal cards for this round, skipping the preflop round */
     if (roundNumber != 1) {
+        console.log("Dealing cards for round in StartRound");
         if(gameState.__roundStates.length==5) throw new Error("Round is over, please invoke checkResult");
         let roundStates_copy = gameState.__roundStates;
         let table_copy = gameState.table;
@@ -92,9 +91,8 @@ export function startRound(gameState: GameState, roundNumber: number, setGameSta
         setGameStateHelper({deck: deck_copy, __roundStates:roundStates_copy, table:table_copy});
     }
     setGameStateHelper({players:copy_players, round:copy_round});
+    console.log("StartRound done, updated the players and round of gamestate")
     /* has to be at least 2 players */
-    console.log("Active players: "+activePlayers)
-    console.log("active player balance" + copy_players[0].balance)
     if(activePlayers<=1){
         throw new Error("Game cannot continue with less than 2 players");
     }
@@ -210,7 +208,7 @@ export function raise(gameState: GameState, index:number,amount_to_raise:number,
     copy_round[index].decision="raise";
     copy_players[index].balance-=amount_to_raise;
     copy_pot = amount_to_raise + gameState.pot;
-    setGameStateHelper({round:copy_round, players:copy_players, pot:copy_pot});
+    setGameStateHelper({round:copy_round, players:copy_players, pot:copy_pot, last_player_raised: index});
 }
 /** Call by a player
  * @param index Player index
@@ -224,6 +222,9 @@ export function call(gameState: GameState, index:number, setGameStateHelper: Fun
     let copy_round = gameState.round;
     let copy_players = gameState.players;
     let copy_pot = gameState.pot;
+    if (amount_to_call == gameState.players[index].balance) {
+        copy_players[index].allIn = true;
+    }
     copy_round[index].current_bet += amount_to_call;
     copy_round[index].decision="call";
     copy_players[index].balance-=amount_to_call;
@@ -312,8 +313,10 @@ export function checkResult(gameState: GameState, single_player_left: boolean, s
 }
 /* Returns the avaliable actions for a player */
 export function avaliableActions(gameState: GameState, index:number):Array<string>{
-    if(!gameState.round.length) throw new Error("Game round not started");
+    if (gameState.round.length == 0) throw new Error("Game round not started");
     let actions:Array<string>=[];
+    // if you have all-ined or folded, you can do nothing
+    if (gameState.players[index].allIn || gameState.players[index].folded) return actions;
     // if nobody has raised, you can check or raise or fold
     if (gameState.round.filter(p=>p.decision == "raise").length == 0) {
         actions.push("check");
