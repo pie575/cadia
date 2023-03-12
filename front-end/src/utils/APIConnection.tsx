@@ -40,20 +40,50 @@ const pushLeaderboardData = (name: string, score: number, walletId: string) => {
     });
 };
 
+// getting chatGPT response given player input
 const getChatGPTResponse = (
   communityCards: Array<Card>,
   gptCards: Array<Card>,
   playerMoney: number,
+  pastRounds: Array<Number>,
+  chatGPTisBigBlind: boolean,
   opponentBet = 0,
 ) => {
-  let value = -1;
   axios
-    .get(`${BASE_URL}`, {
+    .get(`${BASE_URL}/chatgpt_prompt`, {
       params: {
         money: playerMoney,
         cards: gptCards,
         community: communityCards,
         bet: opponentBet,
+        isBigBlind: chatGPTisBigBlind,
+        past_rounds: pastRounds,
+      },
+    })
+    .then((response) => {
+      return response.data.prompt;
+    });
+};
+
+// getting chatGPT prompt given player input
+const getChatGPTPrompt = (
+  communityCards: Array<Card>,
+  gptCards: Array<Card>,
+  playerMoney: number,
+  pastRounds: Array<Number>,
+  chatGPTisBigBlind: boolean,
+  opponentBet = 0,
+) => {
+  let value = -1;
+  axios
+    .post(`${BASE_URL}/chatgpt_response`, {
+      params: {
+        money: playerMoney,
+        cards: gptCards,
+        community: communityCards,
+        bet: opponentBet,
+        isBigBlind: chatGPTisBigBlind,
+        past_rounds: pastRounds,
       },
     })
     .then((response) => {
@@ -62,4 +92,4 @@ const getChatGPTResponse = (
   return value;
 };
 
-export { pushLeaderboardData, getLeaderboardData, getChatGPTResponse };
+export { pushLeaderboardData, getLeaderboardData, getChatGPTResponse, getChatGPTPrompt };
