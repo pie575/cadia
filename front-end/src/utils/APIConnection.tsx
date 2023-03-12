@@ -41,7 +41,7 @@ const pushLeaderboardData = (name: string, score: number, walletId: string) => {
 };
 
 // getting chatGPT response given player input
-const getChatGPTResponse = (
+const getChatGPTPrompt = (
   communityCards: Array<Card>,
   gptCards: Array<Card>,
   playerMoney: number,
@@ -66,7 +66,7 @@ const getChatGPTResponse = (
 };
 
 // getting chatGPT prompt given player input
-const getChatGPTPrompt = (
+const getChatGPTResponse = (
   communityCards: Array<Card>,
   gptCards: Array<Card>,
   playerMoney: number,
