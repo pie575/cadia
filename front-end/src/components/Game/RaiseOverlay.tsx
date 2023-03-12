@@ -4,15 +4,17 @@ import Slide from "@mui/material/Slide";
 import Space from "../../assets/Space/Space.svg";
 import GameButton from "./GameButton";
 import CloseButton from "../../assets/Game/CloseButton.svg";
+// import { gameState } from "../../Game/containers/GameLay";
 
 interface RaiseOverlayProps {
   open: boolean;
   userBalance: number;
   handleRaise: (index: number, amountRaise: number) => void;
   handleClose: () => void;
+  gameState: any;
 }
 
-const RaiseOverlay = ({ open, userBalance, handleRaise, handleClose }: RaiseOverlayProps) => {
+const RaiseOverlay = ({ open, userBalance, handleRaise, handleClose, gameState }: RaiseOverlayProps) => {
   const [betAmount, setBetAmount] = React.useState<number>(0);
 
   const changeBetAmount = (newBetAmount: number) => {
@@ -23,6 +25,10 @@ const RaiseOverlay = ({ open, userBalance, handleRaise, handleClose }: RaiseOver
   };
 
   const placeBet = () => {
+    const maxCurrentBet = gameState.round
+      .slice(0)
+      .sort((a: { current_bet: number }, b: { current_bet: number }) => b.current_bet - a.current_bet)[0].current_bet;
+    if (betAmount < maxCurrentBet) return; /* cannot raise below the maximum current bet for this round */
     if (betAmount <= userBalance) handleRaise(0, betAmount);
     handleClose();
   };

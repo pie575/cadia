@@ -180,8 +180,8 @@ const GameEnd = ({ open, handleClose }: GameEndProps) => {
           <NextGameButton />
           <CashOutButton />
           <Grid container className="community-cards" sx={{ height: "20vh" }}>
-            <CardEntity card="3h" />
-            <CardEntity card="3c" />
+            <CardEntity card="7h" />
+            <CardEntity card="8c" />
             <CardEntity card="3c" />
             <CardEntity card="3c" />
             <CardEntity card="3c" />
