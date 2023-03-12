@@ -9,7 +9,7 @@ model_engine = "text-davinci-003"
 
 def get_string_card(card):
     card_val = str(card['value'])
-    if card_val == '1':
+    if card_val == '2':
         card_val = 'ace'
     if card_val == '11':
         card_val = 'jack'
@@ -22,71 +22,86 @@ def get_string_card(card):
 
 @chatgpt.route("/chatgpt_response", methods=["POST"])
 def chatgpt_response():
-    # Generate a response
     inp = request.json
+    player_money = inp['money']
+    bet = inp['bet']
+
+    inp_prompt = get_prompt(hidden = False, inp = inp)
+
+    completion = openai.Completion.create(
+        engine=model_engine,
+        prompt=inp_prompt,
+        max_tokens=2,
+        n=1,
+        stop=None,
+        temperature=0.5,
+    )
+
+    response = completion.choices[0].text
+    curr_val = 0
+    
+    for i in response:
+        try:
+            curr_val = curr_val * 10 + int(i)
+        except:
+            continue
+
+    if not (curr_val >= 0 and curr_val < player_money):
+        print('\nused random val \n')
+        curr_val = random.randrange(bet-1, player_money)
+    if curr_val == bet-1:
+        curr_val = -1
+    return str(curr_val)
+    
+
+    
+@chatgpt.route("/chatgpt_prompt", methods=["GET"])
+def get_prompt_for_chatbox():
+    return {'prompt':get_prompt(True,request.json)}
+
+def get_prompt(hidden: bool, inp: dict):
     player_money = inp['money']
     chatGPT_cards = inp['cards']
     current_community = inp['community']
+    past_rounds = inp['past_rounds']
+    isBigBlind = inp['isBigBlind']
     bet = inp['bet']
-    if bet == 0:
-        prompt = 'Player 1 and Player 2 are playing texas holdem. Player 1 has $' + str(
-            player_money) + '. Player 1 has ' + get_string_card(
-            chatGPT_cards['cards'][0]) + ' and ' + get_string_card(chatGPT_cards['cards'][1]) + \
-                '. Player 2 has two unknown cards. There is a '
-        for card in current_community:
-            prompt += get_string_card(card)+","
 
-        prompt = prompt[0:-1] + ' on the table. How much exactly should Player 1 bet?\nBased on odds and calculations, Player 1 should bet specifically $'
-
-        completion = openai.Completion.create(
-            engine=model_engine,
-            prompt=prompt,
-            max_tokens=2,
-            n=1,
-            stop=None,
-            temperature=0.5,
-        )
-
-        response = completion.choices[0].text
-        curr_val = 0
-        for i in response:
-            try:
-                curr_val = curr_val * 10 + int(i)
-            except:
-                continue
-
-        if not (curr_val >= 0 and curr_val < player_money):
-            print('\nused random val \n')
-            curr_val = random.randrange(0, player_money)
-        return str(curr_val)
+    rounds = ['preflop', 'flop','turn', 'river', 'showdown']
     
+    prompt_str = 'Player 1 and Player 2 are playing texas holdem.'
+    
+    if isBigBlind=='True':
+        prompt_str += ' Player 1 is big blind, forced to put in $10 at the start of the pre-flop round.'
     else:
-        prompt = 'Player 1 and Player 2 are playing texas holdem. Player 1 has $' + str(
-            player_money) + '. Player 1 has ' + get_string_card(
-            chatGPT_cards['cards'][0]) + ' and ' + get_string_card(chatGPT_cards['cards'][1]) + \
-                '. Player 2 has two unknown cards. There is a '
-        for card in current_community:
-            prompt += get_string_card(card)+","
-
-        prompt = prompt[0:-1] + ' on the table. Player 2 has bet $'+str(bet)+'How much exactly should Player 1 bet?\nBased on odds and calculations, Player 1 should bet specifically $'
-        
-        completion = openai.Completion.create(
-            engine=model_engine,
-            prompt=prompt,
-            max_tokens=2,
-            n=1,
-            stop=None,
-            temperature=0.5,
-        )
-        response = completion.choices[0].text
-        curr_val = 0
-        for i in response:
-            try:
-                curr_val = curr_val * 10 + int(i)
-            except:
-                continue
-        if curr_val < bet:
-            return '-1'
-        return str(str(curr_val))
-
+        prompt_str += ' Player 2 is big blind, forced to put in $10 at the start of the pre-flop round.'
     
+    if hidden:
+        prompt_str += ' Player 1 has $' + str(
+                player_money) + '. Player 1 has a **** card and a **** card. Player 2 has two unknown cards. There is a '
+    else:
+        prompt_str += ' Player 1 has $' + str(
+                player_money) + '. Player 1 has ' + get_string_card(
+                chatGPT_cards['cards'][0]) + ' and ' + get_string_card(chatGPT_cards['cards'][1]) + \
+                    '. Player 2 has two unknown cards. There is a '
+    for card in current_community:
+        prompt += get_string_card(card)+","
+
+    prompt = prompt[0:-1] + ' on the table. '
+    
+    curr_round = 0
+    for val in past_rounds:
+        prompt_str += 'The '+str(rounds[i])+' round ended with $'+str(val)+' added to the table. '
+        curr_round+=1
+    
+    prompt_str +='They are in the '+str(rounds[curr_round]) + 'round, '
+    if isBigBlind == 'True':
+        prompt_str+= 'and it is Player 1\'s turn. '
+    else:
+        prompt_str += 'and Player 2 has bet $'+str(bet)+'.\n'
+    
+    if hidden:
+        prompt_str += 'Player 1 has three options: they can fold, they can match the bet, or they can raise it to a new desired value (the maximum of which is $'+str(player_money)+'). What should they do?'
+    else:
+        prompt_str += 'Player 1 has three options: they can fold, they can match the bet, or they can raise it to a new desired value (the maximum of which is $'+str(player_money)+'). What should they do? I don\'t want an explanation, I just want a numerical answer in the following format, regardless of uncertainty: if folding, say "-1". if matching, say "'+str(bet)+'". if raising, say a number between "'+str(bet)+'" and "'+str(player_money)+'".'
+    return prompt_str
