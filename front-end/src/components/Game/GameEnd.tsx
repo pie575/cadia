@@ -14,19 +14,26 @@ import MaskedText from "../MaskedText";
 import CardEntity from "../../assets/cards/CardEntity";
 import { GameState } from "../../engine/game";
 import convertCardstoStrings from "../../engine/cardconversion";
+import GameLay from "../../containers/GameLay";
 
 interface GameEndProps {
   open: boolean;
   handleClose: () => void;
   resetGameState: (arg0: boolean) => void;
   gameState: GameState;
+  pot: number;
+}
+interface NextGameButtonProps {
+  resetGameState: (arg0: boolean) => void;
+  handleClose: () => void;
 }
 
-const NextGameButton = (resetGameState: any) => {
+const NextGameButton = ({ resetGameState, handleClose }: NextGameButtonProps) => {
   return (
     <Button
       onClick={() => {
         resetGameState(false);
+        handleClose();
       }}
       sx={{
         backgroundImage: `url(${GameBaseButton})`,
@@ -37,7 +44,7 @@ const NextGameButton = (resetGameState: any) => {
         height: "10vh",
       }}
     >
-      <MaskedText text="Continue the Game" fontSize="1.5rem" />
+      <MaskedText text="Next Game" fontSize="1.5rem" />
     </Button>
   );
 };
@@ -73,8 +80,11 @@ const CashOutButton = () => {
   );
 };
 
-const GameEnd = ({ open, handleClose, resetGameState, gameState }: GameEndProps) => {
+const GameEnd = ({ open, handleClose, resetGameState, gameState, pot }: GameEndProps) => {
+  if (gameState.players.length === 0) return null;
   console.log("gameend is called");
+  console.log("86 gamestate pot is", gameState.pot);
+  console.log("87 pot is", pot);
   const ChatGPTCards = convertCardstoStrings(gameState.players[1].hand);
   const UserCards = convertCardstoStrings(gameState.players[0].hand);
   const CommunityCards = convertCardstoStrings(gameState.table);
@@ -160,7 +170,7 @@ const GameEnd = ({ open, handleClose, resetGameState, gameState }: GameEndProps)
                 color: "white",
               }}
             >
-              {gameState.pot}
+              {pot}
             </Typography>
           </Grid>
           <Grid
@@ -191,7 +201,7 @@ const GameEnd = ({ open, handleClose, resetGameState, gameState }: GameEndProps)
             alignItems: "center",
           }}
         >
-          <NextGameButton resetGameState={resetGameState} />
+          <NextGameButton resetGameState={resetGameState} handleClose={handleClose} />
           <CashOutButton />
           <Grid container className="community-cards" sx={{ height: "20vh" }}>
             <CardEntity card={CommunityCards[0]} />

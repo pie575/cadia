@@ -48,7 +48,7 @@ const GameLay = () => {
     __instance: new Holdem(),
     table: [],
     round: [],
-    __roundStates: [],
+    roundStates: [],
     bigBlindAmount,
     bigBlind_index: 0,
     smallBlind_index: 1,
@@ -70,7 +70,14 @@ const GameLay = () => {
     setGameState((state) => ({ ...state, ...updatedState }));
   };
 
-  const increaseRoundNumber = () => setGameStateHelper({ roundNumber: gameState.roundNumber + 1 });
+  const increaseRoundNumber = () => {
+    setGameStateHelper({ roundNumber: gameState.roundNumber + 1 });
+    if (gameState.round.length > 0) {
+      const newRoundStates = gameState.roundStates;
+      newRoundStates.push(gameState.round.slice(0));
+      setGameStateHelper({ roundStates: newRoundStates });
+    }
+  }
   const increasePlayerId = () => {
     let nextPlayer = gameState.currentplayer_id + 1;
     if (nextPlayer >= gameState.players.length) {
@@ -178,7 +185,7 @@ const GameLay = () => {
       __instance: new Holdem(),
       table: [],
       round: [],
-      __roundStates: [],
+      roundStates: [],
       players : newPlayers,
       bigBlindAmount,
       bigBlind_index: bigBlindIndex,
@@ -338,8 +345,7 @@ const GameLay = () => {
     everyoneTakenAction = (actions.length === gameState.players.length);
     // if the player is the last player to raise or the player checked or called, check if the round is over
     if ((id === gameState.last_player_raised || gameState.round[id].decision === "check" || gameState.round[id].decision === "call") && everyoneTakenAction) {
-      const roundStatus = RoundisOver(gameState);
-      if (roundStatus === true) {
+      if (RoundisOver(gameState)) {
         increaseRoundNumber(); // toggles back to trigger next round
         console.log("line 282 round is over with roundnumber = ", gameState.roundNumber);
         return;
@@ -359,7 +365,7 @@ const GameLay = () => {
     if (!singlePlayerLeft()) {
       if (gameState.currentplayer_id === 1) {
         console.log("line 301 it's AI turn to take actions");
-        setGameStateHelper({ ChatGPTTurn: true });
+        // setGameStateHelper({ ChatGPTTurn: true });
 
         // if (ChatGPTAction === -1) {
         //   handleFold(1);
@@ -375,19 +381,19 @@ const GameLay = () => {
         // }
         // const ChatGPTAction = fetchChatGPTReponse();
 
-        // const AIavaliableActions = avaliableActions(gameState, 1);
-        // console.log("line 305 AI avaliable actions are", AIavaliableActions)
-        // if (AIavaliableActions.includes("check")) {
-        //   console.log("line 306 AI checked");
-        //   handleCheck(1, gameState.roundNumber);
-        // }
-        // else if (AIavaliableActions.includes("call")) {
-        //   console.log("line 310 AI called");
-        //   handleCall(1);
-        // }
-        // else {
-        //   throw new Error("AI has no avaliable actions");
-        // }
+        const AIavaliableActions = avaliableActions(gameState, 1);
+        console.log("line 305 AI avaliable actions are", AIavaliableActions)
+        if (AIavaliableActions.includes("check")) {
+          console.log("line 306 AI checked");
+          handleCheck(1, gameState.roundNumber);
+        }
+        else if (AIavaliableActions.includes("call")) {
+          console.log("line 310 AI called");
+          handleCall(1);
+        }
+        else {
+          throw new Error("AI has no avaliable actions");
+        }
       }
       else {
         console.log("line 328: set game running to false");
@@ -457,6 +463,23 @@ const GameLay = () => {
     navigate("/home");
   };
 
+  const checkPot = () => {
+    if (gameState.roundStates.length === 0) return 0;
+    let pot = 0;
+    for (let i = 0; i < gameState.players.length; i += 1) {
+      for (let j = 0; j < gameState.roundStates.length; j += 1) {
+        pot += gameState.roundStates[j][i].current_bet;
+      }
+    }
+    return pot;
+  }
+    
+  React.useEffect(() => {
+    if (gameState.result.index !== -1 && gameState.players[0].balance > 0) {
+      setGameEndOpen(true);
+    }
+  }, [gameState.result.index]); 
+
   return (
     <Grid container>
       <Grid item sx={{ width: "80vw", height: "90vh", position: "fixed", left: "10vw", top: "5vh" }}>
@@ -514,9 +537,6 @@ const GameLay = () => {
             </Grid>
           </Grid>
         </Grid>
-        { gameState.result.index !== -1 && gameState.players[0].balance > 0 &&
-          <GameEnd open={gameEndOpen} handleClose={() => setGameEndOpen(false)} resetGameState={resetGameState} gameState={gameState} />
-        }
         <Grid item xs={4} sx={{ display: "flex", justifyContent: "flex-center" }}>
             <div color = 'white'>
                 The round number is {gameState.roundNumber}.
@@ -622,11 +642,11 @@ const GameLay = () => {
             </Grid>
             } 
             {/* positioning of the 3 buttons needs to be fixed */}
-            { gameState.result.index !== -1 && gameState.players[0].balance > 0 &&
+            {/* { gameState.result.index !== -1 && gameState.players[0].balance > 0 &&
             <Grid item xs={2} justifyContent="center" gridColumn={8}>
               <GameButton disabled={gameState.result.index === -1} text="Continue the Game" onClick={() => resetGameState(false)} />
             </Grid>
-            }
+            } */}
             { gameState.players.length !== 0 && gameState.players[0].balance === 0 &&
             <Grid item xs={2} justifyContent="center" gridColumn={10}>
               <GameButton text="Restart the Game" onClick={() => resetGameState(true)} />
@@ -637,6 +657,9 @@ const GameLay = () => {
               <GameButton text="Exit the Game" onClick={() => exitGame()} />
                 </Grid>
             }
+            {/* { gameState.result.index !== -1 && gameState.players[0].balance > 0 &&
+              {setGameEndOpen(true)}
+            } */}
           </Grid>
         </Grid>
       </Grid>
@@ -650,6 +673,13 @@ const GameLay = () => {
       <ChatGPTUpdate open={chatGPTMessageOpen} handleClose={() => setchatGPTMessageOpen(false)} />
       <CashOutDialog open={cashOutDialogOpen} handleClose={() => setCashOutDialogOpen(false)} 
       userScore={gameState.players?.[0]?.balance} resetGameState={resetGameState} />
+      <GameEnd 
+        open={gameEndOpen} 
+        handleClose={() => setGameEndOpen(false)} 
+        resetGameState={resetGameState} 
+        gameState={gameState} 
+        pot={checkPot()}
+      />
     </Grid>
     
   );
