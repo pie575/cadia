@@ -365,7 +365,7 @@ const GameLay = () => {
     if (!singlePlayerLeft()) {
       if (gameState.currentplayer_id === 1) {
         console.log("line 301 it's AI turn to take actions");
-        // setGameStateHelper({ ChatGPTTurn: true });
+        setGameStateHelper({ ChatGPTTurn: true });
 
         // if (ChatGPTAction === -1) {
         //   handleFold(1);
@@ -381,19 +381,19 @@ const GameLay = () => {
         // }
         // const ChatGPTAction = fetchChatGPTReponse();
 
-        const AIavaliableActions = avaliableActions(gameState, 1);
-        console.log("line 305 AI avaliable actions are", AIavaliableActions)
-        if (AIavaliableActions.includes("check")) {
-          console.log("line 306 AI checked");
-          handleCheck(1, gameState.roundNumber);
-        }
-        else if (AIavaliableActions.includes("call")) {
-          console.log("line 310 AI called");
-          handleCall(1);
-        }
-        else {
-          throw new Error("AI has no avaliable actions");
-        }
+        // const AIavaliableActions = avaliableActions(gameState, 1);
+        // console.log("line 305 AI avaliable actions are", AIavaliableActions)
+        // if (AIavaliableActions.includes("check")) {
+        //   console.log("line 306 AI checked");
+        //   handleCheck(1, gameState.roundNumber);
+        // }
+        // else if (AIavaliableActions.includes("call")) {
+        //   console.log("line 310 AI called");
+        //   handleCall(1);
+        // }
+        // else {
+        //   throw new Error("AI has no avaliable actions");
+        // }
       }
       else {
         console.log("line 328: set game running to false");
@@ -456,11 +456,6 @@ const GameLay = () => {
       message = "You Lost to the Almighty AI!"
     }
     return message;
-  };
-
-  const exitGame = () => {
-    const navigate = useNavigate();
-    navigate("/home");
   };
 
   const checkPot = () => {
