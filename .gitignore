@@ -1,5 +1,5 @@
-backend/venv
-backend/.idea
-backend/__pycache__
+back-end/venv
+back-end/.idea
+back-end/__pycache__
 .envrc
 node_modules/
