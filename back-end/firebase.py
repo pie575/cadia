@@ -6,7 +6,7 @@ from firebase_admin import db
 cred = credentials.Certificate("back-end/desocade-firebase-adminsdk-n6sgm-2f4b56e278.json")
 default_app = firebase_admin.initialize_app(cred, {
 	'databaseURL': "https://desocade-default-rtdb.firebaseio.com/"
-	})
+})
 
 
 def post_score(name, wallet_address, score):
