@@ -33,8 +33,8 @@ interface Player {
 RoundisOver(), EndRound(), checkResults(), avaliableActions(), computeHands() */
 export interface GameState{
     pot:number; /* Current pot amount */
-    communityCards:Array<Card>; /* Community cards at the table */
     roundNumber:number; /* Current round number */
+    gameNumber:number; /* Current game number */
     round:Array<Player_Round>; /* Current round */
     table:Array<Card>; /* Current table cards */
     deck:Deck; /* Current deck */
@@ -43,7 +43,8 @@ export interface GameState{
     bigBlind_index:number; /* Current big blind index */
     smallBlind_index:number; /* Current small blind index */
     last_player_raised: number;
-    gameRunning: boolean;
+    PlayerTurn: boolean;
+    ChatGPTTurn: boolean;
     currentplayer_id: number;
     result: Result;
     __roundStates:Array<Array<Player_Round>>;
@@ -52,31 +53,21 @@ export interface GameState{
 }
 /* Starts the round if not started yet */
 export function startRound(gameState: GameState, roundNumber: number, setGameStateHelper: Function):void{
-    console.log('in StartRound')
-    console.log('is player 0 the big blind? ' + gameState.players[0].bigBlind)
-    console.log('is player 0 the small blind? ' + gameState.players[0].smallBlind)
-    console.log('player 0 balance? ' + gameState.players[0].balance)
+    if (roundNumber < 1 || roundNumber > 5) return;
+    console.log('gameState in StartRound', gameState);
     gameState.round = []; /* Reset the round */
-    let copy_players = gameState.players;
-    let copy_round = gameState.round;
+    let newPlayers = gameState.players;
+    let newRound = gameState.round;
     let activePlayers=0;
     for(let i=0;i<gameState.players.length;i++){
-        if(copy_players[i].balance<0) {
-            console.log("Player "+i+" has negative balance")
-            copy_players[i].active=false; /* Player has negative balance */
-        }
-            /* or the player is offline */
-        else{
-            activePlayers++;
-        }
-        copy_round[i]={
+        newRound[i]={
             current_bet:0, 
+            decision:undefined,
         };
     }
     
     /* deal cards for this round, skipping the preflop round */
     if (roundNumber != 1) {
-        console.log("Dealing cards for round in StartRound");
         if(gameState.__roundStates.length==5) throw new Error("Round is over, please invoke checkResult");
         let roundStates_copy = gameState.__roundStates;
         let table_copy = gameState.table;
@@ -90,83 +81,99 @@ export function startRound(gameState: GameState, roundNumber: number, setGameSta
         }
         setGameStateHelper({deck: deck_copy, __roundStates:roundStates_copy, table:table_copy});
     }
-    setGameStateHelper({players:copy_players, round:copy_round});
+    setGameStateHelper({players:newPlayers, round:newRound, last_player_raised: -1});
     console.log("StartRound done, updated the players and round of gamestate")
     /* has to be at least 2 players */
-    if(activePlayers<=1){
-        throw new Error("Game cannot continue with less than 2 players");
-    }
+    // if(activePlayers<=1){
+    //     throw new Error("Game cannot continue with less than 2 players");
+    // }
 }
 /** Conduct the big/small blinds for the game, and blinds rotate to the next player
  * @param index Player index
  */
 export function dealBlinds(gameState: GameState, setGameStateHelper: Function):void{
     if(!gameState.round.length) throw new Error("Game round not started");
-    let copy_players = gameState.players;
-    let copy_round = gameState.round;
-    let copy_bigBlind_index = gameState.bigBlind_index;
-    let copy_smallBlind_index = gameState.smallBlind_index;
+    let newPlayers = gameState.players;
+    let newRound = gameState.round;
+    let newbigBlindIndex = gameState.bigBlind_index; // for this round
+    let newsmallBlindIndex = gameState.smallBlind_index; // for this round
+    let newLastPlayerRaised = gameState.last_player_raised;
     let total_blinds = 0;
-    let foundBigBlind = false;
-    let foundSmallBlind = false;
-    for (var id = 0; id < copy_players.length; id++) {
-        if (copy_players[id].active == false) {
+    for (var id = 0; id < newPlayers.length; id++) {
+        if (newPlayers[id].active == false) {
             continue;
         }
-        if (copy_players[id].bigBlind == true) {
-            total_blinds += gameState.bigBlindAmount;
-            copy_players[id].balance-=gameState.bigBlindAmount;
-            copy_round[id].current_bet += gameState.bigBlindAmount;
-            copy_players[id].bigBlind = false;
-            copy_round[id].decision = "raise"; /* big blind is equvialent to a raise in the first round */
+        if (newPlayers[id].bigBlind) {
+            if (newPlayers[id].balance > gameState.bigBlindAmount) {
+                newPlayers[id].balance-=gameState.bigBlindAmount;
+                total_blinds += gameState.bigBlindAmount;
+                newRound[id].current_bet += gameState.bigBlindAmount;
+                newRound[id].decision = "raise"; /* big blind is equvialent to a raise in the first round */
+                newLastPlayerRaised = id;
+            }
+            else {
+                total_blinds += newPlayers[id].balance;
+                newPlayers[id].balance = 0;
+                newPlayers[id].allIn = true;
+                newRound[id].current_bet += newPlayers[id].balance;
+                if (newRound[id].current_bet > gameState.bigBlindAmount/2) {
+                    newRound[id].decision = "raise";
+                    newLastPlayerRaised = id;
+                }
+                else {
+                    newRound[id].decision = "call";
+                }
+            }
             /* find the next player who is still active to be the big blind */
             let nextPlayer = id + 1;
-            if (nextPlayer == copy_players.length) {
+            if (nextPlayer == newPlayers.length) {
                 nextPlayer = 0;
             }
-            while (copy_players[nextPlayer].active == false) {
+            while (newPlayers[nextPlayer].active == false) {
                 nextPlayer++;
-                if (nextPlayer == copy_players.length) {
+                if (nextPlayer == newPlayers.length) {
                     nextPlayer = 0;
                 }
             }
-            copy_players[nextPlayer].bigBlind = true;
-            copy_bigBlind_index = nextPlayer;
-            foundBigBlind = true;
+            newbigBlindIndex = nextPlayer;
             break; /* found the big blind, break out of the loop */
         }
     }
-    for (var id = 0; id < copy_players.length; id++) {
-        if (copy_players[id].active == false) {
+    for (var id = 0; id < newPlayers.length; id++) {
+        if (newPlayers[id].active == false) {
             continue;
         }
-        if (copy_players[id].smallBlind == true) {
-            total_blinds += gameState.bigBlindAmount/2;
-            copy_players[id].balance-=gameState.bigBlindAmount/2;
-            copy_round[id].current_bet += gameState.bigBlindAmount/2;
-            copy_players[id].smallBlind = false;
+        if (gameState.players[id].smallBlind) {
+            if (newPlayers[id].balance > gameState.bigBlindAmount/2) {
+                newPlayers[id].balance-=gameState.bigBlindAmount/2;
+                total_blinds += gameState.bigBlindAmount/2;
+                newRound[id].current_bet += gameState.bigBlindAmount/2;
+            }
+            else {
+                total_blinds += newPlayers[id].balance;
+                newPlayers[id].balance = 0;
+                newPlayers[id].allIn = true;
+                newRound[id].current_bet += newPlayers[id].balance;
+                newRound[id].decision = "call";
+            }
             /* find the next player who is still active to be the big blind */
             let nextPlayer = id + 1;
-            if (nextPlayer == copy_players.length) {
+            if (nextPlayer == newPlayers.length) {
                 nextPlayer = 0;
             }
-            while (copy_players[nextPlayer].active == false) {
+            while (newPlayers[nextPlayer].active == false) {
                 nextPlayer++;
-                if (nextPlayer == copy_players.length) {
+                if (nextPlayer == newPlayers.length) {
                     nextPlayer = 0;
                 }
             }
-            copy_players[nextPlayer].smallBlind = true;
-            copy_smallBlind_index = nextPlayer;
-            foundSmallBlind = true;
+            newsmallBlindIndex = nextPlayer;
             break; /* found the big blind, break out of the loop */
         }
     }
-    if (foundBigBlind == false || foundSmallBlind == false) {
-        throw new Error("Could not find big or small blind");
-    }
-    let copy_pot = gameState.pot + total_blinds;
-    setGameStateHelper({players:copy_players, round:copy_round, bigBlind_index:copy_bigBlind_index, smallBlind_index:copy_smallBlind_index, pot:copy_pot});
+    let newPot = gameState.pot + total_blinds;
+    setGameStateHelper({players:newPlayers, round:newRound, bigBlind_index: newbigBlindIndex, 
+        smallBlind_index:newsmallBlindIndex, pot:newPot, last_player_raised: newLastPlayerRaised});
 }
 
 /** Bet 0 unit of money
@@ -177,11 +184,10 @@ export function check(gameState: GameState, index:number, roundNumber: number, s
     let max_current_bet = gameState.round.slice(0).sort((a,b)=>b.current_bet-a.current_bet)[0].current_bet;
     if (gameState.round[index].current_bet < max_current_bet) throw new Error("Cannot check with a current bet less than the maximum current bet");
     /* do not update decision if the big blind checks on the first round */
-    let copy_round = gameState.round;
-    if (gameState.bigBlind_index != index && roundNumber != 1) {
-        copy_round[index].decision = "check";
-        setGameStateHelper({round:copy_round});
-    }
+    let newRound = gameState.round;
+    // if (gameState.players[index].bigBlind == true && roundNumber != 1) {
+    newRound[index].decision = "check";
+    setGameStateHelper({round:newRound});
 }
 /** Raise by a player
  * @param index Player index
@@ -193,22 +199,23 @@ export function raise(gameState: GameState, index:number,amount_to_raise:number,
     let max_current_bet =gameState.round.slice(0).sort((a,b)=>b.current_bet-a.current_bet)[0].current_bet;
     if(amount_to_raise + gameState.round[index].current_bet <= max_current_bet) throw new Error("Cannot raise to less than or equal to the maximum current bet");
     /* reset the decision table of other players for this round if someone raised */
-    let copy_round = gameState.round;
-    let copy_players = gameState.players;
-    let copy_pot = gameState.pot;
+    let newRound = gameState.round;
+    let newPlayers = gameState.players;
+    let newPot = gameState.pot;
     for (let i = 0; i < gameState.round.length; i++) {
         if (i != index) {
-            copy_round[i].decision = undefined;
+            newRound[i].decision = undefined;
         }
     }
-    if (amount_to_raise == copy_players[index].balance) {
-        copy_players[index].allIn = true;
+    if (amount_to_raise == newPlayers[index].balance) {
+        newPlayers[index].allIn = true;
     }
-    copy_round[index].current_bet += amount_to_raise;
-    copy_round[index].decision="raise";
-    copy_players[index].balance-=amount_to_raise;
-    copy_pot = amount_to_raise + gameState.pot;
-    setGameStateHelper({round:copy_round, players:copy_players, pot:copy_pot, last_player_raised: index});
+    newRound[index].current_bet += amount_to_raise;
+    newRound[index].decision="raise";
+    newPlayers[index].balance -=amount_to_raise;
+    newPot = amount_to_raise + gameState.pot;
+    console.log("line 201 player ", index, " balance: " + newPlayers[index].balance);
+    setGameStateHelper({round:newRound, players:newPlayers, pot:newPot, last_player_raised: index});
 }
 /** Call by a player
  * @param index Player index
@@ -219,34 +226,35 @@ export function call(gameState: GameState, index:number, setGameStateHelper: Fun
     if (gameState.round[index].current_bet >= max_current_bet) throw new Error("Cannot call with a current bet greater than or equal to the maximum current bet");
     let amount_to_call = max_current_bet - gameState.round[index].current_bet;
     if(gameState.players[index].balance < amount_to_call) throw new Error('Insufficient balance to call');
-    let copy_round = gameState.round;
-    let copy_players = gameState.players;
-    let copy_pot = gameState.pot;
+    let newRound = gameState.round;
+    let newPlayers = gameState.players;
+    let newPot = gameState.pot;
     if (amount_to_call == gameState.players[index].balance) {
-        copy_players[index].allIn = true;
+        newPlayers[index].allIn = true;
     }
-    copy_round[index].current_bet += amount_to_call;
-    copy_round[index].decision="call";
-    copy_players[index].balance-=amount_to_call;
-    copy_pot += amount_to_call;
-    setGameStateHelper({round:copy_round, players:copy_players, pot:copy_pot});
+    newRound[index].current_bet += amount_to_call;
+    newRound[index].decision="call";
+    newPlayers[index].balance-=amount_to_call;
+    newPot += amount_to_call;
+    setGameStateHelper({round:newRound, players:newPlayers, pot:newPot});
 }
 /** Fold by a player
  * @param index Player index
  */
 export function fold(gameState: GameState, index:number, setGameStateHelper: Function):void{
     if(!gameState.round.length) throw new Error("Game round not started");
-    let copy_round = gameState.round;
-    let copy_players = gameState.players;
-    copy_round[index].decision="fold";
-    copy_players[index].folded=true;
-    setGameStateHelper({round:copy_round, players:copy_players});
+    let newRound = gameState.round;
+    let newPlayers = gameState.players;
+    newRound[index].decision="fold";
+    newPlayers[index].folded=true;
+    setGameStateHelper({round:newRound, players:newPlayers});
 }
 /* Whether the current round can be ended, by checking if the current bet for this round is equal */
 export function RoundisOver(gameState: GameState):boolean{
     let last_amount=-1;
     for(let i=0;i<gameState.players.length;i++){
-        if(gameState.round[i].decision=="fold" || gameState.players[i].active == false) continue;
+        if(gameState.round[i].decision=="fold" || gameState.players[i].active == false) 
+            continue;
         /* check if all non-folded, active players have checked and bet the same amount */
         let current_bet =gameState.round[i].current_bet;
         if(last_amount<0)
@@ -277,7 +285,7 @@ export function RoundisOver(gameState: GameState):boolean{
 // }
 /* Returns the result of the current round and Conducts payout */
 export function checkResult(gameState: GameState, single_player_left: boolean, setGameStateHelper: Function):Result{
-    let copy_players = gameState.players;
+    let newPlayers = gameState.players;
     if (single_player_left) {
         let player_index = gameState.players.findIndex(f => f.active && !f.folded);
         const result: Result = {
@@ -285,14 +293,14 @@ export function checkResult(gameState: GameState, single_player_left: boolean, s
             index: player_index,
             name: 'last standing player',
         };
-        copy_players[player_index].balance += gameState.pot;
-        setGameStateHelper({players: copy_players});
+        newPlayers[player_index].balance += gameState.pot;
+        setGameStateHelper({players: newPlayers, pot: 0});
         return result;
     }
     let result=gameState.__instance.compareHands(gameState.players.map(m=>m.hand),gameState.table);
     if(result.type=='win'){
         if(result.index!=undefined)
-            copy_players[result.index].balance += gameState.pot;
+            newPlayers[result.index].balance += gameState.pot;
         else
             throw new Error("This error will never happen");
     }
@@ -304,11 +312,11 @@ export function checkResult(gameState: GameState, single_player_left: boolean, s
             for(let i=0;i<gameState.players.length;i++){
                 if(!gameState.players[i].folded)
                     gameState.players[i].balance+=eachSplit;
-                    copy_players[i].balance += eachSplit;
+                    newPlayers[i].balance += eachSplit;
             }
         }
     }
-    setGameStateHelper({players: copy_players});
+    setGameStateHelper({players: newPlayers, pot: 0});
     return result;
 }
 /* Returns the avaliable actions for a player */
@@ -334,14 +342,22 @@ export function avaliableActions(gameState: GameState, index:number):Array<strin
         /* if you raised, you can check or fold */
         else {
             /* if you raised as a big blind, you can raise this time */
-            let old_big_blind = index - 1;
-            if (old_big_blind < 0) old_big_blind = gameState.players.length - 1;
-            if(gameState.players[old_big_blind].bigBlind) {
+            if(gameState.players[index].bigBlind && gameState.round[index].current_bet == gameState.bigBlindAmount) {
                 actions.push("raise");
             }
             actions.push("check");
             actions.push("fold");
         }
+    }
+    /* you can only check if your current bet is equal to the maximum current bet for this round */
+    const max_current_bet = Math.max.apply(Math, gameState.round.map(m=>m.current_bet));
+    if (gameState.round[index].current_bet != max_current_bet) {
+        actions = actions.filter(f=>f != "check");
+        if (actions.indexOf("call") == -1) actions.push("call");
+    }
+    /* if you have insufficient balance to call, you cannot raise */
+    if (gameState.players[index].balance <= max_current_bet - gameState.round[index].current_bet) {
+        actions = actions.filter(f=>f != "raise");
     }
     return actions;
 }
