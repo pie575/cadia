@@ -17,7 +17,7 @@ def chatgpt_response():
         if str(card_val) == '13':
             card_val = 'king'
         return card_val + ' of ' + str(card['suite'])
-    openai.api_key = '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'
+    openai.api_key = ''
     model_engine = "text-davinci-003"
     inp = request.json
     player_money = inp['money']
