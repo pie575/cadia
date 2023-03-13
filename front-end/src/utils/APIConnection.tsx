@@ -15,7 +15,7 @@ const getLeaderboardData = (scoreCount: number) => {
   axios
     .get(`${BASE_URL}/leaderboard`, {
       params: {
-        count: { scoreCount },
+        count: scoreCount,
       },
     })
     .then((res) => {

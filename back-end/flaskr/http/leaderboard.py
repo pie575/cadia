@@ -4,11 +4,10 @@ from firebase_admin import db
 leaderboard = Blueprint("leaderboard", __name__)
 
 
-@leaderboard.route("/leaderboard/<num_scores>", methods=["GET"])
-def get_score(num_scores):
-	score_limit = int(num_scores)
-	if score_limit <= 0:
-		score_limit = 10
+@leaderboard.route("/leaderboard", methods=["GET"])
+def get_score():
+	score_limit = int(request.args.get("count"))
+	if score_limit <= 0: score_limit = 10
 
 	# Returns a list of the top num_scores from highest to lowest in the tuple form ('name', 'score', 'wallet_address')
 	ref = db.reference('Scores')
