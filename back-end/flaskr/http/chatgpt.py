@@ -10,7 +10,7 @@ model_engine = "text-davinci-003"
 
 def get_string_card(card):
     card_val = str(card['value'])
-    if card_val == '2':
+    if card_val == '14':
         card_val = 'ace'
     if card_val == '11':
         card_val = 'jack'

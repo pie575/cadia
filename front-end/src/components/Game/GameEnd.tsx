@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Button, Grid, Typography, Modal } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import PokerTableImage from "../../assets/pokertable.svg";
 import GoldPotImg from "../../assets/goldpot.svg";
 // import CoinImg from "../../assets/coin.svg";
@@ -11,16 +12,29 @@ import CashOutBack from "../../assets/cashoutback.svg";
 import "../../styles/game.css";
 import MaskedText from "../MaskedText";
 import CardEntity from "../../assets/cards/CardEntity";
+import { GameState } from "../../engine/game";
+import convertCardstoStrings from "../../engine/cardconversion";
+import GameLay from "../../containers/GameLay";
 
 interface GameEndProps {
   open: boolean;
   handleClose: () => void;
+  resetGameState: (arg0: boolean) => void;
+  gameState: GameState;
+  pot: number;
+}
+interface NextGameButtonProps {
+  resetGameState: (arg0: boolean) => void;
+  handleClose: () => void;
 }
 
-const NextGameButton = () => {
+const NextGameButton = ({ resetGameState, handleClose }: NextGameButtonProps) => {
   return (
     <Button
-      onClick={() => {}}
+      onClick={() => {
+        resetGameState(false);
+        handleClose();
+      }}
       sx={{
         backgroundImage: `url(${GameBaseButton})`,
         backgroundSize: "contain",
@@ -36,9 +50,12 @@ const NextGameButton = () => {
 };
 
 const CashOutButton = () => {
+  const navigate = useNavigate();
   return (
     <Button
-      onClick={() => {}}
+      onClick={() => {
+        navigate("/home");
+      }}
       sx={{
         backgroundImage: `url(${CashOutBack})`,
         backgroundSize: "contain",
@@ -63,7 +80,14 @@ const CashOutButton = () => {
   );
 };
 
-const GameEnd = ({ open, handleClose }: GameEndProps) => {
+const GameEnd = ({ open, handleClose, resetGameState, gameState, pot }: GameEndProps) => {
+  if (gameState.players.length === 0) return null;
+  console.log("gameend is called");
+  console.log("86 gamestate pot is", gameState.pot);
+  console.log("87 pot is", pot);
+  const ChatGPTCards = convertCardstoStrings(gameState.players[1].hand);
+  const UserCards = convertCardstoStrings(gameState.players[0].hand);
+  const CommunityCards = convertCardstoStrings(gameState.table);
   return (
     <Modal open={open} onClose={handleClose}>
       <Grid
@@ -117,14 +141,14 @@ const GameEnd = ({ open, handleClose }: GameEndProps) => {
             xs={1.5}
             sx={{ display: "flex", alignContent: "center", justifyContent: "center", alignItems: "center" }}
           >
-            <CardEntity className="endgame-card" card="3h" />
+            <CardEntity className="endgame-card" card={ChatGPTCards[0]} />
           </Grid>
           <Grid
             item
             xs={1.5}
             sx={{ display: "flex", alignContent: "center", justifyContent: "center", alignItems: "center" }}
           >
-            <CardEntity className="endgame-card" card="3h" />
+            <CardEntity className="endgame-card" card={ChatGPTCards[1]} />
           </Grid>
           <Grid
             item
@@ -146,7 +170,7 @@ const GameEnd = ({ open, handleClose }: GameEndProps) => {
                 color: "white",
               }}
             >
-              100
+              {pot}
             </Typography>
           </Grid>
           <Grid
@@ -154,14 +178,14 @@ const GameEnd = ({ open, handleClose }: GameEndProps) => {
             xs={1.5}
             sx={{ display: "flex", alignContent: "center", justifyContent: "center", alignItems: "center" }}
           >
-            <CardEntity className="endgame-card" card="3h" />
+            <CardEntity className="endgame-card" card={UserCards[0]} />
           </Grid>
           <Grid
             item
             xs={1.5}
             sx={{ display: "flex", alignContent: "center", justifyContent: "center", alignItems: "center" }}
           >
-            <CardEntity className="endgame-card" card="3h" />
+            <CardEntity className="endgame-card" card={UserCards[1]} />
           </Grid>
           <Grid item xs={1} />
         </Grid>
@@ -177,14 +201,14 @@ const GameEnd = ({ open, handleClose }: GameEndProps) => {
             alignItems: "center",
           }}
         >
-          <NextGameButton />
+          <NextGameButton resetGameState={resetGameState} handleClose={handleClose} />
           <CashOutButton />
           <Grid container className="community-cards" sx={{ height: "20vh" }}>
-            <CardEntity card="7h" />
-            <CardEntity card="8c" />
-            <CardEntity card="3c" />
-            <CardEntity card="3c" />
-            <CardEntity card="3c" />
+            <CardEntity card={CommunityCards[0]} />
+            <CardEntity card={CommunityCards[1]} />
+            <CardEntity card={CommunityCards[2]} />
+            <CardEntity card={CommunityCards[3]} />
+            <CardEntity card={CommunityCards[4]} />
           </Grid>
         </Grid>
       </Grid>

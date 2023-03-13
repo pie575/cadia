@@ -47,7 +47,7 @@ export interface GameState{
     ChatGPTTurn: boolean;
     currentplayer_id: number;
     result: Result;
-    __roundStates:Array<Array<Player_Round>>;
+    roundStates:Array<Array<Player_Round>>;
     /* Player status */
     players:Array<Player>;
 }
@@ -55,7 +55,6 @@ export interface GameState{
 export function startRound(gameState: GameState, roundNumber: number, setGameStateHelper: Function):void{
     if (roundNumber < 1 || roundNumber > 5) return;
     console.log('gameState in StartRound', gameState);
-    gameState.round = []; /* Reset the round */
     let newPlayers = gameState.players;
     let newRound = gameState.round;
     let activePlayers=0;
@@ -68,25 +67,18 @@ export function startRound(gameState: GameState, roundNumber: number, setGameSta
     
     /* deal cards for this round, skipping the preflop round */
     if (roundNumber != 1) {
-        if(gameState.__roundStates.length==5) throw new Error("Round is over, please invoke checkResult");
-        let roundStates_copy = gameState.__roundStates;
+        if(gameState.roundStates.length==5) throw new Error("Round is over, please invoke checkResult");
         let table_copy = gameState.table;
         let deck_copy = gameState.deck;
-
-        roundStates_copy.push(gameState.round.slice(0));
-        if(roundStates_copy.length<5){
+        if(gameState.roundStates.length<5){
             let communityCardCountForThisRound=1;
             if(gameState.table.length==0) communityCardCountForThisRound=3;
             table_copy.push.apply(table_copy, deck_copy.getCards(communityCardCountForThisRound));
         }
-        setGameStateHelper({deck: deck_copy, __roundStates:roundStates_copy, table:table_copy});
+        setGameStateHelper({deck: deck_copy, table:table_copy});
     }
     setGameStateHelper({players:newPlayers, round:newRound, last_player_raised: -1});
     console.log("StartRound done, updated the players and round of gamestate")
-    /* has to be at least 2 players */
-    // if(activePlayers<=1){
-    //     throw new Error("Game cannot continue with less than 2 players");
-    // }
 }
 /** Conduct the big/small blinds for the game, and blinds rotate to the next player
  * @param index Player index
@@ -269,8 +261,8 @@ export function RoundisOver(gameState: GameState):boolean{
 /* Ends the current round. */
 // export function endRound(gameState: GameState, setGameStateHelper: Function):void{
 //     // if(!gameState.round.length) throw new Error("Game round not started");
-//     if(gameState.__roundStates.length==4) throw new Error("Round is over, please invoke checkResult");
-//     let roundStates_copy = gameState.__roundStates;
+//     if(gameState.roundStates.length==4) throw new Error("Round is over, please invoke checkResult");
+//     let roundStates_copy = gameState.roundStates;
 //     let table_copy = gameState.table;
 //     let deck_copy = gameState.deck;
 
@@ -281,7 +273,7 @@ export function RoundisOver(gameState: GameState):boolean{
 //         if(gameState.table.length==0) communityCardCountForThisRound=3;
 //         table_copy.push.apply(table_copy, deck_copy.getCards(communityCardCountForThisRound));
 //     }
-//     setGameStateHelper({deck: deck_copy, __roundStates:roundStates_copy, table:table_copy});
+//     setGameStateHelper({deck: deck_copy, roundStates:roundStates_copy, table:table_copy});
 // }
 /* Returns the result of the current round and Conducts payout */
 export function checkResult(gameState: GameState, single_player_left: boolean, setGameStateHelper: Function):Result{
