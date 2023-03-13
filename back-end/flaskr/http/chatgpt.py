@@ -1,10 +1,11 @@
 from flask import Blueprint, request
 import openai
 import random
+from flaskr.config import OPENAI_KEY
 
 chatgpt = Blueprint("chatgpt", __name__)
 
-openai.api_key = ''
+openai.api_key = OPENAI_KEY
 model_engine = "text-davinci-003"
 
 def get_string_card(card):
