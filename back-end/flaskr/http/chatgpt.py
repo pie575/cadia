@@ -24,7 +24,7 @@ def get_string_card(card):
 @chatgpt.route("/chatgpt_response", methods=["POST"])
 def chatgpt_response():
     inp = request.json
-    player_money = inp['money']
+    player_money = int(inp['money'])
     bet = inp['bet']
 
     inp_prompt = get_prompt(hidden = False, inp = inp)
@@ -82,7 +82,7 @@ def get_prompt(hidden: bool, inp: dict):
     else:
         prompt_str += ' Player 1 has $' + str(
                 player_money) + '. Player 1 has ' + get_string_card(
-                chatGPT_cards['cards'][0]) + ' and ' + get_string_card(chatGPT_cards['cards'][1]) + \
+                chatGPT_cards[0]) + ' and ' + get_string_card(chatGPT_cards[1]) + \
                     '. Player 2 has two unknown cards. There is a '
     for card in current_community:
         prompt_str += get_string_card(card)+","
