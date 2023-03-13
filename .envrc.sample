@@ -1,0 +1,2 @@
+export FIREBASE_CREDENTIALS='{}'
+export OPENAI_KEY=''
