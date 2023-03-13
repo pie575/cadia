@@ -53,7 +53,6 @@ def chatgpt_response():
     if curr_val == bet-1:
         curr_val = -1
     return str(curr_val)
-    
 
     
 @chatgpt.route("/chatgpt_prompt", methods=["GET"])
@@ -86,13 +85,13 @@ def get_prompt(hidden: bool, inp: dict):
                 chatGPT_cards['cards'][0]) + ' and ' + get_string_card(chatGPT_cards['cards'][1]) + \
                     '. Player 2 has two unknown cards. There is a '
     for card in current_community:
-        prompt += get_string_card(card)+","
+        prompt_str += get_string_card(card)+","
 
-    prompt = prompt[0:-1] + ' on the table. '
+    prompt_str = prompt_str[0:-1] + ' on the table. '
     
     curr_round = 0
     for val in past_rounds:
-        prompt_str += 'The '+str(rounds[i])+' round ended with $'+str(val)+' added to the table. '
+        prompt_str += 'The '+str(rounds[curr_round])+' round ended with $'+str(val)+' added to the table. '
         curr_round+=1
     
     prompt_str +='They are in the '+str(rounds[curr_round]) + 'round, '
