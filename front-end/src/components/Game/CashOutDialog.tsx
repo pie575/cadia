@@ -29,16 +29,16 @@ const CashOutDialog = ({ open, userScore, handleClose, resetGameState }: CashOut
     navigate("/home");
   };
 
-  const SubmitandRestart = () => {
-    // console.log("submit and restart");
-    // if (currentUser) return;
-    // pushLeaderboardData({
-    //   name: currentUser.ProfileEntryResponse.Username,
-    //   score: userScore,
-    //   walletId: currentUser.PublicKeyBase58Check,
-    // });
-    resetGameState(true);
-  };
+  // const SubmitandRestart = () => {
+  //   // console.log("submit and restart");
+  //   // if (currentUser) return;
+  //   // pushLeaderboardData({
+  //   //   name: currentUser.ProfileEntryResponse.Username,
+  //   //   score: userScore,
+  //   //   walletId: currentUser.PublicKeyBase58Check,
+  //   // });
+  //   resetGameState(true);
+  // };
 
   return (
     <Modal open={open} onClose={handleClose}>
@@ -67,11 +67,11 @@ const CashOutDialog = ({ open, userScore, handleClose, resetGameState }: CashOut
               <img src={ConfirmCashOut} alt="Submit Score and Exit" style={{ width: "4vw" }} />
             </IconButton>
           </Grid>
-          <Grid item xs={2}>
+          {/* <Grid item xs={2}>
             <IconButton onClick={SubmitandRestart}>
               <img src={ConfirmCashOut} alt="Submit Score and Restart" style={{ width: "4vw" }} />
             </IconButton>
-          </Grid>
+          </Grid> */}
           <Grid item xs={2}>
             <IconButton onClick={handleClose}>
               <img src={ExitCashOut} alt="Cancel cash out" style={{ width: "4vw" }} />

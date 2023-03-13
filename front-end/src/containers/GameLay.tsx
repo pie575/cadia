@@ -475,7 +475,7 @@ const GameLay = () => {
   }
     
   React.useEffect(() => {
-    if (gameState.result.index !== -1 && gameState.players[0].balance > 0) {
+    if (gameState.result.index !== -1 && gameState.players[0].balance >= 0) {
       setGameEndOpen(true);
     }
   }, [gameState.result.index]); 
@@ -647,7 +647,7 @@ const GameLay = () => {
               <GameButton disabled={gameState.result.index === -1} text="Continue the Game" onClick={() => resetGameState(false)} />
             </Grid>
             } */}
-            { gameState.players.length !== 0 && gameState.players[0].balance === 0 &&
+            {/* { gameState.players.length !== 0 && gameState.players[0].balance === 0 &&
             <Grid item xs={2} justifyContent="center" gridColumn={10}>
               <GameButton text="Restart the Game" onClick={() => resetGameState(true)} />
             </Grid>
@@ -656,9 +656,6 @@ const GameLay = () => {
                 <Grid item xs={2} justifyContent="center" gridColumn={10}>
               <GameButton text="Exit the Game" onClick={() => exitGame()} />
                 </Grid>
-            }
-            {/* { gameState.result.index !== -1 && gameState.players[0].balance > 0 &&
-              {setGameEndOpen(true)}
             } */}
           </Grid>
         </Grid>

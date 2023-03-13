@@ -26,13 +26,15 @@ interface GameEndProps {
 interface NextGameButtonProps {
   resetGameState: (arg0: boolean) => void;
   handleClose: () => void;
+  gameState: GameState;
 }
 
-const NextGameButton = ({ resetGameState, handleClose }: NextGameButtonProps) => {
+const NextGameButton = ({ resetGameState, handleClose, gameState }: NextGameButtonProps) => {
+  const forNextTournamentbutnotNextGame = gameState.players[0].balance === 0;
   return (
     <Button
       onClick={() => {
-        resetGameState(false);
+        resetGameState(forNextTournamentbutnotNextGame);
         handleClose();
       }}
       sx={{
@@ -44,7 +46,8 @@ const NextGameButton = ({ resetGameState, handleClose }: NextGameButtonProps) =>
         height: "10vh",
       }}
     >
-      <MaskedText text="Next Game" fontSize="1.5rem" />
+      {!forNextTournamentbutnotNextGame && <MaskedText text="Click to Continue" fontSize="1.5rem" />}
+      {forNextTournamentbutnotNextGame && <MaskedText text="Restart Game" fontSize="1.5rem" />}
     </Button>
   );
 };
@@ -82,9 +85,6 @@ const CashOutButton = () => {
 
 const GameEnd = ({ open, handleClose, resetGameState, gameState, pot }: GameEndProps) => {
   if (gameState.players.length === 0) return null;
-  console.log("gameend is called");
-  console.log("86 gamestate pot is", gameState.pot);
-  console.log("87 pot is", pot);
   const ChatGPTCards = convertCardstoStrings(gameState.players[1].hand);
   const UserCards = convertCardstoStrings(gameState.players[0].hand);
   const CommunityCards = convertCardstoStrings(gameState.table);
@@ -201,7 +201,7 @@ const GameEnd = ({ open, handleClose, resetGameState, gameState, pot }: GameEndP
             alignItems: "center",
           }}
         >
-          <NextGameButton resetGameState={resetGameState} handleClose={handleClose} />
+          <NextGameButton resetGameState={resetGameState} handleClose={handleClose} gameState={gameState} />
           <CashOutButton />
           <Grid container className="community-cards" sx={{ height: "20vh" }}>
             <CardEntity card={CommunityCards[0]} />
