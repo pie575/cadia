@@ -43,7 +43,8 @@ export interface GameState{
     bigBlind_index:number; /* Current big blind index */
     smallBlind_index:number; /* Current small blind index */
     last_player_raised: number;
-    gameRunning: boolean;
+    PlayerTurn: boolean;
+    ChatGPTTurn: boolean;
     currentplayer_id: number;
     result: Result;
     __roundStates:Array<Array<Player_Round>>;

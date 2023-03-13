@@ -11,20 +11,33 @@ interface CashOutDialogProps {
   open: boolean;
   userScore: number;
   handleClose: () => void;
+  resetGameState: (arg0: boolean) => void;
 }
 
-const CashOutDialog = ({ open, userScore, handleClose }: CashOutDialogProps) => {
+const CashOutDialog = ({ open, userScore, handleClose, resetGameState }: CashOutDialogProps) => {
   const navigate = useNavigate();
   const { currentUser } = React.useContext(UserContext);
 
-  const confirmCashOut = () => {
-    if (currentUser) return;
+  const SubmitandExit = () => {
+    // console.log("submit and exit");
+    // if (currentUser) return;
     // pushLeaderboardData({
     //   name: currentUser.ProfileEntryResponse.Username,
     //   score: userScore,
     //   walletId: currentUser.PublicKeyBase58Check,
     // });
     navigate("/home");
+  };
+
+  const SubmitandRestart = () => {
+    // console.log("submit and restart");
+    // if (currentUser) return;
+    // pushLeaderboardData({
+    //   name: currentUser.ProfileEntryResponse.Username,
+    //   score: userScore,
+    //   walletId: currentUser.PublicKeyBase58Check,
+    // });
+    resetGameState(true);
   };
 
   return (
@@ -43,14 +56,20 @@ const CashOutDialog = ({ open, userScore, handleClose }: CashOutDialogProps) => 
         >
           <Grid item xs={7} sx={{ marginLeft: "1vw" }}>
             <Typography sx={{ fontFamily: "Joystix", color: "white" }}>
-              You are about to cash out your coins for a score. your score will be recorded, but you will not able to
-              continue playing with your coins. are you sure?
+              You are about to submit your score. your score will be recorded, but you will not able to continue playing
+              with your coins. are you sure?
             </Typography>
           </Grid>
           <Grid item flexGrow={1} />
+          {/* need to change icons to represent two clicks */}
           <Grid item xs={2}>
-            <IconButton onClick={confirmCashOut}>
-              <img src={ConfirmCashOut} alt="Confirm cash out" style={{ width: "4vw" }} />
+            <IconButton onClick={SubmitandExit}>
+              <img src={ConfirmCashOut} alt="Submit Score and Exit" style={{ width: "4vw" }} />
+            </IconButton>
+          </Grid>
+          <Grid item xs={2}>
+            <IconButton onClick={SubmitandRestart}>
+              <img src={ConfirmCashOut} alt="Submit Score and Restart" style={{ width: "4vw" }} />
             </IconButton>
           </Grid>
           <Grid item xs={2}>
