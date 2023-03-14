@@ -114,25 +114,29 @@ const GameLay = () => {
   };
 
   const handleFold = (index: number) => {
-    if (!gameState.PlayerTurn) return;
+    if (index === 0 && !gameState.PlayerTurn) return;
+    if (index === 1 && !gameState.ChatGPTTurn) return;
     fold(gameState, index, setGameStateHelper);
-    increasePlayerId(); // next player to take actions
+    increasePlayerId(); 
   };
 
   const handleRaise = (index: number, amount_to_raise: number) => {
-    if (!gameState.PlayerTurn) return;
+    if (index === 0 && !gameState.PlayerTurn) return;
+    if (index === 1 && !gameState.ChatGPTTurn) return;
     raise(gameState, index, amount_to_raise, setGameStateHelper);
     increasePlayerId();
   };
 
   const handleCall = (index: number) => {
-    if (!gameState.PlayerTurn) return;
+    if (index === 0 && !gameState.PlayerTurn) return;
+    if (index === 1 && !gameState.ChatGPTTurn) return;
     call(gameState, index, setGameStateHelper);
     increasePlayerId();
   };
 
   const handleCheck = (index: number, roundNumber: number) => {
-    if (!gameState.PlayerTurn) return;
+    if (index === 0 && !gameState.PlayerTurn) return;
+    if (index === 1 && !gameState.ChatGPTTurn) return;
     check(gameState, index, roundNumber, setGameStateHelper);
     increasePlayerId();
   };
@@ -312,8 +316,9 @@ const GameLay = () => {
 
   /* decision stage Loop, iterate player by player */
   React.useEffect(() => {
-    checkUserCards(); // check if user has a pair or better
-    checkCommunityCards(); // check if community cards have a pair or better
+    // checkUserCards(); // check if user has a pair or better
+    // checkCommunityCards(); // check if community cards have a pair or better
+    console.log("line 317 player id is ", gameState.currentplayer_id);
     if (gameState.players.length === 0 || gameState.roundNumber === 0) return;
     if (gameState.currentplayer_id === -1) {
       increasePlayerId(); // start the round with player 0
@@ -343,6 +348,7 @@ const GameLay = () => {
       }
     }
     everyoneTakenAction = (actions.length === gameState.players.length);
+    console.log("line 347 everyoneTakenAction is ", everyoneTakenAction);
     // if the player is the last player to raise or the player checked or called, check if the round is over
     if ((id === gameState.last_player_raised || gameState.round[id].decision === "check" || gameState.round[id].decision === "call") && everyoneTakenAction) {
       if (RoundisOver(gameState)) {
@@ -416,22 +422,27 @@ const GameLay = () => {
   async function fetchChatGPTReponse() {
     const pastRounds = gameState.round.map((round) => round.current_bet);
     const ChatGPTAction = await getChatGPTResponse(gameState.table, gameState.players[1].hand, gameState.players[1].balance, pastRounds, gameState.players[1].bigBlind, gameState.round[0].current_bet);
-    console.log("line 303 ChatGPTAction is", ChatGPTAction);
+    console.log("line 429 ChatGPTAction is", ChatGPTAction);
     if (ChatGPTAction === -1) {
+      console.log("does chatgpt action include fold? ", avaliableActions(gameState, 1).includes("fold"));
       handleFold(1);
     }
     else if (ChatGPTAction === 0) {
+      console.log("does chatgpt action include check? ", avaliableActions(gameState, 1).includes("check"));
       handleCheck(1, gameState.roundNumber);
     }
     else if (ChatGPTAction === gameState.round[1].current_bet - gameState.round[0].current_bet) {
+      console.log("does chatgpt action include call? ", avaliableActions(gameState, 1).includes("call"));
       handleCall(1);
     }
     else {
+      console.log("does chatgpt action include raise? ", avaliableActions(gameState, 1).includes("raise"));
       handleRaise(1, ChatGPTAction);
     }
   }
 
   React.useEffect(() => {
+    console.log("line 445 checking gameState", gameState, "chatgpt turn is ", gameState.ChatGPTTurn)
     if (!gameState.ChatGPTTurn) return;
     fetchChatGPTReponse();
     setGameStateHelper({ ChatGPTTurn: false });
@@ -439,8 +450,8 @@ const GameLay = () => {
 
   const checkBalance = () => {
     if (gameState.players.length !== 0 && gameState.players[0].balance) {
-      console.log("line 347 checking player 0's balance ", gameState.players[0].balance);
-      console.log("line 347 checking player 1's balance ", gameState.players[1].balance);
+      console.log("line 453 checking player 0's balance ", gameState.players[0].balance);
+      console.log("line 454 checking player 1's balance ", gameState.players[1].balance);
       return gameState.players[0].balance;
     }
     return 100;
