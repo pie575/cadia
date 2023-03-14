@@ -77,14 +77,12 @@ const getChatGPTResponse = (
   let value = -1;
   axios
     .post(`${BASE_URL}/chatgpt_response`, {
-      params: {
-        money: playerMoney,
-        cards: gptCards,
-        community: communityCards,
-        bet: opponentBet,
-        isBigBlind: chatGPTisBigBlind,
-        past_rounds: pastRounds,
-      },
+      money: playerMoney,
+      cards: gptCards,
+      community: communityCards,
+      bet: opponentBet,
+      isBigBlind: chatGPTisBigBlind,
+      past_rounds: pastRounds,
     })
     .then((response) => {
       value = response.data.bet;

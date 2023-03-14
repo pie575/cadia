@@ -3,3 +3,4 @@ back-end/.idea
 back-end/__pycache__
 .envrc
 node_modules/
+.vscode
