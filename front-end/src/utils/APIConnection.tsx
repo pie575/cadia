@@ -20,7 +20,7 @@ const getLeaderboardData = (scoreCount: number) => {
     })
     .then((res) => {
       console.log(res);
-      const inputFiles = res.data.scores;
+      const inputFiles = res.data;
       for (let i = 0; i < inputFiles.length; i += 1)
         leaderboardDataReturn.push({ displayName: inputFiles[i][0], score: parseInt(inputFiles[i][1], 10) });
     });
@@ -66,7 +66,6 @@ const getChatGPTPrompt = (
 };
 
 // getting chatGPT prompt given player input
-// TODO: PASS IN chatgpt current bet, bigblind amount as new parameters
 const getChatGPTResponse = async (
   communityCards: Array<Card>,
   gptCards: Array<Card>,
@@ -87,8 +86,8 @@ const getChatGPTResponse = async (
       bet: opponentBet,
       isBigBlind: chatGPTisBigBlind,
       past_rounds: pastRounds,
-      chatGPTCurrentBet: chatGPTCurrentBet,
-      bigBlindAmount: bigBlindAmount,
+      chatGPTCurrentBet,
+      bigBlindAmount,
     });
     console.log("response: ", response);
     value = response.data;

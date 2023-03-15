@@ -53,7 +53,7 @@ export interface GameState{
 }
 /* Starts the round if not started yet */
 export function startRound(gameState: GameState, roundNumber: number, setGameStateHelper: Function):void{
-    if (roundNumber < 1 || roundNumber > 5) return;
+    if (roundNumber < 1 || roundNumber > 4) return;
     console.log('gameState in StartRound', gameState);
     let newPlayers = gameState.players;
     let newRound = gameState.round;
@@ -177,7 +177,6 @@ export function check(gameState: GameState, index:number, roundNumber: number, s
     if (gameState.round[index].current_bet < max_current_bet) throw new Error("Cannot check with a current bet less than the maximum current bet");
     /* do not update decision if the big blind checks on the first round */
     let newRound = gameState.round;
-    // if (gameState.players[index].bigBlind == true && roundNumber != 1) {
     newRound[index].decision = "check";
     setGameStateHelper({round:newRound});
 }

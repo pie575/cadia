@@ -290,19 +290,18 @@ const GameLay = () => {
       // resetGameState(false);
       return;
     }
+    /* Round Number: 0 (Null), 1 (preflop), 2 (flop), 3 (river), 4 (turn), 5 (exceed max limit, so showdown) */
     if (gameState.roundNumber === 5) {
       const result = checkResult(gameState, false, setGameStateHelper);
       console.log("line 226 result is", result)
       setGameStateHelper({ result });
-      // resetGameState(false);
       return;
     }
 
     /* Start this round */
     startRound(gameState, gameState.roundNumber, setGameStateHelper); // visaulize delt cards
     console.log("line 235: started the round");
-      // since the big blind is the last_player_raised for the first round,
-    // only set last_player_raised to 0 if it is not the first round 
+    /* since the big blind is the last_player_raised for the first round, only set last_player_raised to 0 if it is not the first round */
     if (gameState.roundNumber === 1) {
       dealBlinds(gameState, setGameStateHelper); // dealBlinds initializes the round and last player raised
       console.log("line 240: dealt blinds");
@@ -316,9 +315,6 @@ const GameLay = () => {
 
   /* decision stage Loop, iterate player by player */
   React.useEffect(() => {
-    // checkUserCards(); // check if user has a pair or better
-    // checkCommunityCards(); // check if community cards have a pair or better
-    console.log("line 317 player id is ", gameState.currentplayer_id);
     if (gameState.players.length === 0 || gameState.roundNumber === 0) return;
     if (gameState.currentplayer_id === -1) {
       increasePlayerId(); // start the round with player 0
@@ -420,8 +416,9 @@ const GameLay = () => {
   }, [gameState.PlayerTurn]);
 
   async function fetchChatGPTReponse() {
-    const pastRounds = gameState.round.map((round) => round.current_bet);
-    const ChatGPTAction = await getChatGPTResponse(gameState.table, gameState.players[1].hand, gameState.players[1].balance, pastRounds, gameState.players[1].bigBlind, gameState.round[0].current_bet);
+    // mapping from roundstates to bets to obtain post rounds
+    const pastRounds = gameState.roundStates.map((round) => round[0].current_bet);
+    const ChatGPTAction = await getChatGPTResponse(gameState.table, gameState.players[1].hand, gameState.players[0].balance, pastRounds, gameState.players[1].bigBlind, gameState.round[0].current_bet, gameState.round[1].current_bet, gameState.bigBlindAmount);
     console.log("line 429 ChatGPTAction is", ChatGPTAction);
     if (ChatGPTAction === -1) {
       console.log("does chatgpt action include fold? ", avaliableActions(gameState, 1).includes("fold"));
@@ -431,7 +428,7 @@ const GameLay = () => {
       console.log("does chatgpt action include check? ", avaliableActions(gameState, 1).includes("check"));
       handleCheck(1, gameState.roundNumber);
     }
-    else if (ChatGPTAction === gameState.round[1].current_bet - gameState.round[0].current_bet) {
+    else if (ChatGPTAction === gameState.round[0].current_bet - gameState.round[1].current_bet) {
       console.log("does chatgpt action include call? ", avaliableActions(gameState, 1).includes("call"));
       handleCall(1);
     }
