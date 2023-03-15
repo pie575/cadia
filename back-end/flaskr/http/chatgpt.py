@@ -28,6 +28,7 @@ def chatgpt_response():
     """Get a response from ChatGPT"""
     inp = request.json
     player_money = int(inp['money'])
+    gpt_curr_bet = int(inp['chatGPTCurrentBet'])
     bet = inp['bet']
 
     inp_prompt = get_prompt(hidden=False, inp=inp)
@@ -50,11 +51,14 @@ def chatgpt_response():
         except:
             continue
 
-    if not (curr_val >= 0 and curr_val < player_money):
+    if not (0 <= curr_val < player_money):
         print('\nused random val \n')
-        curr_val = random.randrange(bet-1, player_money)
-    if curr_val == bet-1:
+        curr_val = random.randrange(bet - 1, player_money)
+    if curr_val == bet - 1:
         curr_val = -1
+
+    # getting amount to add to bet, instead of final raise amount.
+    curr_val -= gpt_curr_bet
     return str(curr_val)
 
 
@@ -71,6 +75,8 @@ def get_prompt(hidden: bool, inp: dict):
     current_community = inp['community']
     past_rounds = inp['past_rounds']
     is_big_blind = bool(inp['isBigBlind'])
+    gpt_curr_bet = inp['chatGPTCurrentBet']
+    big_blind_amount = inp['bigBlindAmount']
     bet = inp['bet']
 
     rounds = ['preflop', 'flop', 'turn', 'river', 'showdown']
@@ -78,49 +84,92 @@ def get_prompt(hidden: bool, inp: dict):
     prompt_str = 'Player 1 and Player 2 are playing texas holdem.'
 
     if is_big_blind:
-        prompt_str += ' Player 1 is big blind, forced to put in $10 at the start \
+        prompt_str += f' Player 1 is big blind, forced to put in ${str(big_blind_amount)} at the start \
             of the pre-flop round.'
     else:
-        prompt_str += ' Player 2 is big blind, forced to put in $10 at the start \
+        prompt_str += f' Player 2 is big blind, forced to put in ${str(big_blind_amount)} at the start \
             of the pre-flop round.'
 
     if hidden:
-        prompt_str += f' Player 1 has $ {str(player_money)} . Player 1 has a \
+        prompt_str += f' Player 1 has ${str(player_money)} . Player 1 has a \
             **** card and a **** card. Player 2 has two unknown cards. There is a '
     else:
         prompt_str += f' Player 1 has ${str(player_money)}. Player 1 has \
             {get_string_card(chatgpt_cards[0])} and {get_string_card(chatgpt_cards[1])}. \
             Player 2 has two unknown cards. There is a '
     for card in current_community:
-        prompt_str += get_string_card(card)+","
+        prompt_str += get_string_card(card) + ","
 
     prompt_str = prompt_str[0:-1] + ' on the table. '
 
     curr_round = 0
     for val in past_rounds:
         prompt_str += 'The ' + \
-            str(rounds[curr_round])+' round ended with $' + \
-            str(val)+' added to the table. '
+                      str(rounds[curr_round]) + ' round ended with $' + \
+                      str(val) + ' added to the table. '
         curr_round += 1
 
-    prompt_str += 'They are in the '+str(rounds[curr_round]) + 'round, '
-    if is_big_blind:
-        prompt_str += 'and it is Player 1\'s turn. '
-    else:
-        prompt_str += 'and Player 2 has bet $'+str(bet)+'.\n'
+    prompt_str += 'They are in the ' + str(rounds[curr_round]) + 'round, '
+    small_blind_amount = int(big_blind_amount) // 2
+
+    # round 1
+    if curr_round == 0:
+        # gpt small blind and first
+        if not is_big_blind and int(gpt_curr_bet) == small_blind_amount:
+            prompt_str += f'and it is Player 1\'s turn (Player 1 has already placed the small blind, which \
+                            is ${str(small_blind_amount)}).\n'
+
+        # player matches small blind, gpt big blind and betting for first time
+        elif int(gpt_curr_bet) == int(big_blind_amount) and int(bet) == small_blind_amount:
+            prompt_str += f'and Player 2 matched the small blind, which is ${str(small_blind_amount)}.\n'
+
+        # player raises, gpt big blind and betting for first time
+        elif curr_round == 0 and int(gpt_curr_bet) == int(big_blind_amount) and int(bet) == small_blind_amount:
+            prompt_str += f'and Player 2 raised to ${str(bet)} (including small blind). (Player 1 has already placed the \
+                                big blind, which is ${str(big_blind_amount)}). \n'
+
+        # ... gpt raise, player raises, gpt's turn.
+        elif int(gpt_curr_bet) != int(bet):
+            # gpt is small blind, and has a non-match bet on the table
+            if not is_big_blind and int(gpt_curr_bet) > small_blind_amount:
+                prompt_str += f'and after Player 1 bet ${str(gpt_curr_bet)} (including blind amount), \
+                    Player 2 raised to ${str(bet)} (including blind amount).\n'
+
+            # gpt is big blind, and has a non-match bet on the table
+            elif is_big_blind and int(gpt_curr_bet) > big_blind_amount:
+                prompt_str += f'and after Player 1 bet ${str(gpt_curr_bet)} (including blind amount), \
+                                Player 2 raised to ${str(bet)} (including blind amount).\n'
+
+    # gpt first time betting
+    elif int(gpt_curr_bet) == 0:
+        # small blind
+        if not is_big_blind:
+            prompt_str += 'and it is Player 1\'s turn.\n'
+
+        # big blind, player checked
+        elif is_big_blind and int(bet) == 0:
+            prompt_str += f'and Player 2 bet ${str(bet)}. \n'
+
+        # big blind, player raised
+        elif is_big_blind and int(bet) != 0:
+            prompt_str += f'and Player 2 raised to ${str(bet)} (including small blind). \n'
+
+    # any other round, ... gpt raise, player raises, gpt's turn
+    elif int(gpt_curr_bet) != int(bet) and int(gpt_curr_bet) > 0:
+        prompt_str += f'and after Player 1 bet ${str(gpt_curr_bet)}, Player 2 raised to ${str(bet)}.\n'
 
     if hidden:
         prompt_str += f'Player 1 has three options: they can fold, they can \
-            match the bet, or they can raise it to a new desired value (the \
-            maximum of which is $ {str(player_money)}. What should they do?'
+            match the current bet, or they can raise it to a new desired value (the \
+            maximum of which is ${str(player_money)}. What should they do?'
     else:
         prompt_str += f'Player 1 has three options: they can fold, they can \
             match the bet, or they can raise it to a new desired value \
-            (the maximum of which is $ {str(player_money)}). What \
+            (the maximum of which is ${str(player_money)}). What \
             should they do? I don\'t want an explanation, I just want a \
             numerical answer in the following format, regardless of \
             uncertainty: if folding, say "-1". if matching, say \
             "{str(bet)}". if raising, say a number between \
-            "{str(bet)}" and "{str(player_money)}".'
+            "{str(bet)}" and "{str(player_money)}" representing the raise amount.'
 
     return prompt_str

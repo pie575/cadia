@@ -74,6 +74,8 @@ const getChatGPTResponse = async (
   pastRounds: Array<Number>,
   chatGPTisBigBlind: boolean,
   opponentBet: number,
+  chatGPTCurrentBet: number,
+  bigBlindAmount: number,
 ) => {
   let value = -1;
   console.log("calling axios");
@@ -85,6 +87,8 @@ const getChatGPTResponse = async (
       bet: opponentBet,
       isBigBlind: chatGPTisBigBlind,
       past_rounds: pastRounds,
+      chatGPTCurrentBet: chatGPTCurrentBet,
+      bigBlindAmount: bigBlindAmount,
     });
     console.log("response: ", response);
     value = response.data;
