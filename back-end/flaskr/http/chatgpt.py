@@ -43,22 +43,25 @@ def chatgpt_response():
     )
 
     response = completion.choices[0].text
+    print("chatgpt repsonse is", response)
     curr_val = 0
 
     for i in response:
+        print("i in response is", i, "curr_val is", curr_val)
         try:
             curr_val = curr_val * 10 + int(i)
         except:
             continue
-
+    print("line 52 curr_val is", curr_val)
     if not (0 <= curr_val < player_money):
         print('\nused random val \n')
         curr_val = random.randrange(bet - 1, player_money)
     if curr_val == bet - 1:
         curr_val = -1
-
+    print("line 60 curr_val is", curr_val)
     # getting amount to add to bet, instead of final raise amount.
     curr_val -= gpt_curr_bet
+    print("line 63 curr_val is", curr_val, "chatgpt curr bet is", gpt_curr_bet)
     return str(curr_val)
 
 
@@ -91,16 +94,18 @@ def get_prompt(hidden: bool, inp: dict):
             of the pre-flop round.'
 
     if hidden:
-        prompt_str += f' Player 1 has ${str(player_money)} . Player 1 has a \
+        prompt_str += f' Player 1 and Player 2 both have ${str(player_money)} . Player 1 has a \
             **** card and a **** card. Player 2 has two unknown cards. There is a '
     else:
-        prompt_str += f' Player 1 has ${str(player_money)}. Player 1 has \
+        prompt_str += f' Player 1 and Player 2 both have ${str(player_money)}. Player 1 has \
             {get_string_card(chatgpt_cards[0])} and {get_string_card(chatgpt_cards[1])}. \
-            Player 2 has two unknown cards. There is a '
-    for card in current_community:
-        prompt_str += get_string_card(card) + ","
+            Player 2 has two unknown cards. '
+    if (len(current_community) != 0):
+        prompt_str += f' There is a '
+        for card in current_community:
+            prompt_str += get_string_card(card) + ","
 
-    prompt_str = prompt_str[0:-1] + ' on the table. '
+        prompt_str = prompt_str[0:-1] + ' on the table. '
 
     curr_round = 0
     for val in past_rounds:
@@ -109,7 +114,7 @@ def get_prompt(hidden: bool, inp: dict):
                       str(val) + ' added to the table. '
         curr_round += 1
 
-    prompt_str += 'They are in the ' + str(rounds[curr_round]) + 'round, '
+    prompt_str += 'They are in the ' + str(rounds[curr_round]) + ' round, '
     small_blind_amount = int(big_blind_amount) // 2
 
     # round 1
@@ -161,7 +166,7 @@ def get_prompt(hidden: bool, inp: dict):
     if hidden:
         prompt_str += f'Player 1 has three options: they can fold, they can \
             match the current bet, or they can raise it to a new desired value (the \
-            maximum of which is ${str(player_money)}. What should they do?'
+            maximum of which is ${str(player_money)}. What should Player 1 do?'
     else:
         prompt_str += f'Player 1 has three options: they can fold, they can \
             match the bet, or they can raise it to a new desired value \
@@ -172,4 +177,5 @@ def get_prompt(hidden: bool, inp: dict):
             "{str(bet)}". if raising, say a number between \
             "{str(bet)}" and "{str(player_money)}" representing the raise amount.'
 
+    print("prompt_str: ", prompt_str)
     return prompt_str
