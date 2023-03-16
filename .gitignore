@@ -1,8 +1,7 @@
 back-end/venv
 back-end/.idea
 back-end/__pycache__
+back-end/*/__pycache__
 .envrc
 node_modules/
-back-end/flaskr/config/__pycache__
-back-end/flaskr/http/__pycache__
 .vscode
