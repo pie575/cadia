@@ -3,10 +3,7 @@ import { Button, Grid, Typography, Modal } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import PokerTableImage from "../../assets/pokertable.svg";
 import GoldPotImg from "../../assets/goldpot.svg";
-// import CoinImg from "../../assets/coin.svg";
-// import CommunityCards from "./CommunityCards";
-// import UserCards from "./UserCards";
-// import GameButton from "./GameButton";
+import CoinImg from "../../assets/coin.svg";
 import GameBaseButton from "../../assets/Game/GameBaseButton.svg";
 import CashOutBack from "../../assets/cashoutback.svg";
 import "../../styles/game.css";
@@ -22,6 +19,8 @@ interface GameEndProps {
   resetGameState: (arg0: boolean) => void;
   gameState: GameState;
   pot: number;
+  balance: number;
+  result: string;
 }
 interface NextGameButtonProps {
   resetGameState: (arg0: boolean) => void;
@@ -83,7 +82,7 @@ const CashOutButton = () => {
   );
 };
 
-const GameEnd = ({ open, handleClose, resetGameState, gameState, pot }: GameEndProps) => {
+const GameEnd = ({ open, handleClose, resetGameState, gameState, pot, balance, result }: GameEndProps) => {
   if (gameState.players.length === 0) return null;
   const ChatGPTCards = convertCardstoStrings(gameState.players[1].hand);
   const UserCards = convertCardstoStrings(gameState.players[0].hand);
@@ -203,6 +202,31 @@ const GameEnd = ({ open, handleClose, resetGameState, gameState, pot }: GameEndP
         >
           <NextGameButton resetGameState={resetGameState} handleClose={handleClose} gameState={gameState} />
           <CashOutButton />
+          <Grid item sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <img src={CoinImg} style={{ width: "5vw", height: "5vh" }} alt="Coin" />
+            <Typography
+              sx={{
+                fontFamily: "Joystix",
+                fontSize: "1.0rem",
+                textShadow: "0px 4px 0px #5D0A9D",
+                color: "white",
+              }}
+            >
+              Current Balance: {balance}
+            </Typography>
+          </Grid>
+          <Grid item sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <Typography
+              sx={{
+                fontFamily: "Joystix",
+                fontSize: "1.0rem",
+                textShadow: "0px 4px 0px #5D0A9D",
+                color: "white",
+              }}
+            >
+              {result}
+            </Typography>
+          </Grid>
           <Grid container className="community-cards" sx={{ height: "20vh" }}>
             <CardEntity card={CommunityCards[0]} />
             <CardEntity card={CommunityCards[1]} />

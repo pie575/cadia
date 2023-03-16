@@ -257,23 +257,7 @@ export function RoundisOver(gameState: GameState):boolean{
     }
     return true;
 }
-/* Ends the current round. */
-// export function endRound(gameState: GameState, setGameStateHelper: Function):void{
-//     // if(!gameState.round.length) throw new Error("Game round not started");
-//     if(gameState.roundStates.length==4) throw new Error("Round is over, please invoke checkResult");
-//     let roundStates_copy = gameState.roundStates;
-//     let table_copy = gameState.table;
-//     let deck_copy = gameState.deck;
 
-//     /* deal cards for next round */
-//     roundStates_copy.push(gameState.round.slice(0));
-//     if(roundStates_copy.length<4){
-//         let communityCardCountForThisRound=1;
-//         if(gameState.table.length==0) communityCardCountForThisRound=3;
-//         table_copy.push.apply(table_copy, deck_copy.getCards(communityCardCountForThisRound));
-//     }
-//     setGameStateHelper({deck: deck_copy, roundStates:roundStates_copy, table:table_copy});
-// }
 /* Returns the result of the current round and Conducts payout */
 export function checkResult(gameState: GameState, single_player_left: boolean, setGameStateHelper: Function):Result{
     let newPlayers = gameState.players;
@@ -282,7 +266,7 @@ export function checkResult(gameState: GameState, single_player_left: boolean, s
         const result: Result = {
             type: 'win',
             index: player_index,
-            name: 'last standing player',
+            name: "last standing player",
         };
         newPlayers[player_index].balance += gameState.pot;
         setGameStateHelper({players: newPlayers, pot: 0});

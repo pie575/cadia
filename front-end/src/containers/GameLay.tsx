@@ -123,6 +123,9 @@ const GameLay = () => {
   const handleRaise = (index: number, amount_to_raise: number) => {
     if (index === 0 && !gameState.PlayerTurn) return;
     if (index === 1 && !gameState.ChatGPTTurn) return;
+    if (amount_to_raise <= 0) {
+      throw new Error ("amount to raise must be greater than 0");
+    }
     raise(gameState, index, amount_to_raise, setGameStateHelper);
     increasePlayerId();
   };
@@ -369,20 +372,6 @@ const GameLay = () => {
         console.log("line 301 it's AI turn to take actions");
         setGameStateHelper({ ChatGPTTurn: true });
 
-        // if (ChatGPTAction === -1) {
-        //   handleFold(1);
-        // }
-        // else if (ChatGPTAction === 0) {
-        //   handleCheck(1, gameState.roundNumber);
-        // }
-        // else if (ChatGPTAction === gameState.round[1].current_bet - gameState.round[0].current_bet) {
-        //   handleCall(1);
-        // }
-        // else {
-        //   handleRaise(1, ChatGPTAction);
-        // }
-        // const ChatGPTAction = fetchChatGPTReponse();
-
         // const AIavaliableActions = avaliableActions(gameState, 1);
         // console.log("line 305 AI avaliable actions are", AIavaliableActions)
         // if (AIavaliableActions.includes("check")) {
@@ -436,19 +425,19 @@ const GameLay = () => {
       console.log("does chatgpt action include raise? ", avaliableActions(gameState, 1).includes("raise"));
       handleRaise(1, ChatGPTAction);
     }
+    setGameStateHelper({ ChatGPTTurn: false });
   }
 
   React.useEffect(() => {
-    console.log("line 445 checking gameState", gameState, "chatgpt turn is ", gameState.ChatGPTTurn)
+    console.log("line 431 checking gameState", gameState, "chatgpt turn is ", gameState.ChatGPTTurn)
     if (!gameState.ChatGPTTurn) return;
     fetchChatGPTReponse();
-    setGameStateHelper({ ChatGPTTurn: false });
   }, [gameState.ChatGPTTurn]);
 
   const checkBalance = () => {
     if (gameState.players.length !== 0 && gameState.players[0].balance) {
-      console.log("line 453 checking player 0's balance ", gameState.players[0].balance);
-      console.log("line 454 checking player 1's balance ", gameState.players[1].balance);
+      // console.log("line 453 checking player 0's balance ", gameState.players[0].balance);
+      // console.log("line 454 checking player 1's balance ", gameState.players[1].balance);
       return gameState.players[0].balance;
     }
     return 100;
@@ -458,10 +447,20 @@ const GameLay = () => {
     if (gameState.result.index === -1) return "";
     let message = "";
     if (gameState.result.index === 0) {
-      message = `Congrats you won with ${gameState.result.name}!`;
+      if (gameState.result.name === "last standing player") {
+        message = `You WON as the ${gameState.result.name}!`;
+      }
+      else {
+        message = `You WON with ${gameState.result.name}!`;
+      }
     }
-    else {
-      message = "You Lost to the Almighty AI!"
+    else if (gameState.result.index === 1){
+      if (gameState.result.name === "last standing player") {
+        message = `ChatGPT WON as the ${gameState.result.name}!`;
+      }
+      else {
+        message = `ChatGPT WON with ${gameState.result.name}!`;
+      }
     }
     return message;
   };
@@ -475,6 +474,15 @@ const GameLay = () => {
       }
     }
     return pot;
+  }
+  // going throuhg gamestate round number and match it to preflop, flop, turn, river
+  const checkRound = () => {
+    if (gameState.roundNumber === 0) return "";
+    if (gameState.roundNumber === 1) return "Round Preflop";
+    if (gameState.roundNumber === 2) return "Round Flop";
+    if (gameState.roundNumber === 3) return "Round Turn";
+    if (gameState.roundNumber === 4) return "Round River";
+    return "";
   }
     
   React.useEffect(() => {
@@ -494,7 +502,7 @@ const GameLay = () => {
           <Grid
             item
             xs={4}
-            sx={{ display: "flex", alignContent: "center", justifyContent: "center", alignItems: "center" }}
+            sx={{ display: "flex", alignContent: "center", justifyContent: "center", alignItems: "center", flexDirection: "column"}}
           >
             <Typography
               sx={{
@@ -507,11 +515,54 @@ const GameLay = () => {
             >
               ChatGPT
             </Typography>
-            { gameState.ChatGPTTurn &&
-              <Typography>
+            { gameState.ChatGPTTurn && (
+            <Grid container sx={{ alignItems: "center", justifyContent: "center" }}>
+              <Typography
+                sx={{
+                  fontFamily: "Joystix",
+                  fontSize: "0.8rem",
+                  textShadow: "0px 4px 0px #5D0A9D",
+                  color: "white",
+                  marginTop: "0.2rem"
+                }}
+              >
                 ChatGPT is thinking...
               </Typography>
-            }
+            </Grid>
+            )}
+            { !gameState.ChatGPTTurn && gameState.round.length !== 0 &&  (
+            <Grid container sx={{ alignItems: "center", justifyContent: "center" }}>
+              <Typography
+                sx={{
+                  fontFamily: "Joystix",
+                  fontSize: "0.8rem",
+                  textShadow: "0px 4px 0px #5D0A9D",
+                  color: "white",
+                  marginTop: "0.2rem"
+                }}
+              >
+                {(() => {
+                  switch (gameState.round[1].decision) {
+                    case "raise":
+                      switch (true) {
+                        case (gameState.players[1].bigBlind && gameState.round[1].current_bet === gameState.bigBlindAmount):
+                          return "";
+                        default:
+                          return `${checkRound()}, ChatGPT raised to ${gameState.round[1].current_bet}`;
+                      }
+                    case "call":
+                      return `${checkRound()}, ChatGPT called`;
+                    case "fold":
+                      return `${checkRound()}, ChatGPT folded`;
+                    case "check":
+                      return `${checkRound()},"ChatGPT checked`;
+                    default:
+                      return "";
+                  }
+                })()}
+              </Typography>
+            </Grid>
+            )}
           </Grid>
           <Grid item xs={2} />
           <Grid item xs={2}>
@@ -540,14 +591,14 @@ const GameLay = () => {
             </Grid>
           </Grid>
         </Grid>
-        <Grid item xs={4} sx={{ display: "flex", justifyContent: "flex-center" }}>
+        {/* <Grid item xs={4} sx={{ display: "flex", justifyContent: "flex-center" }}>
             <div color = 'white'>
                 The round number is {gameState.roundNumber}.
                 Now <b>{gameState.PlayerTurn ? "is": "is not"}</b> Your Turn. 
                 <b>{gameState.PlayerTurn ? "Please take your actions. ": "Buttons are disabled. "}</b>
                 {showResult()}
             </div>
-        </Grid>
+        </Grid> */}
         <Grid
           container
           sx={{
@@ -679,6 +730,8 @@ const GameLay = () => {
         resetGameState={resetGameState} 
         gameState={gameState} 
         pot={checkPot()}
+        balance={checkBalance()}
+        result={showResult()}
       />
     </Grid>
     
