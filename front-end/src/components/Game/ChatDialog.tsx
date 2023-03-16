@@ -17,7 +17,11 @@ interface MessageProps {
   messageObj: Message;
 }
 
-const SentMessage = (message: string) => {
+type SentMessageProps = {
+  message: string;
+};
+
+const SentMessage = (message: SentMessageProps) => {
   return (
     <Grid
       container
@@ -35,13 +39,17 @@ const SentMessage = (message: string) => {
           justifyContent: "center",
         }}
       >
-        <Typography sx={{ fontFamily: "Joystix", fontSize: "1.1rem", color: "white" }}>{message}</Typography>
+        <Typography sx={{ fontFamily: "Joystix", fontSize: "1.1rem", color: "white" }}>{`${message}`}</Typography>
       </Grid>
     </Grid>
   );
 };
 
-const RecieveMessage = (message: string) => {
+type RecieveMessageProps = {
+  message: string;
+};
+
+const RecieveMessage = (message: RecieveMessageProps) => {
   return (
     <Grid
       container
@@ -58,7 +66,7 @@ const RecieveMessage = (message: string) => {
           justifyContent: "center",
         }}
       >
-        <Typography sx={{ fontFamily: "Joystix", fontSize: "1.1rem", color: "white" }}>{message}</Typography>
+        <Typography sx={{ fontFamily: "Joystix", fontSize: "1.1rem", color: "white" }}>{`${message}`}</Typography>
       </Grid>
       <Grid item xs={4} />
     </Grid>
@@ -67,8 +75,10 @@ const RecieveMessage = (message: string) => {
 const MessageComponent = (props: MessageProps) => {
   // eslint-disable-next-line react/destructuring-assignment
   return props.messageObj.sent ? (
+    // eslint-disable-next-line react/destructuring-assignment
     <SentMessage message={props.messageObj.message} />
   ) : (
+    // eslint-disable-next-line react/destructuring-assignment
     <RecieveMessage message={props.messageObj.message} />
   );
 };
