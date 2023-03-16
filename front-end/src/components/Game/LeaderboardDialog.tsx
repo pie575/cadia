@@ -2,7 +2,7 @@ import * as React from "react";
 import { Dialog, DialogContent, Grid, IconButton, Typography } from "@mui/material";
 import LeaderboardTable from "../../assets/LeaderboardTable.svg";
 import CloseButton from "../../assets/CloseButton.svg";
-import { getChatGPTResponse, getLeaderboardData } from "../../utils/APIConnection";
+import { getLeaderboardData } from "../../utils/APIConnection";
 
 interface LeaderboardDialogProps {
   open: boolean;
