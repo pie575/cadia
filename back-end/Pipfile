@@ -5,7 +5,6 @@ name = "pypi"
 
 [packages]
 flask = "*"
-openai = "*"
 firebase-admin = "*"
 flask-cors = "*"
 
