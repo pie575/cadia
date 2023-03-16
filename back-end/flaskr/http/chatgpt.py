@@ -52,6 +52,9 @@ def chatgpt_response():
         curr_val = random.randrange(bet - 1, player_money)
         if curr_val == bet - 1:
             curr_val = -1
+    
+    if curr_val!=-1 and curr_val<int(bet):
+        curr_val = bet-gpt_curr_bet
     # print("line 52 curr_val is", curr_val)
 
     # getting amount to add to bet, instead of final raise amount.
