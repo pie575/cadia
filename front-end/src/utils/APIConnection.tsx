@@ -41,7 +41,7 @@ const pushLeaderboardData = (name: string, score: number, walletId: string) => {
 };
 
 // getting chatGPT response given player input
-const getChatGPTPrompt = (
+const getChatGPTPrompt = async (
   communityCards: Array<Card>,
   gptCards: Array<Card>,
   playerMoney: number,
@@ -66,7 +66,7 @@ const getChatGPTPrompt = (
 };
 
 // getting chatGPT chatbox response given player input
-const getChatGPTChatboxResponse = (
+const getChatGPTChatboxResponse = async (
   communityCards: Array<Card>,
   gptCards: Array<Card>,
   playerMoney: number,
