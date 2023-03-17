@@ -290,7 +290,6 @@ const GameLay = () => {
       console.log("line 217 players are", gameState.players);
       console.log("line 218 result is", result)
       setGameStateHelper({ result });
-      // resetGameState(false);
       return;
     }
     /* Round Number: 0 (Null), 1 (preflop), 2 (flop), 3 (river), 4 (turn), 5 (exceed max limit, so showdown) */
@@ -409,6 +408,7 @@ const GameLay = () => {
     const pastRounds = gameState.roundStates.map((round) => round[0].current_bet);
     const ChatGPTAction = await getChatGPTResponse(gameState.table, gameState.players[1].hand, gameState.players[0].balance, pastRounds, gameState.players[1].bigBlind, gameState.round[0].current_bet, gameState.round[1].current_bet, gameState.bigBlindAmount);
     console.log("line 429 ChatGPTAction is", ChatGPTAction);
+    // chatgptaction should return amount_to_raise
     if (ChatGPTAction === -1) {
       console.log("does chatgpt action include fold? ", avaliableActions(gameState, 1).includes("fold"));
       handleFold(1);
@@ -436,8 +436,8 @@ const GameLay = () => {
 
   const checkBalance = () => {
     if (gameState.players.length !== 0 && gameState.players[0].balance) {
-      // console.log("line 453 checking player 0's balance ", gameState.players[0].balance);
-      // console.log("line 454 checking player 1's balance ", gameState.players[1].balance);
+      console.log("line 453 checking player 0's balance ", gameState.players[0].balance);
+      console.log("line 454 checking player 1's balance ", gameState.players[1].balance);
       return gameState.players[0].balance;
     }
     return 100;
@@ -478,10 +478,10 @@ const GameLay = () => {
   // going throuhg gamestate round number and match it to preflop, flop, turn, river
   const checkRound = () => {
     if (gameState.roundNumber === 0) return "";
-    if (gameState.roundNumber === 1) return "Round Preflop";
-    if (gameState.roundNumber === 2) return "Round Flop";
-    if (gameState.roundNumber === 3) return "Round Turn";
-    if (gameState.roundNumber === 4) return "Round River";
+    if (gameState.roundNumber === 1) return "Preflop Round: ";
+    if (gameState.roundNumber === 2) return "Flop Round: ";
+    if (gameState.roundNumber === 3) return "Turn Round: ";
+    if (gameState.roundNumber === 4) return "River Round:";
     return "";
   }
     
@@ -530,15 +530,15 @@ const GameLay = () => {
               </Typography>
             </Grid>
             )}
-            { !gameState.ChatGPTTurn && gameState.round.length !== 0 &&  (
+            { gameState.round.length !== 0 &&  (
             <Grid container sx={{ alignItems: "center", justifyContent: "center" }}>
               <Typography
                 sx={{
                   fontFamily: "Joystix",
-                  fontSize: "0.8rem",
+                  fontSize: "0.7rem",
                   textShadow: "0px 4px 0px #5D0A9D",
                   color: "white",
-                  marginTop: "0.2rem"
+                  marginTop: "0.1rem"
                 }}
               >
                 {(() => {
@@ -548,14 +548,14 @@ const GameLay = () => {
                         case (gameState.players[1].bigBlind && gameState.round[1].current_bet === gameState.bigBlindAmount):
                           return "";
                         default:
-                          return `${checkRound()}, ChatGPT raised to ${gameState.round[1].current_bet}`;
+                          return `${checkRound()} ChatGPT raised to ${gameState.roundStates.map((round) => round[1].current_bet).reduce((a, b) => a + b, 0) + gameState.round[1].current_bet}`;
                       }
                     case "call":
-                      return `${checkRound()}, ChatGPT called`;
+                      return `${checkRound()} ChatGPT called`;
                     case "fold":
-                      return `${checkRound()}, ChatGPT folded`;
+                      return `${checkRound()} ChatGPT folded`;
                     case "check":
-                      return `${checkRound()},"ChatGPT checked`;
+                      return `${checkRound()} ChatGPT checked`;
                     default:
                       return "";
                   }
@@ -591,14 +591,6 @@ const GameLay = () => {
             </Grid>
           </Grid>
         </Grid>
-        {/* <Grid item xs={4} sx={{ display: "flex", justifyContent: "flex-center" }}>
-            <div color = 'white'>
-                The round number is {gameState.roundNumber}.
-                Now <b>{gameState.PlayerTurn ? "is": "is not"}</b> Your Turn. 
-                <b>{gameState.PlayerTurn ? "Please take your actions. ": "Buttons are disabled. "}</b>
-                {showResult()}
-            </div>
-        </Grid> */}
         <Grid
           container
           sx={{
@@ -638,7 +630,6 @@ const GameLay = () => {
             <UserCards userCards={checkUserCards()} />
           </Grid>
         </Grid>
-        
         <Grid
           container
           sx={{ margin: "0 20vw", justifyItems: "flex-start", alignItems: "center", alignContent: "center" }}
@@ -695,22 +686,6 @@ const GameLay = () => {
               <GameButton disabled={!gameState.PlayerTurn} text="raise" onClick={() => setRaiseOverlayOpen(true)} />
             </Grid>
             } 
-            {/* positioning of the 3 buttons needs to be fixed */}
-            {/* { gameState.result.index !== -1 && gameState.players[0].balance > 0 &&
-            <Grid item xs={2} justifyContent="center" gridColumn={8}>
-              <GameButton disabled={gameState.result.index === -1} text="Continue the Game" onClick={() => resetGameState(false)} />
-            </Grid>
-            } */}
-            {/* { gameState.players.length !== 0 && gameState.players[0].balance === 0 &&
-            <Grid item xs={2} justifyContent="center" gridColumn={10}>
-              <GameButton text="Restart the Game" onClick={() => resetGameState(true)} />
-            </Grid>
-            }
-            {gameState.players.length !== 0 && gameState.players[0].balance === 0 &&
-                <Grid item xs={2} justifyContent="center" gridColumn={10}>
-              <GameButton text="Exit the Game" onClick={() => exitGame()} />
-                </Grid>
-            } */}
           </Grid>
         </Grid>
       </Grid>

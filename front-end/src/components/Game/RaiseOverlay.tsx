@@ -4,7 +4,6 @@ import Slide from "@mui/material/Slide";
 import Space from "../../assets/Space/Space.svg";
 import GameButton from "./GameButton";
 import CloseButton from "../../assets/Game/CloseButton.svg";
-// import { gameState } from "../../Game/containers/GameLay";
 
 interface RaiseOverlayProps {
   open: boolean;
@@ -30,6 +29,7 @@ const RaiseOverlay = ({ open, userBalance, handleRaise, handleClose, gameState }
       .sort((a: { current_bet: number }, b: { current_bet: number }) => b.current_bet - a.current_bet)[0].current_bet;
     if (betAmount < maxCurrentBet) return; /* cannot raise below the maximum current bet for this round */
     if (betAmount <= userBalance) handleRaise(0, betAmount);
+    setBetAmount(0);
     handleClose();
   };
 

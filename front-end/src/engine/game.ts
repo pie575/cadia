@@ -57,7 +57,6 @@ export function startRound(gameState: GameState, roundNumber: number, setGameSta
     console.log('gameState in StartRound', gameState);
     let newPlayers = gameState.players;
     let newRound = gameState.round;
-    let activePlayers=0;
     for(let i=0;i<gameState.players.length;i++){
         newRound[i]={
             current_bet:0, 
@@ -91,10 +90,12 @@ export function dealBlinds(gameState: GameState, setGameStateHelper: Function):v
     let newsmallBlindIndex = gameState.smallBlind_index; // for this round
     let newLastPlayerRaised = gameState.last_player_raised;
     let total_blinds = 0;
+    let someoneAllINneedReFund = false;
     for (var id = 0; id < newPlayers.length; id++) {
         if (newPlayers[id].active == false) {
             continue;
         }
+        // deal with all-in in big blind cases
         if (newPlayers[id].bigBlind) {
             if (newPlayers[id].balance > gameState.bigBlindAmount) {
                 newPlayers[id].balance-=gameState.bigBlindAmount;
@@ -114,6 +115,7 @@ export function dealBlinds(gameState: GameState, setGameStateHelper: Function):v
                 }
                 else {
                     newRound[id].decision = "call";
+                    someoneAllINneedReFund = true;
                 }
             }
             /* find the next player who is still active to be the big blind */
@@ -147,6 +149,7 @@ export function dealBlinds(gameState: GameState, setGameStateHelper: Function):v
                 newPlayers[id].allIn = true;
                 newRound[id].current_bet += newPlayers[id].balance;
                 newRound[id].decision = "call";
+                someoneAllINneedReFund = true;
             }
             /* find the next player who is still active to be the big blind */
             let nextPlayer = id + 1;
@@ -162,6 +165,20 @@ export function dealBlinds(gameState: GameState, setGameStateHelper: Function):v
             newsmallBlindIndex = nextPlayer;
             break; /* found the big blind, break out of the loop */
         }
+    }
+    if (someoneAllINneedReFund) {
+        /* find the lowest player bet and refund the other players */
+        let lowestPlayerBet = newRound.slice(0).sort((a,b)=>a.current_bet-b.current_bet)[0].current_bet;
+        for (var id = 0; id < newPlayers.length; id++) {
+            if (newPlayers[id].active == false) {
+                continue;
+            }
+            if (newRound[id].current_bet != lowestPlayerBet) {
+                newPlayers[id].balance += newRound[id].current_bet - lowestPlayerBet ;
+                newRound[id].current_bet = lowestPlayerBet;
+            }
+        }
+        console.log("non All-in players are refunded", newPlayers, newRound)
     }
     let newPot = gameState.pot + total_blinds;
     setGameStateHelper({players:newPlayers, round:newRound, bigBlind_index: newbigBlindIndex, 
@@ -216,12 +233,25 @@ export function call(gameState: GameState, index:number, setGameStateHelper: Fun
     let max_current_bet =gameState.round.slice(0).sort((a,b)=>b.current_bet-a.current_bet)[0].current_bet;
     if (gameState.round[index].current_bet >= max_current_bet) throw new Error("Cannot call with a current bet greater than or equal to the maximum current bet");
     let amount_to_call = max_current_bet - gameState.round[index].current_bet;
-    if(gameState.players[index].balance < amount_to_call) throw new Error('Insufficient balance to call');
+    if(gameState.players[index].balance < amount_to_call && gameState.players[index].balance > 0) 
+        throw new Error('Insufficient balance to call');
+    /* player all-in */
+    if (gameState.players[index].balance < amount_to_call) {
+        amount_to_call = gameState.players[index].balance;
+    }
     let newRound = gameState.round;
     let newPlayers = gameState.players;
     let newPot = gameState.pot;
+    /* if this player all-ined, reduce the current bet of the other player to the same amount */
     if (amount_to_call == gameState.players[index].balance) {
         newPlayers[index].allIn = true;
+        for (let i = 0; i < gameState.round.length; i++) {
+            if (i != index && gameState.round[i].current_bet > amount_to_call + gameState.round[index].current_bet) {
+                const refund = newRound[i].current_bet - amount_to_call;
+                newRound[i].current_bet -= refund;
+                newPlayers[i].balance += refund;
+            }
+        }
     }
     newRound[index].current_bet += amount_to_call;
     newRound[index].decision="call";
