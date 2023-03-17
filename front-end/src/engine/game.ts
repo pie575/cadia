@@ -63,7 +63,7 @@ export function startRound(gameState: GameState, roundNumber: number, setGameSta
             decision:undefined,
         };
     }
-    
+
     /* deal cards for this round, skipping the preflop round */
     if (roundNumber != 1) {
         if(gameState.roundStates.length==5) throw new Error("Round is over, please invoke checkResult");

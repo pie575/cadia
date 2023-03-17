@@ -209,11 +209,9 @@ const GameLay = () => {
         index: -1,
       },
     });
-    setGameStateHelper({ deck: gameState.deck.shuffle() });
   };
 
-  /* trigger the first game when user opens the page
-  and trigger later games when this game ends  */
+  /* trigger the first game when user opens the page and trigger later games when this game ends  */
   React.useEffect(() => {
     console.log("line 164: reset game state");
     resetGameState(false);
@@ -229,6 +227,8 @@ const GameLay = () => {
     if (gameState.gameNumber === 0) {
       return;
     }
+
+    setGameStateHelper({ deck: gameState.deck.shuffle() });
     const playerMoney = [100, 10000]; /* initial player balance */
     /* update the playerMoney if the game is not the first game */
     if (gameState.gameNumber > 1) {
@@ -272,7 +272,6 @@ const GameLay = () => {
     newPlayers[gameState.smallBlind_index].smallBlind = true;
     newPlayers[gameState.smallBlind_index].bigBlind = false;
 
-    console.log("line 260: shuffled the deck")
     setGameStateHelper({ players: newPlayers });
     increaseRoundNumber();
   }, [gameState.gameNumber]);
@@ -287,15 +286,16 @@ const GameLay = () => {
     /* Check if game is over */
     if (singlePlayerLeft()) {
       const result = checkResult(gameState, true, setGameStateHelper);
-      console.log("line 217 players are", gameState.players);
-      console.log("line 218 result is", result)
+      console.log("line 290 gamestate is", gameState);
+      console.log("line 291 result is", result)
       setGameStateHelper({ result });
       return;
     }
     /* Round Number: 0 (Null), 1 (preflop), 2 (flop), 3 (river), 4 (turn), 5 (exceed max limit, so showdown) */
     if (gameState.roundNumber === 5) {
       const result = checkResult(gameState, false, setGameStateHelper);
-      console.log("line 226 result is", result)
+      console.log("line 297 gamestate is", gameState);
+      console.log("line 298 result is", result)
       setGameStateHelper({ result });
       return;
     }
@@ -435,9 +435,8 @@ const GameLay = () => {
   }, [gameState.ChatGPTTurn]);
 
   const checkBalance = () => {
-    if (gameState.players.length !== 0 && gameState.players[0].balance) {
-      console.log("line 453 checking player 0's balance ", gameState.players[0].balance);
-      console.log("line 454 checking player 1's balance ", gameState.players[1].balance);
+    console.log("line 438 checking balance gamestate is", gameState)
+    if (gameState.players.length !== 0 && gameState.players[0].balance >= 0) {
       return gameState.players[0].balance;
     }
     return 100;
