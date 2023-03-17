@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Modal, Grid, IconButton, Typography } from "@mui/material";
-import LeaderboardTable from "../../assets/LeaderboardTable.svg";
 import RecieveImagePicture from "../../assets/Game/RecieveImage.svg";
 import SendImagePicture from "../../assets/Game/SendImage.svg";
 import CloseButton from "../../assets/CloseButton.svg";
