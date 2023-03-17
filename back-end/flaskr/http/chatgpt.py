@@ -47,19 +47,22 @@ def chatgpt_response():
 
     try:
         curr_val = int(response)
+        print("line 51 curr_val is", curr_val)
     except:
         print('\nused random val \n')
-        curr_val = random.randrange(bet - 1, player_money)
+        curr_val = random.randrange(bet - 1, bet + player_money)
         if curr_val == bet - 1:
             curr_val = -1
-
-    if curr_val != -1 and curr_val < int(bet):
-        curr_val = bet-gpt_curr_bet
-    # print("line 52 curr_val is", curr_val)
-
+    # if gpt returns an invalid response that's less than the opponent's bet, set its response to fold
+    if curr_val!=-1 and curr_val<int(bet):
+        curr_val = -1
+    else:
+        if curr_val >= gpt_curr_bet:
+            curr_val -= gpt_curr_bet
+        else:
+            print("error in chatgpt response", curr_val, gpt_curr_bet)
     # getting amount to add to bet, instead of final raise amount.
-
-    print("line 63 curr_val is", curr_val, "chatgpt curr bet is", gpt_curr_bet)
+    print("line 63 amount to raise is", curr_val, "chatgpt curr bet is", gpt_curr_bet)
     return str(curr_val)
 
 
@@ -174,12 +177,20 @@ def get_prompt(hidden: bool, format_output: bool, inp: dict):
     elif int(gpt_curr_bet) != int(bet) and int(gpt_curr_bet) > 0:
         prompt_str += f'and after Player 1 bet ${str(gpt_curr_bet)}, Player 2 raised to ${str(bet)}.\n'
 
-    if not format_output:
-        prompt_str += f'Player 1 has three options: they can fold, they can match the current bet, or they can raise ' \
-                      f'it to a new desired value (the maximum of which is ${str(player_money)}). What should Player 1' \
+    if hidden:
+        if int(player_money) == 0:
+            prompt_str += f'Player 1 has two options: they can fold, or they can match the current bet since Player 2 has ${str(player_money)} money left. What should ' \
+                          f'Player 1 do?'
+        else:
+            prompt_str += f'Player 1 has three options: they can fold, they can match the current bet, or they can raise ' \
+                      f'it to a new desired value (the maximum of which is ${str(player_money)}. What should Player 1' \
                       f' do?'
     else:
-        prompt_str += f'Player 1 has three options: they can fold, they can match the bet, or they can raise it to a ' \
+        if int(player_money) == 0:
+            prompt_str += f'Player 1 has two options: they can fold, or they can match the current bet since Player 2 has ${str(player_money)} money left. What should ' \
+                          f'Player 1 do? \n\n Numerical Response Layout: if folding, say "-1". if matching, say "{str(bet)}". \n\nBased on expected value calculations, the best integer response (regardless of uncertainty) according to the above defined numerical response layout is the integer number '
+        else:
+            prompt_str += f'Player 1 has three options: they can fold, they can match the bet, or they can raise it to a ' \
                       f'new desired value (the maximum of which is ${str(player_money)}). What should they do?\n\n Numerical Response Layout: if folding, say "-1". if matching, say "{str(bet)}". if raising, say just the number to raise to, without any other text. The number can be between "{str(bet)}" and "{str(player_money)}".\n\nBased on expected value calculations, the best integer response (regardless of uncertainty) according to the above defined numerical response layout is the integer number '
 
     print('prompt_str:', prompt_str)

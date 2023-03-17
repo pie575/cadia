@@ -29,17 +29,6 @@ const CashOutDialog = ({ open, userScore, handleClose, resetGameState }: CashOut
     navigate("/home");
   };
 
-  // const SubmitandRestart = () => {
-  //   // console.log("submit and restart");
-  //   // if (currentUser) return;
-  //   // pushLeaderboardData({
-  //   //   name: currentUser.ProfileEntryResponse.Username,
-  //   //   score: userScore,
-  //   //   walletId: currentUser.PublicKeyBase58Check,
-  //   // });
-  //   resetGameState(true);
-  // };
-
   return (
     <Modal open={open} onClose={handleClose}>
       <Slide in={open} direction="left">

@@ -44,8 +44,8 @@ const NextGameButton = ({ resetGameState, handleClose, gameState }: NextGameButt
         height: "10vh",
       }}
     >
-      {!forNextTournamentbutnotNextGame && <MaskedText text="Click to Continue" fontSize="1.5rem" />}
-      {forNextTournamentbutnotNextGame && <MaskedText text="Restart Game" fontSize="1.5rem" />}
+      {!forNextTournamentbutnotNextGame && <MaskedText text="Click to Continue" fontSize="1.0rem" />}
+      {forNextTournamentbutnotNextGame && <MaskedText text="Restart" fontSize="1.5rem" />}
     </Button>
   );
 };
