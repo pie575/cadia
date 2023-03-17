@@ -44,7 +44,8 @@ def chatgpt_response():
     response = completion['choices'][0]['message']['content']
     print("chatgpt repsonse is", response)
     curr_val = 0
-
+    if response == '-':
+        curr_val = -1
     try:
         curr_val = int(response)
         print("line 51 curr_val is", curr_val)
