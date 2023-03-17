@@ -41,7 +41,7 @@ const pushLeaderboardData = (name: string, score: number, walletId: string) => {
 };
 
 // getting chatGPT response given player input
-const getChatGPTPrompt = (
+const getChatGPTPrompt = async (
   communityCards: Array<Card>,
   gptCards: Array<Card>,
   playerMoney: number,
@@ -62,6 +62,31 @@ const getChatGPTPrompt = (
     })
     .then((response) => {
       return response.data.prompt;
+    });
+};
+
+// getting chatGPT chatbox response given player input
+const getChatGPTChatboxResponse = async (
+  communityCards: Array<Card>,
+  gptCards: Array<Card>,
+  playerMoney: number,
+  pastRounds: Array<Number>,
+  chatGPTisBigBlind: boolean,
+  opponentBet: number,
+) => {
+  axios
+    .get(`${BASE_URL}/chatgpt_prompt_response`, {
+      params: {
+        money: playerMoney,
+        cards: gptCards,
+        community: communityCards,
+        bet: opponentBet,
+        isBigBlind: chatGPTisBigBlind,
+        past_rounds: pastRounds,
+      },
+    })
+    .then((response) => {
+      return response.data.response;
     });
 };
 

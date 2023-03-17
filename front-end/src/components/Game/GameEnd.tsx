@@ -11,7 +11,6 @@ import MaskedText from "../MaskedText";
 import CardEntity from "../../assets/cards/CardEntity";
 import { GameState } from "../../engine/game";
 import convertCardstoStrings from "../../engine/cardconversion";
-import GameLay from "../../containers/GameLay";
 
 interface GameEndProps {
   open: boolean;
