@@ -9,6 +9,7 @@ import Space from "../assets/Space/Space.svg";
 import MaskedText from "../components/MaskedText";
 import LeaderboardDialog from "../components/Game/LeaderboardDialog";
 import ChatDialog from "../components/Game/ChatDialog";
+// import { messageData } from "../containers/GameLay";
 // import GameEnd from "../components/Game/GameEnd";
 
 const Game = () => {
@@ -35,7 +36,7 @@ const Game = () => {
           a
         </Grid>
         <LeaderboardDialog open={leaderboardOpen} handleClose={() => setLeaderboardOpen(false)} />
-        <ChatDialog open={chatOpen} handleClose={() => setChatOpen(false)} />
+        {/* <ChatDialog open={chatOpen} handleClose={() => setChatOpen(false)} messageData={messageData} /> */}
       </Grid>
       <GameLay />
     </div>

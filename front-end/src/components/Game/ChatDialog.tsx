@@ -8,8 +8,9 @@ import PokerTableImage from "../../assets/pokertable.svg";
 interface ChatDialogProps {
   open: boolean;
   handleClose: () => void;
+  messageData: Message[];
 }
-interface Message {
+export interface Message {
   message: string;
   sent: boolean;
 }
@@ -80,21 +81,7 @@ const MessageComponent = ({ message, sent }: Message) => {
   return sent ? <SentMessage message={message} /> : <RecieveMessage message={message} />;
 };
 
-const ChatDialog = ({ open, handleClose }: ChatDialogProps) => {
-  const [messageData, setMessageData] = React.useState<Message[]>();
-
-  React.useEffect(() => {
-    // const prompts = getLeaderboardData(10);
-    const sentMessages = [
-      { message: "Send Messoijasdoijasdoijasodijage 1.", sent: true },
-      { message: "Recieve Message 1.", sent: false },
-      { message: "Send Message 2.", sent: true },
-      { message: "Recieve Message 1.", sent: false },
-      { message: "Send Message 3.", sent: true },
-    ];
-    setMessageData(sentMessages);
-  }, []);
-
+const ChatDialog = ({ open, handleClose, messageData }: ChatDialogProps) => {
   return (
     <Modal open={open} onClose={handleClose}>
       <Grid
