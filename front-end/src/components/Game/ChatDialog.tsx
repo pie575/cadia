@@ -1,9 +1,10 @@
 import * as React from "react";
-import { Dialog, DialogContent, Grid, IconButton, Typography } from "@mui/material";
+import { Modal, Grid, IconButton, Typography } from "@mui/material";
 import LeaderboardTable from "../../assets/LeaderboardTable.svg";
 import RecieveImagePicture from "../../assets/Game/RecieveImage.svg";
 import SendImagePicture from "../../assets/Game/SendImage.svg";
 import CloseButton from "../../assets/CloseButton.svg";
+import PokerTableImage from "../../assets/pokertable.svg";
 
 interface ChatDialogProps {
   open: boolean;
@@ -14,73 +15,70 @@ interface Message {
   sent: boolean;
 }
 interface MessageProps {
-  messageObj: Message;
+  message: string;
 }
 
-type SentMessageProps = {
-  message: string;
-};
-
-const SentMessage = (message: SentMessageProps) => {
+const SentMessage = ({ message }: MessageProps) => {
   return (
     <Grid
       container
       sx={{
-        width: "30vw",
+        width: "auto",
       }}
     >
-      <Grid item xs={4} />
       <Grid
         item
-        xs={8}
+        xs="auto"
         sx={{
+          display: "flex",
+          justifyContent: "center",
+          position: "relative",
+          backgroundSize: "100% 100%",
           backgroundImage: `url(${SendImagePicture})`,
-          display: "flex",
-          justifyContent: "center",
+          backgroundPosition: "center",
+          borderRadius: "5px",
+          padding: "10px",
         }}
       >
-        <Typography sx={{ fontFamily: "Joystix", fontSize: "1.1rem", color: "white" }}>{`${message}`}</Typography>
+        <Typography sx={{ fontFamily: "Joystix", fontSize: "1.1rem", color: "white", display: "inline-block" }}>
+          {message}
+        </Typography>
       </Grid>
     </Grid>
   );
 };
-
-type RecieveMessageProps = {
-  message: string;
-};
-
-const RecieveMessage = (message: RecieveMessageProps) => {
+const RecieveMessage = ({ message }: MessageProps) => {
   return (
     <Grid
       container
       sx={{
-        width: "30vw",
+        width: "auto",
       }}
     >
       <Grid
         item
-        xs={8}
+        xs="auto"
         sx={{
-          backgroundImage: `url(${RecieveImagePicture})`,
           display: "flex",
           justifyContent: "center",
+          position: "relative",
+          backgroundSize: "100% 100%",
+          backgroundImage: `url(${RecieveImagePicture})`,
+          backgroundPosition: "center",
+          borderRadius: "5px",
+          padding: "10px",
         }}
       >
-        <Typography sx={{ fontFamily: "Joystix", fontSize: "1.1rem", color: "white" }}>{`${message}`}</Typography>
+        <Typography sx={{ fontFamily: "Joystix", fontSize: "1.1rem", color: "purple", display: "inline-block" }}>
+          {message}
+        </Typography>
       </Grid>
-      <Grid item xs={4} />
     </Grid>
   );
 };
-const MessageComponent = (props: MessageProps) => {
-  // eslint-disable-next-line react/destructuring-assignment
-  return props.messageObj.sent ? (
-    // eslint-disable-next-line react/destructuring-assignment
-    <SentMessage message={props.messageObj.message} />
-  ) : (
-    // eslint-disable-next-line react/destructuring-assignment
-    <RecieveMessage message={props.messageObj.message} />
-  );
+
+const MessageComponent = ({ message, sent }: Message) => {
+  return sent ? <SentMessage message={message} /> : <RecieveMessage message={message} />;
 };
 
 const ChatDialog = ({ open, handleClose }: ChatDialogProps) => {
@@ -89,7 +87,7 @@ const ChatDialog = ({ open, handleClose }: ChatDialogProps) => {
   React.useEffect(() => {
     // const prompts = getLeaderboardData(10);
     const sentMessages = [
-      { message: "Send Message 1.", sent: true },
+      { message: "Send Messoijasdoijasdoijasodijage 1.", sent: true },
       { message: "Recieve Message 1.", sent: false },
       { message: "Send Message 2.", sent: true },
       { message: "Recieve Message 1.", sent: false },
@@ -99,35 +97,38 @@ const ChatDialog = ({ open, handleClose }: ChatDialogProps) => {
   }, []);
 
   return (
-    <Dialog open={open} onClose={handleClose}>
-      <DialogContent sx={{ backgroundColor: "black", width: "30vw", height: "50vh" }}>
-        <Grid
-          container
-          sx={{
-            backgroundImage: `url(${LeaderboardTable})`,
-            backgroundSize: "100% 100%",
-            height: "50vh",
-            width: "30vw",
-          }}
-        >
-          <Grid container sx={{ marginTop: "2vh" }}>
-            <Grid item xs={12} sx={{ display: "flex", justifyContent: "center" }}>
-              <Typography sx={{ fontFamily: "Joystix", fontSize: "1.5rem", color: "white" }}>Messages</Typography>
-            </Grid>
-            <Grid item sx={{ position: "absolute", right: "1vw", top: "1vh" }}>
-              <IconButton onClick={handleClose}>
-                <img src={CloseButton} alt="Settings Button" style={{ width: "3vw" }} />
-              </IconButton>
-            </Grid>
+    <Modal open={open} onClose={handleClose}>
+      <Grid
+        container
+        sx={{
+          width: "100vw",
+          height: "100vh",
+          justifyContent: "center",
+          alignContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Grid item sx={{ width: "80vw", height: "90vh", position: "fixed", left: "10vw", top: "5vh", zIndex: "-1" }}>
+          <img src={PokerTableImage} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+        </Grid>
+
+        <Grid container sx={{ marginTop: "2vh" }}>
+          <Grid item xs={12} sx={{ display: "flex", justifyContent: "center" }}>
+            <Typography sx={{ fontFamily: "Joystix", fontSize: "1.5rem", color: "white" }}>Messages</Typography>
           </Grid>
-          <Grid container sx={{ margin: "2vw" }}>
-            {messageData?.map((message) => {
-              return <MessageComponent messageObj={message} />;
-            })}
+          <Grid item sx={{ position: "absolute", right: "1vw", top: "1vh" }}>
+            <IconButton onClick={handleClose}>
+              <img src={CloseButton} alt="Settings Button" style={{ width: "3vw" }} />
+            </IconButton>
           </Grid>
         </Grid>
-      </DialogContent>
-    </Dialog>
+        <Grid item sx={{ display: "flex", flexDirection: "column", overflow: "scroll", width: "70vw" }}>
+          {messageData?.map((message) => {
+            return <MessageComponent message={message.message} sent={message.sent} />;
+          })}
+        </Grid>
+      </Grid>
+    </Modal>
   );
 };
 

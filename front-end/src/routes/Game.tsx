@@ -8,11 +8,13 @@ import Space from "../assets/Space/Space.svg";
 // import SettingsWheel from "../assets/SettingsWheel.svg";
 import MaskedText from "../components/MaskedText";
 import LeaderboardDialog from "../components/Game/LeaderboardDialog";
+import ChatDialog from "../components/Game/ChatDialog";
 // import GameEnd from "../components/Game/GameEnd";
 
 const Game = () => {
   const navigate = useNavigate();
   const [leaderboardOpen, setLeaderboardOpen] = React.useState(false);
+  const [chatOpen, setChatOpen] = React.useState(false);
 
   return (
     <div>
@@ -24,14 +26,16 @@ const Game = () => {
               <MaskedText text="Back" fontSize="1rem" />
             </Button>
           </Grid>
-          <Grid item xs={6} sx={{ display: "flex", justifyContent: "end" }}>
+          <Grid item xs={3} sx={{ display: "flex", justifyContent: "end" }}>
             <IconButton aria-label="Settings" onClick={() => setLeaderboardOpen(true)}>
               {/* <img src={SettingsWheel} alt="Settings Button" style={{ width: "3vw" }} /> */}
               <LeaderboardIcon fontSize="large" sx={{ color: "white" }} />
             </IconButton>
           </Grid>
+          a
         </Grid>
         <LeaderboardDialog open={leaderboardOpen} handleClose={() => setLeaderboardOpen(false)} />
+        <ChatDialog open={chatOpen} handleClose={() => setChatOpen(false)} />
       </Grid>
       <GameLay />
     </div>

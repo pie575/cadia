@@ -65,6 +65,31 @@ const getChatGPTPrompt = (
     });
 };
 
+// getting chatGPT chatbox response given player input
+const getChatGPTChatboxResponse = (
+  communityCards: Array<Card>,
+  gptCards: Array<Card>,
+  playerMoney: number,
+  pastRounds: Array<Number>,
+  chatGPTisBigBlind: boolean,
+  opponentBet: number,
+) => {
+  axios
+    .get(`${BASE_URL}/chatgpt_prompt_response`, {
+      params: {
+        money: playerMoney,
+        cards: gptCards,
+        community: communityCards,
+        bet: opponentBet,
+        isBigBlind: chatGPTisBigBlind,
+        past_rounds: pastRounds,
+      },
+    })
+    .then((response) => {
+      return response.data.response;
+    });
+};
+
 // getting chatGPT prompt given player input
 const getChatGPTResponse = async (
   communityCards: Array<Card>,

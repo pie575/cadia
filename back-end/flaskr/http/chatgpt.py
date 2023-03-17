@@ -31,7 +31,7 @@ def chatgpt_response():
     gpt_curr_bet = int(inp['chatGPTCurrentBet'])
     bet = inp['bet']
 
-    inp_prompt = get_prompt(hidden=False, inp=inp)
+    inp_prompt = get_prompt(hidden=False, format_output=True, inp=inp)
 
     completion = openai.ChatCompletion.create(
         model=MODEL_ENGINE,
@@ -52,8 +52,8 @@ def chatgpt_response():
         curr_val = random.randrange(bet - 1, player_money)
         if curr_val == bet - 1:
             curr_val = -1
-    
-    if curr_val!=-1 and curr_val<int(bet):
+
+    if curr_val != -1 and curr_val < int(bet):
         curr_val = bet-gpt_curr_bet
     # print("line 52 curr_val is", curr_val)
 
@@ -66,10 +66,25 @@ def chatgpt_response():
 @chatgpt.route("/chatgpt_prompt", methods=["GET"])
 def get_prompt_for_chatbox():
     """Get dummy prompt from ChatGPT"""
-    return {'prompt': get_prompt(True, request.json)}
+    return {'prompt': get_prompt(True, False, request.json)}
 
 
-def get_prompt(hidden: bool, inp: dict):
+@chatgpt.route("/chatgpt_prompt_response", methods=["GET"])
+def get_response_to_prompt():
+    """Get dummy response for a given prompt from ChatGPT"""
+    ret_prompt = get_prompt(False, False, request.json)
+    ret_prompt += ' Regardless of uncertainty, give me an expected value calculation and answer. Pretend that Player 2 can see your response to this question (don\'t include anything about which cards you specifically have).'
+    print(ret_prompt)
+    completion = openai.ChatCompletion.create(
+        model=MODEL_ENGINE,
+        messages=[
+            {"role": "system", "content": ret_prompt}
+        ],
+    )
+    return {'response': completion['choices'][0]['message']['content']}
+
+
+def get_prompt(hidden: bool, format_output: bool, inp: dict):
     """Generate a ChatGPT prompt given parameters"""
     player_money = inp['money']
     chatgpt_cards = inp['cards']
@@ -94,7 +109,7 @@ def get_prompt(hidden: bool, inp: dict):
 
     if hidden:
         prompt_str += f' Player 1 and Player 2 both have ${str(player_money)} . Player 1 has a **** card and a **** ' \
-                      f'card. Player 2 has two unknown cards. There is a '
+                      f'card. Player 2 has two unknown cards. '
     else:
         prompt_str += f' Player 1 and Player 2 both have ${str(player_money)}. Player 1 has {get_string_card(chatgpt_cards[0])} and {get_string_card(chatgpt_cards[1])}. Player 2 has two unknown cards. '
     if (len(current_community) != 0):
@@ -159,9 +174,9 @@ def get_prompt(hidden: bool, inp: dict):
     elif int(gpt_curr_bet) != int(bet) and int(gpt_curr_bet) > 0:
         prompt_str += f'and after Player 1 bet ${str(gpt_curr_bet)}, Player 2 raised to ${str(bet)}.\n'
 
-    if hidden:
+    if not format_output:
         prompt_str += f'Player 1 has three options: they can fold, they can match the current bet, or they can raise ' \
-                      f'it to a new desired value (the maximum of which is ${str(player_money)}. What should Player 1' \
+                      f'it to a new desired value (the maximum of which is ${str(player_money)}). What should Player 1' \
                       f' do?'
     else:
         prompt_str += f'Player 1 has three options: they can fold, they can match the bet, or they can raise it to a ' \
