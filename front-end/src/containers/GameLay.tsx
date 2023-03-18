@@ -9,7 +9,7 @@ import CommunityCards from "../components/Game/CommunityCards";
 import UserCards from "../components/Game/UserCards";
 import GameButton from "../components/Game/GameButton";
 import CashOutBack from "../assets/cashoutback.svg";
-import { getChatGPTResponse } from "../utils/APIConnection";
+import { getChatGPTResponse, getChatGPTChatboxResponse } from "../utils/APIConnection";
 import { Message } from "../components/Game/ChatDialog";
 import {
   GameState,
@@ -37,11 +37,12 @@ import GameEnd from "../components/Game/GameEnd";
 // export const [messageData, setMessageData] = React.useState<Message[]>([]);
 const GameLay = () => {
   const bigBlindAmount = 10;
-  const userIndex = 1;
+  const userIndex = 0;
 
   const [raiseOverlayOpen, setRaiseOverlayOpen] = React.useState<boolean>(false);
   const [cashOutDialogOpen, setCashOutDialogOpen] = React.useState<boolean>(false);
   const [chatGPTMessageOpen, setchatGPTMessageOpen] = React.useState<boolean>(false);
+  const [messageData, setMessageData] = React.useState<Message[]>([]);
   const [gameEndOpen, setGameEndOpen] = React.useState<boolean>(false);
   const [userActions, setUserActions] = React.useState<string[]>([]);
   const [gameState, setGameState] = React.useState<GameState>({
@@ -68,11 +69,11 @@ const GameLay = () => {
     },
   });
 
-  // const addMessage = (message: Message) => {
-  //   const messages = messageData;
-  //   messages.push(message);
-  //   setMessageData(messages);
-  // };
+  const addMessage = (message: Message) => {
+    const messages = messageData;
+    messages.push(message);
+    setMessageData(messages);
+  };
 
   const setGameStateHelper = (updatedState: Partial<GameState>) => {
     setGameState((state) => ({ ...state, ...updatedState }));
@@ -100,7 +101,7 @@ const GameLay = () => {
       newRound[i].current_bet = 0;
       newRound[i].decision = undefined;
     }
-    setGameStateHelper({ round: newRound }); // reset round
+    setGameStateHelper({ round: newRound }); 
   };
 
   const singlePlayerLeft = () => {
@@ -429,6 +430,22 @@ const GameLay = () => {
       gameState.round[1].current_bet,
       gameState.bigBlindAmount,
     );
+    const ChatGPTMessage = await getChatGPTChatboxResponse(
+      gameState.table,
+      gameState.players[1].hand,
+      gameState.players[0].balance,
+      pastRounds,
+      gameState.players[1].bigBlind,
+      gameState.round[0].current_bet,
+    );
+    // make chatgptmessage from string to Message
+    const ChatGPTMessageObj: Message = {
+      message: ChatGPTMessage,
+      sent: true,
+    }
+    // store the message in the state messages
+    addMessage(ChatGPTMessageObj);
+
     console.log("line 429 ChatGPTAction is", ChatGPTAction);
     // chatgptaction should return amount_to_raise
     if (ChatGPTAction === -1) {
@@ -448,13 +465,12 @@ const GameLay = () => {
   }
 
   React.useEffect(() => {
-    console.log("line 431 checking gameState", gameState, "chatgpt turn is ", gameState.ChatGPTTurn);
     if (!gameState.ChatGPTTurn) return;
+    console.log("line 431 checking gameState", gameState, "chatgpt turn is ", gameState.ChatGPTTurn);
     fetchChatGPTReponse();
   }, [gameState.ChatGPTTurn]);
 
   const checkBalance = () => {
-    console.log("line 438 checking balance gamestate is", gameState)
     if (gameState.players.length !== 0 && gameState.players[0].balance >= 0) {
       return gameState.players[0].balance;
     }
@@ -466,7 +482,7 @@ const GameLay = () => {
     let message = "";
     if (gameState.result.index === 0) {
       if (gameState.result.name === "last standing player") {
-        message = `You WON as the ${gameState.result.name}!`;
+        message = `ChatGPT folded. You WON as the ${gameState.result.name}!`;
       } else {
         message = `You WON with ${gameState.result.name}!`;
       }
@@ -490,7 +506,7 @@ const GameLay = () => {
     }
     return pot;
   };
-  // going throuhg gamestate round number and match it to preflop, flop, turn, river
+
   const checkRound = () => {
     if (gameState.roundNumber === 0) return "";
     if (gameState.roundNumber === 1) return "Preflop Round: ";
