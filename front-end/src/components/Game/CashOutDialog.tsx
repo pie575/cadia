@@ -50,11 +50,17 @@ const CashOutDialog = ({ open, userScore, handleClose, resetGameState }: CashOut
             </Typography>
           </Grid>
           <Grid item flexGrow={1} />
+          {/* need to change icons to represent two clicks */}
           <Grid item xs={2}>
             <IconButton onClick={SubmitandExit}>
               <img src={ConfirmCashOut} alt="Submit Score and Exit" style={{ width: "4vw" }} />
             </IconButton>
           </Grid>
+          {/* <Grid item xs={2}>
+            <IconButton onClick={SubmitandRestart}>
+              <img src={ConfirmCashOut} alt="Submit Score and Restart" style={{ width: "4vw" }} />
+            </IconButton>
+          </Grid> */}
           <Grid item xs={2}>
             <IconButton onClick={handleClose}>
               <img src={ExitCashOut} alt="Cancel cash out" style={{ width: "4vw" }} />

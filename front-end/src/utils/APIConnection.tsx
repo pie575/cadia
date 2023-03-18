@@ -19,6 +19,7 @@ const getLeaderboardData = (scoreCount: number) => {
       },
     })
     .then((res) => {
+      console.log(res);
       const inputFiles = res.data;
       for (let i = 0; i < inputFiles.length; i += 1)
         leaderboardDataReturn.push({ displayName: inputFiles[i][0], score: parseInt(inputFiles[i][1], 10) });
@@ -48,7 +49,6 @@ const getChatGPTPrompt = async (
   chatGPTisBigBlind: boolean,
   opponentBet: number,
 ) => {
-  console.log("line 52 calling getChatGPTPrompt");
   axios
     .get(`${BASE_URL}/chatgpt_prompt`, {
       params: {
@@ -74,7 +74,6 @@ const getChatGPTChatboxResponse = async (
   chatGPTisBigBlind: boolean,
   opponentBet: number,
 ) => {
-  let message = "";
   axios
     .get(`${BASE_URL}/chatgpt_prompt_response`, {
       params: {
@@ -87,10 +86,8 @@ const getChatGPTChatboxResponse = async (
       },
     })
     .then((response) => {
-      console.log("line 89 response is", response);
-      message = response.data.response;
+      return response.data.response;
     });
-  return message;
 };
 
 // getting chatGPT prompt given player input
@@ -105,7 +102,7 @@ const getChatGPTResponse = async (
   bigBlindAmount: number,
 ) => {
   let value = -1;
-  console.log("line 105 calling getChatGPTResponse");
+  console.log("calling axios");
   try {
     const response = await axios.post(`${BASE_URL}/chatgpt_response`, {
       money: playerMoney,
@@ -122,8 +119,8 @@ const getChatGPTResponse = async (
   } catch (error) {
     console.log("error: ", error);
   }
-  console.log("line 122 value: ", value);
+  console.log("value: ", value);
   return value;
 };
 
-export { pushLeaderboardData, getLeaderboardData, getChatGPTResponse, getChatGPTPrompt, getChatGPTChatboxResponse };
+export { pushLeaderboardData, getLeaderboardData, getChatGPTResponse, getChatGPTPrompt };
