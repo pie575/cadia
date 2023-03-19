@@ -15,7 +15,17 @@ import ChatDialog from "../components/Game/ChatDialog";
 const Game = () => {
   const navigate = useNavigate();
   const [leaderboardOpen, setLeaderboardOpen] = React.useState(false);
-  const [chatOpen, setChatOpen] = React.useState(false);
+  const [chatOpen, setChatOpen] = React.useState(true);
+  const messageData = [
+    {
+      message: "Hello, ChatGPT",
+      sent: true,
+    },
+    {
+      message: "Hello, User",
+      sent: false,
+    },
+  ];
 
   return (
     <div>
@@ -36,7 +46,7 @@ const Game = () => {
           a
         </Grid>
         <LeaderboardDialog open={leaderboardOpen} handleClose={() => setLeaderboardOpen(false)} />
-        {/* <ChatDialog open={chatOpen} handleClose={() => setChatOpen(false)} messageData={messageData} /> */}
+        <ChatDialog open={chatOpen} handleClose={() => setChatOpen(false)} messageData={messageData} />
       </Grid>
       <GameLay />
     </div>

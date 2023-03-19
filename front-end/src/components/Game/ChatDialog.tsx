@@ -23,21 +23,21 @@ const SentMessage = ({ message }: MessageProps) => {
     <Grid
       container
       sx={{
+        display: "flex",
+        justifyContent: "flex-end",
         width: "auto",
       }}
     >
       <Grid
         item
-        xs="auto"
         sx={{
-          display: "flex",
-          justifyContent: "center",
           position: "relative",
           backgroundSize: "100% 100%",
           backgroundImage: `url(${SendImagePicture})`,
           backgroundPosition: "center",
           borderRadius: "5px",
-          padding: "10px",
+          padding: "15px",
+          marginBottom: "1.5vh",
         }}
       >
         <Typography sx={{ fontFamily: "Joystix", fontSize: "1.1rem", color: "white", display: "inline-block" }}>
@@ -57,7 +57,6 @@ const RecieveMessage = ({ message }: MessageProps) => {
     >
       <Grid
         item
-        xs="auto"
         sx={{
           display: "flex",
           justifyContent: "center",
@@ -66,10 +65,19 @@ const RecieveMessage = ({ message }: MessageProps) => {
           backgroundImage: `url(${RecieveImagePicture})`,
           backgroundPosition: "center",
           borderRadius: "5px",
-          padding: "10px",
+          padding: "15px",
+          marginBottom: "1.5vh",
         }}
       >
-        <Typography sx={{ fontFamily: "Joystix", fontSize: "1.1rem", color: "purple", display: "inline-block" }}>
+        <Typography
+          sx={{
+            fontFamily: "Joystix",
+            fontSize: "1.1rem",
+            color: "purple",
+            display: "inline-block",
+            paddingLeft: "10px",
+          }}
+        >
           {message}
         </Typography>
       </Grid>
@@ -88,27 +96,25 @@ const ChatDialog = ({ open, handleClose, messageData }: ChatDialogProps) => {
         container
         sx={{
           width: "100vw",
-          height: "100vh",
           justifyContent: "center",
-          alignContent: "center",
-          alignItems: "center",
+          outline: 0,
         }}
       >
         <Grid item sx={{ width: "80vw", height: "90vh", position: "fixed", left: "10vw", top: "5vh", zIndex: "-1" }}>
           <img src={PokerTableImage} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
         </Grid>
+        <Grid item sx={{ position: "absolute", right: "1vw", top: "1vh" }}>
+          <IconButton onClick={handleClose}>
+            <img src={CloseButton} alt="Settings Button" style={{ width: "3vw" }} />
+          </IconButton>
+        </Grid>
 
-        <Grid container sx={{ marginTop: "2vh" }}>
-          <Grid item xs={12} sx={{ display: "flex", justifyContent: "center" }}>
+        <Grid container sx={{ marginTop: "10vh" }}>
+          <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", marginBottom: "5vh" }}>
             <Typography sx={{ fontFamily: "Joystix", fontSize: "1.5rem", color: "white" }}>Messages</Typography>
           </Grid>
-          <Grid item sx={{ position: "absolute", right: "1vw", top: "1vh" }}>
-            <IconButton onClick={handleClose}>
-              <img src={CloseButton} alt="Settings Button" style={{ width: "3vw" }} />
-            </IconButton>
-          </Grid>
         </Grid>
-        <Grid item sx={{ display: "flex", flexDirection: "column", overflow: "scroll", width: "70vw" }}>
+        <Grid item sx={{ display: "flex", flexDirection: "column", overflow: "scroll", width: "60vw", height: "60vh" }}>
           {messageData?.map((message) => {
             return <MessageComponent message={message.message} sent={message.sent} />;
           })}
