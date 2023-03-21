@@ -36,11 +36,11 @@ const SentMessage = ({ message }: MessageProps) => {
           backgroundImage: `url(${SendImagePicture})`,
           backgroundPosition: "center",
           borderRadius: "5px",
-          padding: "15px",
+          padding: "35px 35px 60px 35px",
           marginBottom: "1.5vh",
         }}
       >
-        <Typography sx={{ fontFamily: "Joystix", fontSize: "1.1rem", color: "white", display: "inline-block" }}>
+        <Typography sx={{ fontFamily: "Joystix", fontSize: ".9rem", color: "white", display: "inline-block" }}>
           {message}
         </Typography>
       </Grid>
@@ -73,7 +73,7 @@ const RecieveMessage = ({ message }: MessageProps) => {
           sx={{
             fontFamily: "Joystix",
             fontSize: "1.1rem",
-            color: "purple",
+            color: "#402f5c",
             display: "inline-block",
             paddingLeft: "10px",
           }}

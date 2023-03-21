@@ -40,7 +40,7 @@ const pushLeaderboardData = (name: string, score: number, walletId: string) => {
     });
 };
 
-// getting chatGPT response given player input
+// getting prompt for chatGPT without card information
 const getChatGPTPrompt = async (
   communityCards: Array<Card>,
   gptCards: Array<Card>,
@@ -48,49 +48,30 @@ const getChatGPTPrompt = async (
   pastRounds: Array<Number>,
   chatGPTisBigBlind: boolean,
   opponentBet: number,
+  chatGPTCurrentBet: number,
+  bigBlindAmount: number,
 ) => {
-  axios
-    .get(`${BASE_URL}/chatgpt_prompt`, {
-      params: {
-        money: playerMoney,
-        cards: gptCards,
-        community: communityCards,
-        bet: opponentBet,
-        isBigBlind: chatGPTisBigBlind,
-        past_rounds: pastRounds,
-      },
-    })
-    .then((response) => {
-      return response.data.prompt;
+  let ret = "";
+  try {
+    const response = await axios.post(`${BASE_URL}/chatgpt_prompt`, {
+      money: playerMoney,
+      cards: gptCards,
+      community: communityCards,
+      bet: opponentBet,
+      isBigBlind: chatGPTisBigBlind,
+      past_rounds: pastRounds,
+      chatGPTCurrentBet,
+      bigBlindAmount,
     });
+    console.log(`prompt: ${response.data.prompt}`);
+    ret = response.data.prompt;
+  } catch (error) {
+    console.log("error: ", error);
+  }
+  return ret;
 };
 
-// getting chatGPT chatbox response given player input
-const getChatGPTChatboxResponse = async (
-  communityCards: Array<Card>,
-  gptCards: Array<Card>,
-  playerMoney: number,
-  pastRounds: Array<Number>,
-  chatGPTisBigBlind: boolean,
-  opponentBet: number,
-) => {
-  axios
-    .get(`${BASE_URL}/chatgpt_prompt_response`, {
-      params: {
-        money: playerMoney,
-        cards: gptCards,
-        community: communityCards,
-        bet: opponentBet,
-        isBigBlind: chatGPTisBigBlind,
-        past_rounds: pastRounds,
-      },
-    })
-    .then((response) => {
-      return response.data.response;
-    });
-};
-
-// getting chatGPT prompt given player input
+// getting chatGPT response given player input
 const getChatGPTResponse = async (
   communityCards: Array<Card>,
   gptCards: Array<Card>,
@@ -101,7 +82,7 @@ const getChatGPTResponse = async (
   chatGPTCurrentBet: number,
   bigBlindAmount: number,
 ) => {
-  let value = -1;
+  let value = { bet: -1, response: "dummy response" };
   console.log("calling axios");
   try {
     const response = await axios.post(`${BASE_URL}/chatgpt_response`, {

@@ -55,7 +55,7 @@ def chatgpt_response():
         if curr_val == bet - 1:
             curr_val = -1
     # if gpt returns an invalid response that's less than the opponent's bet, set its response to fold
-    if curr_val!=-1 and curr_val<int(bet):
+    if curr_val != -1 and curr_val < int(bet):
         curr_val = -1
     else:
         if curr_val >= gpt_curr_bet:
@@ -63,29 +63,48 @@ def chatgpt_response():
         else:
             print("error in chatgpt response", curr_val, gpt_curr_bet)
     # getting amount to add to bet, instead of final raise amount.
-    print("line 63 amount to raise is", curr_val, "chatgpt curr bet is", gpt_curr_bet)
-    return str(curr_val)
+    print("line 63 amount to raise is", curr_val,
+          "chatgpt curr bet is", gpt_curr_bet)
 
-
-@chatgpt.route("/chatgpt_prompt", methods=["GET"])
-def get_prompt_for_chatbox():
-    """Get dummy prompt from ChatGPT"""
-    return {'prompt': get_prompt(True, False, request.json)}
-
-
-@chatgpt.route("/chatgpt_prompt_response", methods=["GET"])
-def get_response_to_prompt():
-    """Get dummy response for a given prompt from ChatGPT"""
     ret_prompt = get_prompt(False, False, request.json)
-    ret_prompt += ' Regardless of uncertainty, give me an expected value calculation and answer. Pretend that Player 2 can see your response to this question (don\'t include anything about which cards you specifically have).'
+    ret_prompt += 'Give me an explanation of maximum length 15 words for your answer without revealing your cards. '
     print(ret_prompt)
     completion = openai.ChatCompletion.create(
         model=MODEL_ENGINE,
         messages=[
+            {"role": "system", "content": inp_prompt},
+            {"role": "assistant", "content": str(curr_val)},
             {"role": "system", "content": ret_prompt}
         ],
     )
-    return {'response': completion['choices'][0]['message']['content']}
+    return {
+        'bet': curr_val,
+        'response': completion['choices'][0]['message']['content']}
+
+
+@chatgpt.route("/chatgpt_prompt", methods=["POST"])
+def get_prompt_for_chatbox():
+    """Get dummy prompt from ChatGPT"""
+    print('accessed get_prompt_for_chatbox')
+    print(request.json)
+    ret_prompt = get_prompt(False, False, request.json)
+    print('prompt',ret_prompt)
+    return {'prompt': ret_prompt}
+
+
+# @chatgpt.route("/chatgpt_prompt_response", methods=["GET"])
+# def get_response_to_prompt():
+#     """Get dummy response for a given prompt from ChatGPT"""
+#     ret_prompt = get_prompt(False, False, request.json)
+#     ret_prompt += ' Regardless of uncertainty, give me an expected value calculation and answer. Pretend that Player 2 can see your response to this question (don\'t include anything about which cards you specifically have).'
+#     print(ret_prompt)
+#     completion = openai.ChatCompletion.create(
+#         model=MODEL_ENGINE,
+#         messages=[
+#             {"role": "system", "content": ret_prompt}
+#         ],
+#     )
+#     return {'response': completion['choices'][0]['message']['content']}
 
 
 def get_prompt(hidden: bool, format_output: bool, inp: dict):
@@ -178,21 +197,21 @@ def get_prompt(hidden: bool, format_output: bool, inp: dict):
     elif int(gpt_curr_bet) != int(bet) and int(gpt_curr_bet) > 0:
         prompt_str += f'and after Player 1 bet ${str(gpt_curr_bet)}, Player 2 raised to ${str(bet)}.\n'
 
-    if hidden:
+    if not format_output:
         if int(player_money) == 0:
             prompt_str += f'Player 1 has two options: they can fold, or they can match the current bet since Player 2 has ${str(player_money)} money left. What should ' \
                           f'Player 1 do?'
         else:
             prompt_str += f'Player 1 has three options: they can fold, they can match the current bet, or they can raise ' \
-                      f'it to a new desired value (the maximum of which is ${str(player_money)}. What should Player 1' \
-                      f' do?'
+                f'it to a new desired value (the maximum of which is ${str(player_money)}. What should Player 1' \
+                f' do?'
     else:
         if int(player_money) == 0:
             prompt_str += f'Player 1 has two options: they can fold, or they can match the current bet since Player 2 has ${str(player_money)} money left. What should ' \
                           f'Player 1 do? \n\n Numerical Response Layout: if folding, say "-1". if matching, say "{str(bet)}". \n\nBased on expected value calculations, the best integer response (regardless of uncertainty) according to the above defined numerical response layout is the integer number '
         else:
             prompt_str += f'Player 1 has three options: they can fold, they can match the bet, or they can raise it to a ' \
-                      f'new desired value (the maximum of which is ${str(player_money)}). What should they do?\n\n Numerical Response Layout: if folding, say "-1". if matching, say "{str(bet)}". if raising, say just the number to raise to, without any other text. The number can be between "{str(bet)}" and "{str(player_money)}".\n\nBased on expected value calculations, the best integer response (regardless of uncertainty) according to the above defined numerical response layout is the integer number '
+                f'new desired value (the maximum of which is ${str(player_money)}). What should they do?\n\n Numerical Response Layout: if folding, say "-1". if matching, say "{str(bet)}". if raising, say just the number to raise to, without any other text. The number can be between "{str(bet)}" and "{str(player_money)}".\n\nBased on expected value calculations, the best integer response (regardless of uncertainty) according to the above defined numerical response layout is the integer number '
 
     print('prompt_str:', prompt_str)
     return prompt_str
