@@ -4,3 +4,6 @@ venv/
 __pycache__/
 .envrc
 node_modules/
+build/
+misc.xml
+workspace.xml
