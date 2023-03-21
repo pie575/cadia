@@ -67,7 +67,7 @@ def chatgpt_response():
           "chatgpt curr bet is", gpt_curr_bet)
 
     ret_prompt = get_prompt(False, False, request.json)
-    ret_prompt += 'Give me an explanation of maximum length 15 words for your answer without revealing your cards. '
+    ret_prompt += 'Give me an explanation of maximum length 15 words for your answer without revealing your cards. DO NOT REVEAL ANY INFORMATION ABOUT YOUR CARDS, the other players can see what you say.'
     print(ret_prompt)
     completion = openai.ChatCompletion.create(
         model=MODEL_ENGINE,
@@ -87,7 +87,7 @@ def get_prompt_for_chatbox():
     """Get dummy prompt from ChatGPT"""
     print('accessed get_prompt_for_chatbox')
     print(request.json)
-    ret_prompt = get_prompt(False, False, request.json)
+    ret_prompt = get_prompt(True, False, request.json)
     print('prompt',ret_prompt)
     return {'prompt': ret_prompt}
 
