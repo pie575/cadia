@@ -1,3 +1,4 @@
+from datetime import datetime as dt
 from flask import Blueprint, request
 from firebase_admin import db
 
@@ -19,13 +20,12 @@ def get_score():
 
     # Returns a list of the top num_scores from highest to lowest in the tuple form
     # ('name', 'score', 'wallet_address')
-    ref = db.reference('Scores')
+    ref = db.reference('leaderboard')
     # Read the data at the posts reference (this is a blocking operation)
-    array = list(ref.order_by_child(
-        'score').limit_to_last(score_limit).get().values())
-    array.reverse()
+    scores = list(ref.order_by_child('score').limit_to_last(score_limit).get().values())
+    scores.reverse()
 
-    return [tuple(element.values()) for element in array]
+    return scores
 
 
 @leaderboard.route("/leaderboard", methods=["POST"])
@@ -34,19 +34,26 @@ def post_score():
     # name, user_wallet, score
     score_body = request.get_json()
 
-    ref = db.reference("Scores")
+    ref = db.reference("leaderboard")
 
-    print(score_body)
+    # print(score_body)
 
     user_wallet = score_body["user_wallet"]
     user_name = score_body["name"]
     user_score = score_body["score"]
 
-    score_ref = ref.child("Scores")
-    score_ref.push().set({
-        'user_wallet': user_wallet,
-        'score': user_score,
-        'name': user_name,
+    leaderboard_obj = {
+        "user_wallet": user_wallet,
+        "score": user_score,
+        "name": user_name,
+        "created_at": str(dt.utcnow()),
+    }
+
+    ref.push().set({
+        "user_wallet": user_wallet,
+        "score": user_score,
+        "name": user_name,
+        "created_at": str(dt.utcnow()),
     })
 
-    return score_body
+    return leaderboard_obj
