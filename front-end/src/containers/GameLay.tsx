@@ -1,7 +1,8 @@
 /* eslint-disable prettier/prettier */
 import * as React from "react";
-import { Button, Grid, Typography } from "@mui/material";
+import { Button, Grid, Typography, IconButton } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import MessageRoundedIcon from "@mui/icons-material/MessageRounded";
 import PokerTableImage from "../assets/pokertable.svg";
 import GoldPotImg from "../assets/goldpot.svg";
 import CoinImg from "../assets/coin.svg";
@@ -9,8 +10,9 @@ import CommunityCards from "../components/Game/CommunityCards";
 import UserCards from "../components/Game/UserCards";
 import GameButton from "../components/Game/GameButton";
 import CashOutBack from "../assets/cashoutback.svg";
-import { getChatGPTResponse } from "../utils/APIConnection";
-import { Message } from "../components/Game/ChatDialog";
+import { getChatGPTPrompt, getChatGPTResponse } from "../utils/APIConnection";
+import ChatDialog, { Message } from "../components/Game/ChatDialog";
+
 import {
   GameState,
   startRound,
@@ -42,8 +44,10 @@ const GameLay = () => {
   const [raiseOverlayOpen, setRaiseOverlayOpen] = React.useState<boolean>(false);
   const [cashOutDialogOpen, setCashOutDialogOpen] = React.useState<boolean>(false);
   const [chatGPTMessageOpen, setchatGPTMessageOpen] = React.useState<boolean>(false);
+  const [messageOpen, setMessageOpen] = React.useState<boolean>(false);
   const [gameEndOpen, setGameEndOpen] = React.useState<boolean>(false);
   const [userActions, setUserActions] = React.useState<string[]>([]);
+  const [messageData, setMessageData] = React.useState<Message[]>([]);
   const [gameState, setGameState] = React.useState<GameState>({
     pot: 0,
     deck: new Deck(),
@@ -419,7 +423,7 @@ const GameLay = () => {
   async function fetchChatGPTReponse() {
     // mapping from roundstates to bets to obtain post rounds
     const pastRounds = gameState.roundStates.map((round) => round[0].current_bet);
-    const ChatGPTAction = await getChatGPTResponse(
+    const ChatGPTResp = await getChatGPTResponse(
       gameState.table,
       gameState.players[1].hand,
       gameState.players[0].balance,
@@ -429,6 +433,11 @@ const GameLay = () => {
       gameState.round[1].current_bet,
       gameState.bigBlindAmount,
     );
+    const ChatGPTAction = ChatGPTResp.bet;
+    // updating the messages
+    const updMessages = messageData;
+    updMessages.push({ message: ChatGPTResp.response, sent: false });
+    setMessageData(updMessages);
     console.log("line 429 ChatGPTAction is", ChatGPTAction);
     // chatgptaction should return amount_to_raise
     if (ChatGPTAction === -1) {
@@ -447,14 +456,35 @@ const GameLay = () => {
     setGameStateHelper({ ChatGPTTurn: false });
   }
 
+  const updateChatGPTPromptMessage = async () => {
+    const updMessages = messageData;
+    const pastRounds = gameState.roundStates.map((round) => round[0].current_bet);
+    const newMessage = {
+      message: await getChatGPTPrompt(
+        gameState.table,
+        gameState.players[1].hand,
+        gameState.players[0].balance,
+        pastRounds,
+        gameState.players[1].bigBlind,
+        gameState.round[0].current_bet,
+        gameState.round[1].current_bet,
+        gameState.bigBlindAmount,
+      ),
+      sent: true,
+    };
+    console.log(`prompt${newMessage.message}`); 
+    updMessages.push(newMessage);
+    setMessageData(updMessages);
+  };
   React.useEffect(() => {
     console.log("line 431 checking gameState", gameState, "chatgpt turn is ", gameState.ChatGPTTurn);
     if (!gameState.ChatGPTTurn) return;
+    updateChatGPTPromptMessage();
     fetchChatGPTReponse();
   }, [gameState.ChatGPTTurn]);
 
   const checkBalance = () => {
-    console.log("line 438 checking balance gamestate is", gameState)
+    console.log("line 438 checking balance gamestate is", gameState);
     if (gameState.players.length !== 0 && gameState.players[0].balance >= 0) {
       return gameState.players[0].balance;
     }
@@ -513,7 +543,12 @@ const GameLay = () => {
       </Grid>
       <Grid container className="actual-table" sx={{ marginTop: "3vh" }}>
         <Grid container sx={{ margin: "0 20vw", justifyItems: "flex-start", alignItems: "center" }}>
-          <Grid item xs={4} sx={{ display: "flex" }} />
+          <Grid item xs={4} sx={{ display: "flex" }}>
+            <IconButton aria-label="Settings" onClick={() => setMessageOpen(true)}>
+              {/* <img src={SettingsWheel} alt="Settings Button" style={{ width: "3vw" }} /> */}
+              <MessageRoundedIcon fontSize="large" sx={{ color: "white" }} />
+            </IconButton>
+          </Grid>
           <Grid
             item
             xs={4}
@@ -737,6 +772,7 @@ const GameLay = () => {
         balance={checkBalance()}
         result={showResult()}
       />
+      <ChatDialog open={messageOpen} handleClose={() => setMessageOpen(false)} messageData={messageData} />
     </Grid>
   );
 };
