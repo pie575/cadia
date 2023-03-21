@@ -18,14 +18,18 @@ const CashOutDialog = ({ open, userScore, handleClose, resetGameState }: CashOut
   const navigate = useNavigate();
   const { currentUser } = React.useContext(UserContext);
 
-  const SubmitandExit = () => {
-    // console.log("submit and exit");
-    // if (currentUser) return;
-    // pushLeaderboardData({
-    //   name: currentUser.ProfileEntryResponse.Username,
-    //   score: userScore,
-    //   walletId: currentUser.PublicKeyBase58Check,
-    // });
+  const SubmitAndExit = () => {
+    if (!currentUser) return;
+    pushLeaderboardData({
+      // temporary fix by using bracket notation w/ rule disabling to avoid errors because currentUser
+      // is of type "never" due to the deso guy's code
+
+      // eslint-disable-next-line @typescript-eslint/dot-notation
+      name: currentUser["ProfileEntryResponse"]["Username"],
+      score: userScore,
+      // eslint-disable-next-line @typescript-eslint/dot-notation
+      walletId: currentUser["PublicKeyBase58Check"],
+    });
     navigate("/home");
   };
 
@@ -52,7 +56,7 @@ const CashOutDialog = ({ open, userScore, handleClose, resetGameState }: CashOut
           <Grid item flexGrow={1} />
           {/* need to change icons to represent two clicks */}
           <Grid item xs={2}>
-            <IconButton onClick={SubmitandExit}>
+            <IconButton onClick={SubmitAndExit}>
               <img src={ConfirmCashOut} alt="Submit Score and Exit" style={{ width: "4vw" }} />
             </IconButton>
           </Grid>

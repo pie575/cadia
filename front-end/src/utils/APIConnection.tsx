@@ -28,7 +28,13 @@ const getLeaderboardData = (scoreCount: number) => {
 };
 
 // pushing a new leaderboard score
-const pushLeaderboardData = (name: string, score: number, walletId: string) => {
+interface PushLeaderboardDataProps {
+  name: string;
+  score: number;
+  walletId: string;
+}
+
+const pushLeaderboardData = ({ name, score, walletId }: PushLeaderboardDataProps) => {
   axios
     .post(`${BASE_URL}/leaderboard`, {
       name: { name },
