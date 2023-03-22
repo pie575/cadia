@@ -33,7 +33,7 @@
   "scripts": {
     "start:dev:server": "flask run --host=localhost --port=8090",
     "start:dev:client": "craco start",
-    "start:dev": "concurrently -k -n 'client,server' -c '#185cc9,#18c94d' 'yarn start:dev:client' 'yarn start:dev:server'",
+    "start:dev": "concurrently -k -n 'client,server' -c '#185cc9,#18c94d' 'npm run start:dev:client' 'npm run start:dev:server'",
     "start:prod": "craco build && gunicorn app:app",
     "build": "craco build",
     "test": "craco test",
