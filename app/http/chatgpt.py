@@ -42,33 +42,33 @@ def chatgpt_response():
     )
 
     response = completion['choices'][0]['message']['content']
-    print("chatgpt repsonse is", response)
+    # print("chatgpt repsonse is", response)
     curr_val = 0
     if '-' in response:
         curr_val = -1
     try:
         curr_val = int(response)
-        print("line 51 curr_val is", curr_val)
     except:
         print('\nused random val \n')
         curr_val = random.randrange(bet - 1, bet + player_money)
         if curr_val == bet - 1:
             curr_val = -1
-    # if gpt returns an invalid response that's less than the opponent's bet, set its response to fold
+    # if gpt returns an invalid response that's less than the opponent's bet, set its response to random value
     if curr_val != -1 and curr_val < int(bet):
-        curr_val = -1
+        print('\nused random val \n')
+        curr_val = random.randrange(bet - 1, bet + player_money)
+        if curr_val == bet - 1:
+            curr_val = -1
+    # getting amount to add to bet, instead of final raise amount.
     else:
         if curr_val >= gpt_curr_bet:
             curr_val -= gpt_curr_bet
         else:
             print("error in chatgpt response", curr_val, gpt_curr_bet)
-    # getting amount to add to bet, instead of final raise amount.
-    print("line 63 amount to raise is", curr_val,
-          "chatgpt curr bet is", gpt_curr_bet)
 
     ret_prompt = get_prompt(False, False, request.json)
     ret_prompt += 'Give me an explanation of maximum length 15 words for your answer without revealing your cards. DO NOT REVEAL ANY INFORMATION ABOUT YOUR CARDS, the other players can see what you say.'
-    print(ret_prompt)
+    # print(ret_prompt)
     completion = openai.ChatCompletion.create(
         model=MODEL_ENGINE,
         messages=[
@@ -85,10 +85,10 @@ def chatgpt_response():
 @chatgpt.route("/chatgpt_prompt", methods=["POST"])
 def get_prompt_for_chatbox():
     """Get dummy prompt from ChatGPT"""
-    print('accessed get_prompt_for_chatbox')
+    # print('accessed get_prompt_for_chatbox')
     print(request.json)
     ret_prompt = get_prompt(True, False, request.json)
-    print('prompt',ret_prompt)
+    # print('prompt',ret_prompt)
     return {'prompt': ret_prompt}
 
 
