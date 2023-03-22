@@ -38,7 +38,7 @@ def post_score():
 
     # print(score_body)
 
-    user_wallet = score_body["user_wallet"]
+    user_wallet = score_body["walletId"]
     user_name = score_body["name"]
     user_score = score_body["score"]
 
