@@ -36,8 +36,6 @@ def post_score():
 
     ref = db.reference("leaderboard")
 
-    # print(score_body)
-
     user_wallet = score_body["walletId"]
     user_name = score_body["name"]
     user_score = score_body["score"]
@@ -49,11 +47,6 @@ def post_score():
         "created_at": str(dt.utcnow()),
     }
 
-    ref.push().set({
-        "user_wallet": user_wallet,
-        "score": user_score,
-        "name": user_name,
-        "created_at": str(dt.utcnow()),
-    })
+    ref.push().set(leaderboard_obj)
 
     return leaderboard_obj
