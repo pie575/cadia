@@ -20,10 +20,12 @@ def init_app():
     })
 
     from .http.leaderboard import leaderboard
+    from .http.events import events
     from .http.chatgpt import chatgpt
 
-    application.register_blueprint(leaderboard, url_prefix='/')
-    application.register_blueprint(chatgpt, url_prefix='/')
+    application.register_blueprint(leaderboard, url_prefix="/")
+    application.register_blueprint(events, url_prefix="/event")
+    application.register_blueprint(chatgpt, url_prefix="/")
 
     @application.route("/", defaults={"path": ""})
     @application.route("/<path:path>")
