@@ -15,7 +15,7 @@ def get_score():
         score_limit = int(request.args.get("count"))
         if score_limit <= 0:
             score_limit = 10
-    except TypeError:
+    except ValueError:
         score_limit = 10
 
     # Returns a list of the top num_scores from highest to lowest in the tuple form
@@ -39,6 +39,11 @@ def post_score():
     user_wallet = score_body["walletId"]
     user_name = score_body["name"]
     user_score = score_body["score"]
+
+    try:
+        user_score = int(user_score)
+    except ValueError:
+        return { "error": "invalid score" }
 
     leaderboard_obj = {
         "user_wallet": user_wallet,
