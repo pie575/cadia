@@ -207,11 +207,11 @@ def get_prompt(hidden: bool, format_output: bool, inp: dict):
                 f' do?'
     else:
         if int(player_money) == 0:
-            prompt_str += f'Player 1 has two options: they can fold, or they can match the current bet since Player 2 has ${str(player_money)} money left. What should ' \
+            prompt_str += f'Player 1 has two options: they can fold, or they can match the current bet since Player 2 has ${str(player_money)} money left. Player 1 should behave very passively in terms of betting and raising. What should ' \
                           f'Player 1 do? \n\n Numerical Response Layout: if folding, say "-1". if matching, say "{str(bet)}". \n\nBased on expected value calculations, the best integer response (regardless of uncertainty) according to the above defined numerical response layout is the integer number '
         else:
             prompt_str += f'Player 1 has three options: they can fold, they can match the bet, or they can raise it to a ' \
-                f'new desired value (the maximum of which is ${str(player_money)}). What should they do?\n\n Numerical Response Layout: if folding, say "-1". if matching, say "{str(bet)}". if raising, say just the number to raise to, without any other text. The number can be between "{str(bet)}" and "{str(player_money)}".\n\nBased on expected value calculations, the best integer response (regardless of uncertainty) according to the above defined numerical response layout is the integer number '
+                f'new desired value (the maximum of which is ${str(player_money)}). Player 1 should behave very passively in terms of betting and raising. What should they do?\n\n Numerical Response Layout: if folding, say "-1". if matching, say "{str(bet)}". if raising, say just the number to raise to, without any other text. The number can be between "{str(bet)}" and "{str(player_money)}".\n\nBased on expected value calculations, the best integer response (regardless of uncertainty) according to the above defined numerical response layout is the integer number '
 
     print('prompt_str:', prompt_str)
     return prompt_str
