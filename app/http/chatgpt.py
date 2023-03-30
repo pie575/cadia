@@ -67,7 +67,8 @@ def chatgpt_response():
             print("error in chatgpt response", curr_val, gpt_curr_bet)
 
     ret_prompt = get_prompt(False, False, request.json)
-    ret_prompt += 'Give me an explanation of maximum length 15 words for your answer without revealing your cards. DO NOT REVEAL ANY INFORMATION ABOUT YOUR CARDS, the other players can see what you say.'
+    ret_prompt += 'Give me an explanation of maximum length 15 words for your answer without revealing your cards. ' \
+                  'DO NOT REVEAL ANY INFORMATION ABOUT YOUR CARDS, the other players can see what you say.'
     # print(ret_prompt)
     completion = openai.ChatCompletion.create(
         model=MODEL_ENGINE,
@@ -134,7 +135,8 @@ def get_prompt(hidden: bool, format_output: bool, inp: dict):
         prompt_str += f' Player 1 and Player 2 both have ${str(player_money)} . Player 1 has a **** card and a **** ' \
                       f'card. Player 2 has two unknown cards. '
     else:
-        prompt_str += f' Player 1 and Player 2 both have ${str(player_money)}. Player 1 has {get_string_card(chatgpt_cards[0])} and {get_string_card(chatgpt_cards[1])}. Player 2 has two unknown cards. '
+        prompt_str += f' Player 1 and Player 2 both have ${str(player_money)}. Player 1 has {get_string_card(chatgpt_cards[0])} ' \
+                      f'and {get_string_card(chatgpt_cards[1])}. Player 2 has two unknown cards. '
     if (len(current_community) != 0):
         prompt_str += f' There is a '
         for card in current_community:
@@ -145,8 +147,8 @@ def get_prompt(hidden: bool, format_output: bool, inp: dict):
     curr_round = 0
     for val in past_rounds:
         prompt_str += 'The ' + \
-            str(rounds[curr_round]) + ' round ended with $' + \
-            str(val) + ' added to the table. '
+                      str(rounds[curr_round]) + ' round ended with $' + \
+                      str(val) + ' added to the table. '
         curr_round += 1
 
     prompt_str += 'They are in the ' + str(rounds[curr_round]) + ' round, '
@@ -199,19 +201,29 @@ def get_prompt(hidden: bool, format_output: bool, inp: dict):
 
     if not format_output:
         if int(player_money) == 0:
-            prompt_str += f'Player 1 has two options: they can fold, or they can match the current bet since Player 2 has ${str(player_money)} money left. What should ' \
+            prompt_str += f'Player 1 has two options: they can fold, or they can match the current bet since Player 2 ' \
+                          f'has ${str(player_money)} money left. What should ' \
                           f'Player 1 do?'
         else:
             prompt_str += f'Player 1 has three options: they can fold, they can match the current bet, or they can raise ' \
-                f'it to a new desired value (the maximum of which is ${str(player_money)}. What should Player 1' \
-                f' do?'
+                          f'it to a new desired value (the maximum of which is ${str(player_money)}. What should Player 1' \
+                          f' do?'
     else:
         if int(player_money) == 0:
-            prompt_str += f'Player 1 has two options: they can fold, or they can match the current bet since Player 2 has ${str(player_money)} money left. Player 1 should behave very passively in terms of betting and raising. What should ' \
-                          f'Player 1 do? \n\n Numerical Response Layout: if folding, say "-1". if matching, say "{str(bet)}". \n\nBased on expected value calculations, the best integer response (regardless of uncertainty) according to the above defined numerical response layout is the integer number '
+            prompt_str += f'Player 1 has two options: they can fold, or they can match the current bet since Player 2 ' \
+                          f'has ${str(player_money)} money left. Player 1 should behave very passively in terms of ' \
+                          f'betting and raising. What should Player 1 do? \n\n Numerical Response Layout: if folding, ' \
+                          f'say "-1". if matching, say "{str(bet)}". \n\nBased on expected value calculations, the best ' \
+                          f'integer response (regardless of uncertainty) according to the above defined numerical response ' \
+                          f'layout is the integer number '
         else:
             prompt_str += f'Player 1 has three options: they can fold, they can match the bet, or they can raise it to a ' \
-                f'new desired value (the maximum of which is ${str(player_money)}). Player 1 should behave very passively in terms of betting and raising. What should they do?\n\n Numerical Response Layout: if folding, say "-1". if matching, say "{str(bet)}". if raising, say just the number to raise to, without any other text. The number can be between "{str(bet)}" and "{str(player_money)}".\n\nBased on expected value calculations, the best integer response (regardless of uncertainty) according to the above defined numerical response layout is the integer number '
+                          f'new desired value (the maximum of which is ${str(player_money)}). Player 1 should behave very passively ' \
+                          f'in terms of betting and raising. What should they do?\n\n Numerical Response Layout: if ' \
+                          f'folding, say "-1". if matching, say "{str(bet)}". if raising, say just the number to raise ' \
+                          f'to, without any other text. The number can be between "{str(bet)}" and "{str(player_money)}"' \
+                          f'.\n\nBased on expected value calculations, the best integer response (regardless of ' \
+                          f'uncertainty) according to the above defined numerical response layout is the integer number '
 
     print('prompt_str:', prompt_str)
     return prompt_str
