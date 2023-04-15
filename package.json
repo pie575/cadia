@@ -6,6 +6,7 @@
     "@deso-core/identity": "^0.0.14",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
+    "@metamask/providers": "^10.2.1",
     "@mui/icons-material": "^5.11.9",
     "@mui/material": "^5.11.9",
     "@testing-library/jest-dom": "^5.16.5",
