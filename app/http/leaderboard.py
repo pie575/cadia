@@ -15,7 +15,7 @@ def get_score():
         score_limit = int(request.args.get("count"))
         if score_limit <= 0:
             score_limit = 10
-    except TypeError:
+    except ValueError:
         score_limit = 10
 
     # Returns a list of the top num_scores from highest to lowest in the tuple form
@@ -36,11 +36,14 @@ def post_score():
 
     ref = db.reference("leaderboard")
 
-    # print(score_body)
-
     user_wallet = score_body["walletId"]
     user_name = score_body["name"]
     user_score = score_body["score"]
+
+    try:
+        user_score = int(user_score)
+    except ValueError:
+        return { "error": "invalid score" }
 
     leaderboard_obj = {
         "user_wallet": user_wallet,
@@ -49,11 +52,6 @@ def post_score():
         "created_at": str(dt.utcnow()),
     }
 
-    ref.push().set({
-        "user_wallet": user_wallet,
-        "score": user_score,
-        "name": user_name,
-        "created_at": str(dt.utcnow()),
-    })
+    ref.push().set(leaderboard_obj)
 
     return leaderboard_obj
