@@ -20,9 +20,9 @@ def get_score():
 
     # Returns a list of the top num_scores from highest to lowest in the tuple form
     # ('created_at','name', 'score', 'wallet_address')
-    ref = db.reference('leaderboard')
+    ref = db.reference("leaderboard")
     # Read the data at the posts reference (this is a blocking operation)
-    scores = list(ref.order_by_child('score').limit_to_last(score_limit).get().values())
+    scores = list(ref.order_by_child("score").limit_to_last(score_limit).get().values())
     scores.reverse()
 
     return scores
@@ -43,7 +43,7 @@ def post_score():
     try:
         user_score = int(user_score)
     except ValueError:
-        return { "error": "invalid score" }
+        return {"error": "invalid score"}
 
     leaderboard_obj = {
         "user_wallet": user_wallet,
@@ -57,7 +57,7 @@ def post_score():
     return leaderboard_obj
 
 
-@leaderboard.route("/searchwallet", methods=["GET"])
+@leaderboard.route("/searchwallet", methods=["POST"])
 def get_querywallet():
     """Send a search and return list of wallets"""
     # input: start, end, query
@@ -67,20 +67,25 @@ def get_querywallet():
     end = query_body["end"]
     query = query_body["query"]
 
-
     try:
         start = int(start)
         end = int(end)
         if end < start:
             raise ValueError
     except ValueError:
-        return { "error": "invalid start or end" }
-    
+        return {"error": "invalid start or end"}
+
     # Returns a list of scores from highest to lowest in tuple form
     ref = db.reference("leaderboard")
-    result = list(ref.order_by_child('user_wallet').start_at(query).end_at(query+ "\uf8ff").get().values())
+    result = list(
+        ref.order_by_child("user_wallet")
+        .start_at(query)
+        .end_at(query + "\uf8ff")
+        .get()
+        .values()
+    )
 
-    if(len(result) > end - start):
+    if len(result) > end - start:
         return result[start:end]
 
     return result
