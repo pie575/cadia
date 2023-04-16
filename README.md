@@ -6,11 +6,11 @@ Our first game is a poker strategy game called PokerGPT that allows you to play 
 It's currently live at https://www.thecadia.xyz/
 
 
-# How it Works
+### How it Works
 
 Cadia will have two modes, free-play and challenge-play. Free-play is an always avalible version that anyone with a MetaMask account can play. On the other hand, Challenge-play will have a small entry fee of 3 USDC. At the end of the day, the people with the three highest scores on our Challenge-play leaderboard wins 50%, 25%, and 15% of the game pot for today, with the remaining 10% going back into us for development and growth. Put your skills to the test and fight man vs machine!
 
-# Our DeFi Protocol
+### Our DeFi Protocol
 
 On top of having the Challenge reward system, we also have a DeFi wager market for players to make secondary betting. Individuals will be able to bet on the player they think will have the highest score that week. The earlier someone bets, the more weight that bet will have. An early bet can be worth quadrule that of a late bet.
 
@@ -24,7 +24,7 @@ TODO, INCLUDE THE FUCKER
 
 It's also in the /contracts folder.
 
-### Documentation
+# Documentation
 
 Cadia's DeFi betting protocol and leaderboard is made on the Arbitrum testnet network. The reason why we chose to deploy on the Arbitrum testnet is because we plan to move onto Arbitrum Nova in the future, as it is perfectly suited for gaming. Its incredible convenience, speed, and affordable nature is perfect for minting on-chain achievements, prizes, and collectables, something we as a gaming platform plan to utilize in full effect.
 
@@ -48,3 +48,6 @@ If you have a .envrc file, simpily run
 foo@bar:~$ npm i
 foo@bar:~$ npm run start:dev
 ```
+
+## Team
+Cadia is founded by four talented Princeton students looking to make a lasting impact on blockchain. Bofan Ji is the co-president of the Princeton Blockchain Club with research experience at Dragonfly Capital. Jackie Chen is the winner of the 2020 Princeton Mathematics Competition and has been programming on various blockchains for the past three years. Tharun Kumar Tiruppali Kalidoss is a young blockchain engineer with experience working at both Modulus Labs and Open AI. Carter Costic is a programming savant with the talents to make a remarkable website using React and Python.
