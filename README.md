@@ -23,22 +23,42 @@ TODO, INCLUDE THE FUCKER
 
 It's also in the /contracts folder.
 
-# Documentation
+# Smart Contract Documentation
+Cadia's Poker "Side Bet" DeFi Protocol is built on Arbitrium. We have already deployed the contract on the Arbitrium testnet and plan to migrate to Arbitrum Nova in the future. With its exceptional convenience, speed, and cost-effectiveness, Arbitrium is an ideal platform for creating on-chain achievements, prizes, and collectibles. As a pioneering crypto gaming platform, we plan to utilize these features to the fullest.
 
-Cadia's DeFi betting protocol and leaderboard is made on the Arbitrum testnet network. The reason why we chose to deploy on the Arbitrum testnet is because we plan to move onto Arbitrum Nova in the future, as it is perfectly suited for gaming. Its incredible convenience, speed, and affordable nature is perfect for minting on-chain achievements, prizes, and collectables, something we as a gaming platform plan to utilize in full effect.
+Our primary contract, bettingMarket.sol, enables users to place bets while allowing our team to monitor the game season, distribute rewards, and withdraw management fees. We have implemented innovative incentive mechanisms that utilize the "weightMultiplier" concept, which degrades linearly over time as the season progresses. This incentivizes players to place bets early and claim a larger share of the prize pool. finally, we utilize Zkaptcha's captcha images in both the betting protocol and our gameplay to provide additional defence against potential botting and DDOS attacks.
 
-Additonally, we use a combination of Arbitrum and Firebase for our database as we in the process of transitioning all of our backend to the blockchain. While it's more expensive to have our backend on web3, layer 2s have made it signficantly easier to host our services there, and the blockchain's immutable nature allows us to be both more decentralized and robust for our players. Our frontend is hosted by Heroku and made in React, which has allowed us to be flexible and creative in our website design. Finally, we utilize Zkaptcha's captcha images in both our gameplay and betting market to provide additional defence against potential botting and DDOS attacks.
+To run tests on our smart contracts locally, 
+
+1. Set Up
+First create .env file and add ALCHEMY_ID (for all relevant environment variables, see .env.example)
+
+Repo uses npm for packagement management. 
+
+2. Run hardhat tests
+install dependencies
+```console
+npm install
+```
+
+compile contracts
+```console
+npx hardhat compile
+```
+
+run tests
+```console
+npx hardhat test
+```
+
+# Game Documentation
+
+For the game, we use a combination of Arbitrum and Firebase for our database as we in the process of transitioning all of our backend to the blockchain. While it's more expensive to have our backend on web3, layer 2s have made it signficantly easier to host our services there, and the blockchain's immutable nature allows us to be both more decentralized and robust for our players. Our frontend is hosted by Heroku and made in React, which has allowed us to be flexible and creative in our website design. 
 
 Our game logic, website, and smart contracts have been tested vigoursly with extensive commenting.
-Take a look at them in the /contracts folder.
+You can find them in the /contracts folder.
 
 Again, feel free to try out our game at https://www.thecadia.xyz/
-
-If you wish to run tests against our smart contracts, run
-
-```console
-TODO INCLUDE THIS PART AND THE PART ABOVE
-```
 
 If you wish to try out our game locally, you will need to have your own `.envrc` file with a Firebase service account with full access, an OpenAI API key, and the address of the smartcontract that is being used. For security reasons, we cannot share ours with you on a public github, but please reach out to us if you need to run the game locally.
 
@@ -69,3 +89,6 @@ foo@bar:~$ npm run start:dev:server
 ## Team
 
 Cadia is founded by four talented Princeton students looking to make a lasting impact on blockchain. Bofan Ji is the co-president of the Princeton Blockchain Club with research experience at Dragonfly Capital. Jackie Chen is the winner of the 2020 Princeton Mathematics Competition and has been programming on various blockchains for the past three years. Tharun Kumar Tiruppali Kalidoss is a young blockchain engineer with experience working at both Modulus Labs and Open AI. Carter Costic is a programming savant with the talents to make a remarkable website using React and Python.
+
+## License
+The license for Cadia "Side Bet" Protocol is the MIT License.
