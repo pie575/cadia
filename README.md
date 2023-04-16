@@ -1,8 +1,8 @@
 # Cadia
 
-Cadia is an on-chain arcade gaming platform that offers browser-based, plug-and-play arcade games with leadership boards. Players can showcase their skills and engage with others. We believe that blockchains are perfect for minigames
+Cadia is an on-chain arcade gaming platform that offers browser-based, plug-and-play arcade games with leadership boards. Players can showcase their skills and engage with others. We believe that blockchains are perfect for minigames.
 
-Our first game is a poker strategy game called PokerGPT that allows you to play Texas Hold'em against ChatGPT. Come and play a game and see how well you fair against ChatGPT! On the tutorial page, click the symbol on the top right to log into MetaMask
+Our first game is a poker strategy game called PokerGPT that allows you to play Texas Hold'em against ChatGPT. Come and play a game and see how well you fair against ChatGPT! On the tutorial page, click the symbol on the top right to log into MetaMask.
 It's currently live at https://www.thecadia.xyz/
 
 
@@ -22,7 +22,7 @@ You can check out our live contract here:
 TODO, INCLUDE THE FUCKER
 ```
 
-It's also in the /contracts folder
+It's also in the /contracts folder.
 
 ### Documentation
 
@@ -31,7 +31,7 @@ Cadia's DeFi betting protocol and leaderboard is made on the Arbitrum testnet ne
 Additonally, we use a combination of Arbitrum and Firebase for our database as we in the process of transitioning all of our backend to the blockchain. While it's more expensive to have our backend on web3, layer 2s have made it signficantly easier to host our services there, and the blockchain's immutable nature allows us to be both more decentralized and robust for our players. Our frontend is hosted by Heroku and made in React, which has allowed us to be flexible and creative in our website design. Finally, we utilize Zkaptcha's captcha images in both our gameplay and betting market to provide additional defence against potential botting and DDOS attacks.
 
 Our game logic, website, and smart contracts have been tested vigoursly with extensive commenting. 
-Take a look at them in the /contracts folder
+Take a look at them in the /contracts folder.
 
 Again, feel free to try out our game at https://www.thecadia.xyz/
 
