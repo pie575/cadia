@@ -5,6 +5,9 @@ Cadia is an on-chain arcade gaming platform that offers browser-based, plug-and-
 Our first game is a poker strategy game called PokerGPT that allows you to play Texas Hold'em against ChatGPT. Come and play a game and see how well you fair against ChatGPT! On the tutorial page, click the symbol on the top right to log into MetaMask.
 It's currently live at https://www.thecadia.xyz/
 
+All Web3 elements from the Metamask login, the Arbitrum contracts, and DeFi betting protocols were implemented from scratch at Lionhack.
+
+
 ### How it Works
 
 Cadia will have two modes, free-play and challenge-play. Free-play is an always avalible version that anyone with a MetaMask account can play. On the other hand, Challenge-play will have a small entry fee of 3 USDC. At the end of the day, the people with the three highest scores on our Challenge-play leaderboard wins 50%, 25%, and 15% of the game pot for today, with the remaining 10% going back into us for development and growth. Put your skills to the test and fight man vs machine!
@@ -18,7 +21,7 @@ At the end of the week, those who bet on the top three highest scoring players f
 You can check out our live contract here:
 
 ```console
-TODO, INCLUDE THE FUCKER
+0x2c49B722a88026D1EaeB6F1D257Fbe3e5BBeEE16
 ```
 
 It's also in the /contracts folder.
