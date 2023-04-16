@@ -17,7 +17,10 @@ On top of having the Challenge reward system, we also have a DeFi wager market f
 At the end of the week, those who bet on the top three highest scoring players from the past seven days will win their wager. Rewards will be distributed from our smart contract in accordance to how much and how early the wager was made.
 
 You can check out our live contract here:
+
+```console
 TODO, INCLUDE THE FUCKER
+```
 
 It's also in the /contracts folder
 
@@ -32,12 +35,16 @@ Take a look at them in the /contracts folder
 
 Again, feel free to try out our game at https://www.thecadia.xyz/
 
-If you wish to try out our game locally, run 
+If you wish to run tests against our smart contracts, run
+
+```console
+TODO INCLUDE THIS PART AND THE PART ABOVE
+```
+
+If you wish to try out our game locally, you will need to have your own .envrc file with a firebase service account with full access and an open-ai api key. For security reasons, we cannot share ours with you on a public github, but please reach out to us if you need to run the game locally.
+
+If you have a .envrc file, simpily run 
 ```console
 foo@bar:~$ npm i
 foo@bar:~$ npm run start:dev
 ```
-
-If you wish to run tests against our smart contracts, run
-
-TODO INCLUDE THIS PART AND THE PART ABOVE
