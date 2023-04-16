@@ -21,7 +21,7 @@ At the end of the week, those who bet on the top three highest scoring players f
 You can check out our live contract here:
 
 ```console
-0x2c49B722a88026D1EaeB6F1D257Fbe3e5BBeEE16
+https://goerli.arbiscan.io/address/0x2c49B722a88026D1EaeB6F1D257Fbe3e5BBeEE16#code
 ```
 
 It's also in the /contracts folder.
