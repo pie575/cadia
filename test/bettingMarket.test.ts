@@ -1,10 +1,12 @@
 import { expect } from "chai";
 import '@nomiclabs/hardhat-ethers';
 import '@nomiclabs/hardhat-waffle';
-import { BigNumber, Contract, FixedNumber, Signer } from "ethers";
+import { Contract, Signer } from "ethers";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
 
 import hre = require("hardhat");
+
+const BigNumber = require('bignumber.js');
 
 const { ethers } = hre;
 
@@ -34,14 +36,14 @@ describe("bettingMarket", function () {
     player1Address = await player1.getAddress();
     player2Address = await player2.getAddress();
     player3Address = await player3.getAddress();
-    dummyProof2 = "AAAAAAAAAAAAAAAAUnGbexRhyMpMsr/DrKI2JiHXfrkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAByAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAbwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHAgedpxhic+7jymE1CmDCMij79i7gkKOQng0rTMUmw8EBghR/m+063jvCLUMytsQYGhuStsLiCekquaT4tXyhE+GvHCSZLYL6CRQVAfIHdgUSu+v7bTkNDSPjEJXtLdLsMkWOue6wSIZnadyL8kdHqwOiolyBmk/RYQ+se/PQwZDCXLo5tC4nja6wxvFppvj1sgX2uZ0/QXhBPTGptUGSLbLxiUWzNiaArsiOPpQYgGT3yNYJkqHAGXZVy7j7xxEOcrDuC2WFH7DAROBhc4oCuM43cTg9xvSVjQnfkzgfcHORikyE2uPMmNTdgGcA1lmaaR425DtySnSPyt8Pk9lHcBGfbhoWITDQ0ru6bKgP2WFV9vBb7fnQmQWkVF6RIr/eEmjzWm2fWrmGIMpCJ3QFx/UUjqd/FBonz6Egm//5gwTQVvyE3aBYMwHO2DHDHm1gM8FEngwX1+Cx7P0mLXUvRcDZxTIZfvSoYCvXnG2ZZniD+CoLJuFcm1NYmRFgwr6Dkqzkjs+NTOoaaYZThBpEeaJD/SZmsxbovfSW6JPf5dwQwJL0Jp/+L6Ci+lhI3tT5J2DDcJYWbx+EmKREkjTOh9HHVXnjPmhgzenEvnXzFERy6xyzFo4GLqtDplamSsWUMFqc8l6Kk4r8fATWLmnJXwp9UlPDcfeax4OreltmK2yxmsaCUKyIVmqX/LlxwvYSniXm4jlitF1h53NIgKVNVEABrBiUNLlVX7TfE2NTtWp9miGwXNTHLwXa0WKnNH/EwvPr0r2qD4qJm+E35afnwKRi8t0ZdltrUcMdctfxBvkieU8mTbb7pfJA1AEVz+EpZcuXYzmbisrMT6CZ1jVNR7AqpmQ86k+LupKOujUdCH2E8hAt3pmmaa5puD5jpABAQGaOku0eD9KJ62Da8DoDQQGE4sHqE9UyQudwlQ/DkQDg+7+401NMc/826oQyvcemxl8NsZzPgj6e9zYiCM3CiQKDrHLrfg5IOzmceeQBQ66e8ngCEHONeixLRsoVzWOWMdplUrxAihhaiT4eZB/u8P931x9r6rX3FPTkNQ+Swk5y1uUD45YCUHnhUNAxXGdtHJtPj63gejrWDpGIdHpv8RLjRL5fPx7XmLlDiK6v1vtarrpSZcHeWYlOnUxD6smQAuNEvl8/HteYuUOIrq/W+1quulJlwd5ZiU6dTEPqyZACDHgraDXN3I0c5B8FiMpQhMC+SI4F7AXpEmmGXqZInLHodCZ4W6BpTNK4vbnJ3RzEbLJu8AHE9oZMjOIywQe18H6RXn2HtThkxSoZOFPNeAIbhIEXnL4jP43qdOQOxzaQNXJXKdtXirKDWhR/6zVe7D8WEPjN3MV/uVn2oKSbqpLPCsDtb7d/NOvEses+aF31twpv7AXCskb/ukfEXd8YwDnvt0LGa21JoZkrDnrfyc7IAfRBeERX7GtWRGqYEXYhBX0eUt++EaMYRmHTXwwNE2+zHXD3l8+pz7A5rqTVpLCZcwx9aAwgNqd4c0Wev8M3X7gL97zy7hJfZIcDhCN/8MoBUKLMM6IBABVNy6x8HYkw/Wogrza+FfDxe8YXlNEg==";
-    function stringToBytes32(str: string): string {
-      const utf8Bytes = new TextEncoder().encode(str);
-      const bytes32 = new Uint8Array(32);
-      bytes32.set(utf8Bytes.slice(0, 32));
-      return '0x' + Array.prototype.map.call(bytes32, x => ('00' + x.toString(16)).slice(-2)).join('');
-    }
-    dummyProof = stringToBytes32(dummyProof2);
+    // dummyProof2 = "AAAAAAAAAAAAAAAAUnGbexRhyMpMsr/DrKI2JiHXfrkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAByAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAbwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHAgedpxhic+7jymE1CmDCMij79i7gkKOQng0rTMUmw8EBghR/m+063jvCLUMytsQYGhuStsLiCekquaT4tXyhE+GvHCSZLYL6CRQVAfIHdgUSu+v7bTkNDSPjEJXtLdLsMkWOue6wSIZnadyL8kdHqwOiolyBmk/RYQ+se/PQwZDCXLo5tC4nja6wxvFppvj1sgX2uZ0/QXhBPTGptUGSLbLxiUWzNiaArsiOPpQYgGT3yNYJkqHAGXZVy7j7xxEOcrDuC2WFH7DAROBhc4oCuM43cTg9xvSVjQnfkzgfcHORikyE2uPMmNTdgGcA1lmaaR425DtySnSPyt8Pk9lHcBGfbhoWITDQ0ru6bKgP2WFV9vBb7fnQmQWkVF6RIr/eEmjzWm2fWrmGIMpCJ3QFx/UUjqd/FBonz6Egm//5gwTQVvyE3aBYMwHO2DHDHm1gM8FEngwX1+Cx7P0mLXUvRcDZxTIZfvSoYCvXnG2ZZniD+CoLJuFcm1NYmRFgwr6Dkqzkjs+NTOoaaYZThBpEeaJD/SZmsxbovfSW6JPf5dwQwJL0Jp/+L6Ci+lhI3tT5J2DDcJYWbx+EmKREkjTOh9HHVXnjPmhgzenEvnXzFERy6xyzFo4GLqtDplamSsWUMFqc8l6Kk4r8fATWLmnJXwp9UlPDcfeax4OreltmK2yxmsaCUKyIVmqX/LlxwvYSniXm4jlitF1h53NIgKVNVEABrBiUNLlVX7TfE2NTtWp9miGwXNTHLwXa0WKnNH/EwvPr0r2qD4qJm+E35afnwKRi8t0ZdltrUcMdctfxBvkieU8mTbb7pfJA1AEVz+EpZcuXYzmbisrMT6CZ1jVNR7AqpmQ86k+LupKOujUdCH2E8hAt3pmmaa5puD5jpABAQGaOku0eD9KJ62Da8DoDQQGE4sHqE9UyQudwlQ/DkQDg+7+401NMc/826oQyvcemxl8NsZzPgj6e9zYiCM3CiQKDrHLrfg5IOzmceeQBQ66e8ngCEHONeixLRsoVzWOWMdplUrxAihhaiT4eZB/u8P931x9r6rX3FPTkNQ+Swk5y1uUD45YCUHnhUNAxXGdtHJtPj63gejrWDpGIdHpv8RLjRL5fPx7XmLlDiK6v1vtarrpSZcHeWYlOnUxD6smQAuNEvl8/HteYuUOIrq/W+1quulJlwd5ZiU6dTEPqyZACDHgraDXN3I0c5B8FiMpQhMC+SI4F7AXpEmmGXqZInLHodCZ4W6BpTNK4vbnJ3RzEbLJu8AHE9oZMjOIywQe18H6RXn2HtThkxSoZOFPNeAIbhIEXnL4jP43qdOQOxzaQNXJXKdtXirKDWhR/6zVe7D8WEPjN3MV/uVn2oKSbqpLPCsDtb7d/NOvEses+aF31twpv7AXCskb/ukfEXd8YwDnvt0LGa21JoZkrDnrfyc7IAfRBeERX7GtWRGqYEXYhBX0eUt++EaMYRmHTXwwNE2+zHXD3l8+pz7A5rqTVpLCZcwx9aAwgNqd4c0Wev8M3X7gL97zy7hJfZIcDhCN/8MoBUKLMM6IBABVNy6x8HYkw/Wogrza+FfDxe8YXlNEg==";
+    // function stringToBytes32(str: string): string {
+    //   const utf8Bytes = new TextEncoder().encode(str);
+    //   const bytes32 = new Uint8Array(32);
+    //   bytes32.set(utf8Bytes.slice(0, 32));
+    //   return '0x' + Array.prototype.map.call(bytes32, x => ('00' + x.toString(16)).slice(-2)).join('');
+    // }
+    // dummyProof = stringToBytes32(dummyProof2);
     
   });
 
@@ -52,7 +54,7 @@ describe("bettingMarket", function () {
     });
 
     it("should add a new bet", async function () {
-      await bettingMarket.connect(bettor1).makeBets(ethers.utils.parseEther("0.2"), player1Address, dummyProof, { value: ethers.utils.parseUnits("0.2", "ether") });
+      await bettingMarket.connect(bettor1).makeBets(ethers.utils.parseEther("0.2"), player1Address, { value: ethers.utils.parseUnits("0.2", "ether") });
       const totalBets = await bettingMarket.getTotalBets();
       const totalFees = await bettingMarket.getTotalFees();
       expect(totalBets).to.deep.equal(ethers.BigNumber.from("190000000000000000"));
@@ -62,8 +64,8 @@ describe("bettingMarket", function () {
     });
 
     it("should update an existing bet", async function () {
-      await bettingMarket.connect(bettor1).makeBets(ethers.utils.parseEther("0.3"), player1Address, dummyProof, { value: ethers.utils.parseUnits("0.3", "ether") });
-      await bettingMarket.connect(bettor1).makeBets(ethers.utils.parseEther("0.2"), player1Address, dummyProof, { value: ethers.utils.parseUnits("0.2", "ether") });
+      await bettingMarket.connect(bettor1).makeBets(ethers.utils.parseEther("0.3"), player1Address, { value: ethers.utils.parseUnits("0.3", "ether") });
+      await bettingMarket.connect(bettor1).makeBets(ethers.utils.parseEther("0.2"), player1Address, { value: ethers.utils.parseUnits("0.2", "ether") });
       const totalBets = await bettingMarket.getTotalBets();
       const totalFees = await bettingMarket.getTotalFees();
       expect(totalBets).to.deep.equal(ethers.BigNumber.from("480000000000000000"));
@@ -140,11 +142,11 @@ describe("bettingMarket", function () {
   });
 
   describe("Testing distributeRewards()", function () {
-    let bettor1WeightedBet: BigNumber;
-    let bettor2WeightedBet: BigNumber;
-    let player1WeightedBet: BigNumber;
-    let player2WeightedBet: BigNumber;
-    let player3WeightedBet: BigNumber;
+    let bettor1WeightedBet: typeof BigNumber;
+    let bettor2WeightedBet: typeof BigNumber;
+    let player1WeightedBet: typeof BigNumber;
+    let player2WeightedBet: typeof BigNumber;
+    let player3WeightedBet: typeof BigNumber;
 
     beforeEach(async function () {
       // Start a new season
@@ -157,29 +159,27 @@ describe("bettingMarket", function () {
 
       // Place some bets with varying timestamps
       await time.increaseTo(seasonStartTimestamp + 10000);
-
-      await bettingMarket.connect(bettor1).makeBets(ethers.utils.parseEther("1"), player1Address, dummyProof, { value: ethers.utils.parseEther("1")});
-
+      await bettingMarket.connect(bettor1).makeBets(ethers.utils.parseEther("1"), player1Address, { value: ethers.utils.parseEther("1")});
       const bettor1Timestamp = await time.latest();
-
       bettor1WeightedBet = ethers.utils.parseUnits("1", 18).mul(bettor1Timestamp - seasonStartTimestamp).mul(3).div(MILISECONDS_PER_WEEK);
+      
       await time.increaseTo(seasonStartTimestamp + 20000);
-      await bettingMarket.connect(bettor2).makeBets(ethers.utils.parseEther("10"), player1Address, dummyProof, { value: ethers.utils.parseEther("2")});
+      await bettingMarket.connect(bettor2).makeBets(ethers.utils.parseEther("10"), player1Address, { value: ethers.utils.parseEther("2")});
       const bettor2Timestamp = await time.latest();
       bettor2WeightedBet = ethers.utils.parseEther("2").mul(bettor2Timestamp - seasonStartTimestamp).mul(3).div(MILISECONDS_PER_WEEK);
 
       await time.increaseTo(seasonStartTimestamp + 30000);
-      await bettingMarket.connect(player1).makeBets(ethers.utils.parseEther("3"), player3Address, dummyProof, { value: ethers.utils.parseEther("3")});
+      await bettingMarket.connect(player1).makeBets(ethers.utils.parseEther("3"), player3Address, { value: ethers.utils.parseEther("3")});
       const player1Timestamp = await time.latest();
       player1WeightedBet = ethers.utils.parseEther("3").mul(player1Timestamp - seasonStartTimestamp).mul(3).div(MILISECONDS_PER_WEEK);
 
       await time.increaseTo(seasonStartTimestamp + 40000);
-      await bettingMarket.connect(player2).makeBets(ethers.utils.parseEther("4"), player2Address, dummyProof, { value: ethers.utils.parseEther("4")});
+      await bettingMarket.connect(player2).makeBets(ethers.utils.parseEther("4"), player2Address, { value: ethers.utils.parseEther("4")});
       const player2Timestamp = await time.latest();
       player2WeightedBet = ethers.utils.parseEther("4").mul(player2Timestamp - seasonStartTimestamp).mul(3).div(MILISECONDS_PER_WEEK);
 
       await time.increaseTo(seasonStartTimestamp + 50000);
-      await bettingMarket.connect(player3).makeBets(ethers.utils.parseEther("5"), player2Address, dummyProof, { value: ethers.utils.parseEther("5")});
+      await bettingMarket.connect(player3).makeBets(ethers.utils.parseEther("5"), player2Address, { value: ethers.utils.parseEther("5")});
       const player3Timestamp = await time.latest();
       player3WeightedBet = ethers.utils.parseEther("5").mul(player3Timestamp - seasonStartTimestamp).mul(3).div(MILISECONDS_PER_WEEK);
 
@@ -188,23 +188,18 @@ describe("bettingMarket", function () {
       await bettingMarket.connect(owner).endSeason();
     });
 
-    it("should distribute rewards correctly for a winning outcome", async function () {
-      // Suppose player 1 and 3 win
+    it("should distribute rewards correctly via agent simulation", async function () {
+      // Suppose player 1 and 3 win the primary market, so bettor 1, bettor 2, and player 1 won the secondary market
       // Calculate the total amount of bets on the winning outcome
       const totalLosingBets = ethers.utils.parseEther("4").add(ethers.utils.parseEther("5"));
       // Calculate the total reward pool
       const totalWeightedBets = bettor1WeightedBet.add(bettor2WeightedBet).add(player1WeightedBet).add(player2WeightedBet).add(player3WeightedBet);
       // Calculate the expected rewards for each bettor: principal + reward (bettorWeightedBet / totalWeightedBets * rewardPool)
-      const expectedRewardsBettor1 = ethers.utils.parseEther("1").add(totalLosingBets.mul(bettor1WeightedBet).div(totalLosingBets));
-      const expectedRewardsBettor2 = ethers.utils.parseEther("10").add(totalLosingBets.mul(bettor2WeightedBet).div(totalLosingBets));
-      const expectedRewardsPlayer1 = ethers.utils.parseEther("3").add(totalLosingBets.mul(player1WeightedBet).div(totalLosingBets));
+      const expectedRewardsBettor1 = ethers.utils.parseEther("1").add(totalLosingBets.mul(bettor1WeightedBet).div(totalWeightedBets));
+      const expectedRewardsBettor2 = ethers.utils.parseEther("10").add(totalLosingBets.mul(bettor2WeightedBet).div(totalWeightedBets));
+      const expectedRewardsPlayer1 = ethers.utils.parseEther("3").add(totalLosingBets.mul(player1WeightedBet).div(totalWeightedBets));
       const expectedRewardsPlayer2 = ethers.utils.parseEther("0");
       const expectedRewardsPlayer3 = ethers.utils.parseEther("0");
-      console.log("Expected rewards for bettor 1: " + expectedRewardsBettor1.toString());
-      console.log("Expected rewards for bettor 2: " + expectedRewardsBettor2.toString());
-      console.log("Expected rewards for player 1: " + expectedRewardsPlayer1.toString());
-      console.log("Expected rewards for player 2: " + expectedRewardsPlayer2.toString());
-      console.log("Expected rewards for player 3: " + expectedRewardsPlayer3.toString());
       
       /// Check the balances before the rewards are distributed
       const bettor1Balance = await ethers.provider.getBalance(bettor1Address);
@@ -217,34 +212,20 @@ describe("bettingMarket", function () {
       const winnerPlayers = [player1Address, player3Address];
       await bettingMarket.connect(owner).distributeRewards(winnerPlayers);
 
-      /// Check the balances before the rewards are distributed
+      // Check the balances before the rewards are distributed
       const bettor1Balance2 = await ethers.provider.getBalance(bettor1Address);
       const bettor2Balance2 = await ethers.provider.getBalance(bettor2Address);
       const player1Balance2 = await ethers.provider.getBalance(player1Address);
       const player2Balance2 = await ethers.provider.getBalance(player2Address);
       const player3Balance2 = await ethers.provider.getBalance(player3Address);
-      console.log("Bettor 1 balance before: " + bettor1Balance.toString());
-      console.log("Bettor 1 balance after: " + bettor1Balance2.toString());
-      console.log("Bettor 2 balance before: " + bettor2Balance.toString());
-      console.log("Bettor 2 balance after: " + bettor2Balance2.toString());
-      console.log("Player 1 balance before: " + player1Balance.toString());
-      console.log("Player 1 balance after: " + player1Balance2.toString());
-      console.log("Player 2 balance before: " + player2Balance.toString());
-      console.log("Player 2 balance after: " + player2Balance2.toString());
-      console.log("Player 3 balance before: " + player3Balance.toString());
-      console.log("Player 3 balance after: " + player3Balance2.toString());
 
-      console.log("bettor 1 address: " + bettor1Address);
-      console.log("bettor 2 address: " + bettor2Address);
-      console.log("player 1 address: " + player1Address);
-      console.log("player 2 address: " + player2Address);
-      console.log("player 3 address: " + player3Address);
-
-      // expect(bettor1Balance2).to.deep.equal(bettor1Balance);
-      // expect(bettor2Balance2).to.deep.equal(bettor2Balance);
-      // expect(player1Balance2).to.deep.equal(player1Balance);
-      // expect(player2Balance2).to.deep.equal(BigNumber.from(0));
-      // expect(player3Balance2).to.deep.equal(BigNumber.from(0));
+      // Check that the balances have increased for bettor1, bettor2 and player1 who won 
+      expect(bettor1Balance2.gt(bettor1Balance));
+      expect(bettor2Balance2.gt(bettor2Balance));
+      expect(player1Balance2).gt(player1Balance);
+      // Check that the balances have not changed for player2 and player3 who lost
+      expect(player2Balance2).to.deep.equal(player2Balance);
+      expect(player3Balance2).to.deep.equal(player3Balance);
     });
   
   });

@@ -63,14 +63,14 @@ contract bettingMarket is Ownable {
     /// @dev For loop needs to be optimized such to prevent potential spam DDOS attack
     /// @param amount The amount of ether the wagerer puts down
     /// @param player The PokerGPT player the wagerer wishes to bet on 
-    /// @param proof The zkaptcha proof
-    function makeBets(uint256 amount, address player, bytes32[] memory proof) external payable {
+    // / @param proof The zkaptcha proof
+    function makeBets(uint256 amount, address player) external payable {
         require(amount >= entryFee, "Bet amount lower than the entry fee"); 
         require(amount - entryFee >= MINIMUM_BET_AMOUNT, "Bet amount (minus entry fee) lower than the minimum bet amount");
         require(amount - entryFee <= MAXIMUM_BET_AMOUNT, "Bet amount (minus entry fee) higher than the maximum bet amount");
         require(seasonIsStarted(), "Season has not started yet");
         require(!seasonIsEnded(), "Season has ended");
-        require(zkaptcha.verifyZkProof(abi.encodePacked(proof)));
+        // require(zkaptcha.verifyZkProof(abi.encodePacked(proof)));
         /// pay the entry fee to the contract and deduct it from the bet amount
         amount -= entryFee;
         managementFees += entryFee;
@@ -155,9 +155,9 @@ contract bettingMarket is Ownable {
         require(seasonIsEnded() == true, "Season has not ended yet");
         require(winnerPlayers.length > 0, "No winners");
         /// assume the total bets on winnerPlayers are non-zero
-        /// sum over the total amount of bets that are not on the winners
         uint256 totalBetsonWinners = 0;
         uint256 winnerBettorsWeightedSum = 0;
+        /// calculate the total bets on winners and the weighted sum of the bets
         for (uint256 i = 0; i < winnerPlayers.length; i++) {
             for (uint256 j = 0; j < betsTracking[winnerPlayers[i]].length; j++) {
                 Bet memory winningBet = betsTracking[winnerPlayers[i]][j];
@@ -165,34 +165,24 @@ contract bettingMarket is Ownable {
                 totalBetsonWinners += winningBet.wager;
                 winnerBettorsWeightedSum += winningBet.weight.mul(winningBet.wager);
                 /// transfer the original bet amount to each successful bettor
-                console.log("Sending %s to %s", winningBet.wager, _bettor);
                 (bool sent, ) = _bettor.call{value:winningBet.wager}("");
                 require(sent, "Failed to send Ether");
             }
         }
+        /// calculate the total bets on losers, which is the prize pool that winners split
         uint256 totalBetsonLosers = totalWager - totalBetsonWinners;
         /// distribute totalBetsonLosers to the successful bettors based on the proportion of their weighted bets over total weighted bets
         for (uint256 i = 0; i < winnerPlayers.length; i++) {
             for (uint256 j = 0; j < betsTracking[winnerPlayers[i]].length; j++) {
                 Bet memory winningBet = betsTracking[winnerPlayers[i]][j];
                 address _bettor = winningBet.bettor;
-
+                /// calculate the percentage claim of the prize pool, based on its weighted bet * wager / total weighted bets
                 uint256 claimofPrizePool = winningBet.wager.mul(winningBet.weight).div(winnerBettorsWeightedSum);
-                /// transfer the proportional claim of the prize pool to each successful bettor
-                console.log("Sending %s to %s", winningBet.wager, _bettor);
-                (bool sent, ) = _bettor.call{value:claimofPrizePool.mul(totalBetsonLosers * 1.0)}("");
+                (bool sent, ) = _bettor.call{value:claimofPrizePool.mul(totalBetsonLosers)}("");
                 require(sent, "Failed to send Ether");
             }
         }
         emit PrizePoolDistributed(totalBetsonLosers);
-    }
-
-    function getTotalBets() external view returns (uint256) {
-        return totalWager;
-    }
-
-    function getTotalFees() external view returns (uint256) {
-        return managementFees;
     }
     
     /// @notice Gets the amount of bets place on a player, in case no one bet on winner
@@ -205,6 +195,14 @@ contract bettingMarket is Ownable {
             totalBetsPlayer += betsTracking[player][i].wager;
         }
         return totalBetsPlayer;
+    }
+
+    function getTotalBets() external view returns (uint256) {
+        return totalWager;
+    }
+
+    function getTotalFees() external view returns (uint256) {
+        return managementFees;
     }
 
     /// @dev Used to adjust max bet ammounts by owner

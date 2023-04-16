@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/root/cadia/contracts/bettingMarket.sol": {
-      "lastModificationDate": 1681636858463,
-      "contentHash": "5ddd44722e3bd5ae890a678be59a8b71",
+      "lastModificationDate": 1681649017408,
+      "contentHash": "f4cde41ad792110cb3bb5dd479a1870e",
       "sourceName": "contracts/bettingMarket.sol",
       "solcConfig": {
         "version": "0.8.13",
