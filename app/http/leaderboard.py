@@ -62,11 +62,16 @@ def get_querywallet():
     """Send a search and return list of wallets"""
     # input: start, end, query
     query_body = request.get_json()
-
+    ref = db.reference("leaderboard")
     start = query_body["start"]
     end = query_body["end"]
-    query = query_body["query"]
-
+    query = query_body["query"].strip()
+    if len(query) == 0:
+        scores = list(
+            ref.order_by_child("score").limit_to_last(end - start).get().values()
+        )
+        return {"response": scores}
+    print(start, end, query)
     try:
         start = int(start)
         end = int(end)
@@ -76,16 +81,19 @@ def get_querywallet():
         return {"error": "invalid start or end"}
 
     # Returns a list of scores from highest to lowest in tuple form
-    ref = db.reference("leaderboard")
     result = list(
-        ref.order_by_child("user_wallet")
+        ref.order_by_child("name")
         .start_at(query)
         .end_at(query + "\uf8ff")
         .get()
         .values()
     )
-
+    print(result)
     if len(result) > end - start:
-        return result[start:end]
-
-    return result
+        if end > len(result):
+            start = start - end + len(result)
+            end = len(result)
+        if start < 0:
+            start = 0
+        return {"response": result[start:end]}
+    return {"response": result}
