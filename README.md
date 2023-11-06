@@ -1,5 +1,7 @@
 # Cadia
 
+*Read the "about" section for more info. This is the skeleton code for Cadia used as an example for projects I've worked on. Take a look at the game I made!*
+
 Cadia is an on-chain arcade gaming platform that offers browser-based, plug-and-play arcade games with leadership boards. Players can showcase their skills and engage with others. We believe that blockchains are perfect for minigames.
 
 Our first game is a poker strategy game called PokerGPT that allows you to play Texas Hold'em against ChatGPT. Come and play a game and see how well you fair against ChatGPT! On the tutorial page, click the symbol on the top right to log into MetaMask.
